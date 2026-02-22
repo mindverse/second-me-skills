@@ -324,9 +324,11 @@ POST {base_url}/api/secondme/agent_memory/ingest
 
 ### 嵌套类型
 
-**ChannelInfo**: `{ platform: string, kind: string, id?: string, url?: string, meta?: object }`
+**ChannelInfo**: `{ kind: string, id?: string, url?: string, meta?: object }`
 
-**RefItem**: `{ platform: string, objectType: string, objectId: string, type?: string, url?: string, contentPreview?: string, snapshot?: RefSnapshot }`
+> `platform` 由服务端根据应用 Client ID 自动填充，前端无需传入。
+
+**RefItem**: `{ objectType: string, objectId: string, type?: string, url?: string, contentPreview?: string, snapshot?: RefSnapshot }`
 
 **RefSnapshot**: `{ text: string, capturedAt?: number, hash?: string }`
 
@@ -335,12 +337,12 @@ POST {base_url}/api/secondme/agent_memory/ingest
 前端应生成幂等键防止重复上报（参照 plaza 前端实现）：
 
 ```typescript
-// 规则: sha256("external:" + platform + ":" + objectType + ":" + objectId)
-// 注意：不含 userId，userId 由后端从认证信息中自动填充
+// 规则: sha256("external:" + objectType + ":" + objectId)
+// 注意：platform 和 userId 由后端自动填充，前端无需关心
 import { sha256 } from 'some-hash-lib';
 
-function generateIdempotencyKey(platform: string, objectType: string, objectId: string): string {
-  return sha256(`external:${platform}:${objectType}:${objectId}`);
+function generateIdempotencyKey(objectType: string, objectId: string): string {
+  return sha256(`external:${objectType}:${objectId}`);
 }
 ```
 
@@ -373,7 +375,6 @@ function generateIdempotencyKey(platform: string, objectType: string, objectId: 
 
 ```typescript
 interface ChannelInfo {
-  platform: string;
   kind: string;
   id?: string;
   url?: string;
@@ -381,7 +382,6 @@ interface ChannelInfo {
 }
 
 interface RefItem {
-  platform: string;
   objectType: string;
   objectId: string;
   type?: string;
