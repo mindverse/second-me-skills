@@ -224,7 +224,6 @@ if (result.code === 0) {
 | `/api/secondme/act/stream` | SSE 流式 JSON（需拼接 delta） | SSE stream |
 | `/api/secondme/note/add` | `result.data.noteId` | number |
 | `/api/secondme/agent_memory/ingest` | `result.data.eventId` / `result.data.isDuplicate` | object |
-| `/api/secondme/agent_memory/list` | `result.data.items` | array |
 
 ---
 
@@ -370,14 +369,6 @@ function generateIdempotencyKey(platform: string, objectType: string, objectId: 
 }
 ```
 
-### 查询端点
-
-```
-GET {base_url}/api/secondme/agent_memory/list?pageNo=1&pageSize=20&platform=secondme_plaza
-```
-
-响应：`{ "code": 0, "data": { "items": [...] } }`
-
 ### 前端集成示例（TypeScript）
 
 ```typescript
@@ -434,7 +425,6 @@ async function reportAgentMemory(token: string, event: IngestPayload) {
 |-------|------|------|
 | `agent_memory.write.disabled` | 403 | 用户的 Agent Memory 写入已禁用 |
 | `agent_memory.ingest.failed` | 502 | 上报失败 |
-| `agent_memory.list.failed` | 502 | 查询失败 |
 
 ---
 
