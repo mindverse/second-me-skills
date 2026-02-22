@@ -13,7 +13,7 @@ user-invocable: true
 ## API 基础 URL
 
 ```
-https://app.mindos.com/gate/lab
+https://api.mindverse.com/gate/lab
 ```
 
 ---
@@ -212,7 +212,7 @@ if (result.code === 0) {
 ## 各 API 的数据路径
 
 > 以下路径均为上游 SecondMe API 路径，完整 URL = `{base_url}/api/secondme{path}`
-> 其中 `base_url` 来自 `state.api.base_url`（默认 `https://app.mindos.com/gate/lab`）
+> 其中 `base_url` 来自 `state.api.base_url`（默认 `https://api.mindverse.com/gate/lab`）
 
 | 上游 API 路径 | 数据路径 | 类型 |
 |--------------|---------|------|

@@ -53,10 +53,10 @@ const state = {
     allowed_scopes: [...]
   },
   api: {
-    base_url: "https://app.mindos.com/gate/lab",
+    base_url: "https://api.mindverse.com/gate/lab",
     oauth_url: "https://go.second.me/oauth/",
-    token_endpoint: "https://app.mindos.com/gate/lab/api/oauth/token/code",
-    refresh_endpoint: "https://app.mindos.com/gate/lab/api/oauth/token/refresh",
+    token_endpoint: "https://api.mindverse.com/gate/lab/api/oauth/token/code",
+    refresh_endpoint: "https://api.mindverse.com/gate/lab/api/oauth/token/refresh",
     access_token_ttl: 7200,
     refresh_token_ttl: 2592000
   },

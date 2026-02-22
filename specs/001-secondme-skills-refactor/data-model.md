@@ -39,7 +39,7 @@ interface SecondMeState {
 
   // API 端点配置（由 init 自动生成，不需要用户输入）
   api: {
-    base_url: string;                // "https://app.mindos.com/gate/lab"
+    base_url: string;                // "https://api.mindverse.com/gate/lab"
     oauth_url: string;               // "https://go.second.me/oauth/"
     token_endpoint: string;          // base_url + "/api/oauth/token"
     access_token_ttl: number;        // 7200（2 小时）
@@ -97,9 +97,9 @@ type Module = "auth" | "profile" | "chat" | "note";
     "allowed_scopes": ["user.info", "user.info.shades", "user.info.softmemory", "chat", "note.add", "voice"]
   },
   "api": {
-    "base_url": "https://app.mindos.com/gate/lab",
+    "base_url": "https://api.mindverse.com/gate/lab",
     "oauth_url": "https://go.second.me/oauth/",
-    "token_endpoint": "https://app.mindos.com/gate/lab/api/oauth/token",
+    "token_endpoint": "https://api.mindverse.com/gate/lab/api/oauth/token",
     "access_token_ttl": 7200,
     "refresh_token_ttl": 2592000
   },
