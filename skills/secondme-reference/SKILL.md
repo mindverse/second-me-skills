@@ -223,6 +223,8 @@ if (result.code === 0) {
 | `/api/secondme/chat/session/messages` | `result.data.messages` | array |
 | `/api/secondme/act/stream` | SSE 流式 JSON（需拼接 delta） | SSE stream |
 | `/api/secondme/note/add` | `result.data.noteId` | number |
+| `/api/secondme/agent_memory/ingest` | `result.data.eventId` / `result.data.isDuplicate` | object |
+| `/api/secondme/agent_memory/list` | `result.data.items` | array |
 
 ---
 
@@ -293,6 +295,146 @@ const response = await fetch('/api/secondme/act/stream', {
 | 是/否决策 | `/act/stream` | 返回 `{"result": boolean}` |
 | 多分类判断 | `/act/stream` | 返回 `{"category": "..."}` |
 | 内容生成 | `/chat/stream` | 需要长文本输出 |
+
+---
+
+## Agent Memory API（事件上报与查询）
+
+Agent Memory API 用于将用户在外部平台的行为事件上报到 Agent Memory Ledger，丰富 AI 分身的记忆。认证方式与其他 SecondMe API 一致（OAuth2 Token / API Key / Auth Token），但**不需要特定 scope**。
+
+### 上报端点
+
+```
+POST {base_url}/api/secondme/agent_memory/ingest
+```
+
+### 请求参数
+
+| 参数 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| channel | ChannelInfo | 是 | 频道信息 |
+| action | string | 是 | 动作类型 |
+| refs | RefItem[] | 是 | 证据指针数组（至少 1 项） |
+| actionLabel | string | 否 | 动作展示文案 |
+| displayText | string | 否 | 用户可读摘要 |
+| eventDesc | string | 否 | 开发者描述 |
+| eventTime | integer | 否 | 事件时间戳(毫秒) |
+| importance | number | 否 | 重要性 0.0~1.0 |
+| idempotencyKey | string | 否 | 幂等键 |
+| payload | object | 否 | 扩展信息 |
+
+### 嵌套类型
+
+**ChannelInfo**: `{ platform: string, kind: string, id?: string, url?: string, meta?: object }`
+
+**RefItem**: `{ platform: string, objectType: string, objectId: string, type?: string, url?: string, contentPreview?: string, snapshot?: RefSnapshot }`
+
+**RefSnapshot**: `{ text: string, capturedAt?: number, hash?: string }`
+
+### 幂等键生成规则
+
+前端应生成幂等键防止重复上报（参照 plaza 前端实现）：
+
+```typescript
+// 规则: sha256("external:" + platform + ":" + objectType + ":" + objectId)
+// 注意：不含 userId，userId 由后端从认证信息中自动填充
+import { sha256 } from 'some-hash-lib';
+
+function generateIdempotencyKey(platform: string, objectType: string, objectId: string): string {
+  return sha256(`external:${platform}:${objectType}:${objectId}`);
+}
+```
+
+### 常见 action 类型
+
+| action | 说明 | 典型场景 |
+|--------|------|---------|
+| `post_created` | 发帖 | 用户在广场发布新帖子 |
+| `reply` | 回帖 | 用户回复某个帖子 |
+| `ai_reply` | AI 回帖 | AI 分身自动回复帖子 |
+| `find_people` | 找人 | 用户搜索其他用户 |
+| `replied` | 被回帖 | 用户的帖子被他人回复 |
+| `post_viewed` | 看帖 | 用户浏览帖子 |
+| `user_liked` | 点赞 | 用户点赞某内容 |
+| `liked` | 被赞 | 用户的内容被他人点赞 |
+
+### 响应格式
+
+```json
+{
+  "code": 0,
+  "data": {
+    "eventId": 123,
+    "isDuplicate": false
+  }
+}
+```
+
+### 查询端点
+
+```
+GET {base_url}/api/secondme/agent_memory/list?pageNo=1&pageSize=20&platform=secondme_plaza
+```
+
+响应：`{ "code": 0, "data": { "items": [...] } }`
+
+### 前端集成示例（TypeScript）
+
+```typescript
+interface ChannelInfo {
+  platform: string;
+  kind: string;
+  id?: string;
+  url?: string;
+  meta?: Record<string, unknown>;
+}
+
+interface RefItem {
+  platform: string;
+  objectType: string;
+  objectId: string;
+  type?: string;
+  url?: string;
+  contentPreview?: string;
+  snapshot?: { text: string; capturedAt?: number; hash?: string };
+}
+
+interface IngestPayload {
+  channel: ChannelInfo;
+  action: string;
+  refs: RefItem[];
+  actionLabel?: string;
+  displayText?: string;
+  eventTime?: number;
+  importance?: number;
+  idempotencyKey?: string;
+  payload?: Record<string, unknown>;
+}
+
+async function reportAgentMemory(token: string, event: IngestPayload) {
+  const response = await fetch(`${API_BASE_URL}/api/secondme/agent_memory/ingest`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(event),
+  });
+  const result = await response.json();
+  if (result.code !== 0) {
+    throw new Error(`Ingest failed: ${result.message}`);
+  }
+  return result.data; // { eventId: number, isDuplicate: boolean }
+}
+```
+
+### 错误码
+
+| 错误码 | HTTP | 说明 |
+|-------|------|------|
+| `agent_memory.write.disabled` | 403 | 用户的 Agent Memory 写入已禁用 |
+| `agent_memory.ingest.failed` | 502 | 上报失败 |
+| `agent_memory.list.failed` | 502 | 查询失败 |
 
 ---
 
