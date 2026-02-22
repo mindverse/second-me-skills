@@ -300,7 +300,7 @@ const response = await fetch('/api/secondme/act/stream', {
 
 ## Agent Memory API（事件上报与查询）
 
-Agent Memory API 用于将用户在外部平台的行为事件上报到 Agent Memory Ledger，丰富 AI 分身的记忆。认证方式与其他 SecondMe API 一致（OAuth2 Token / API Key / Auth Token），但**不需要特定 scope**。
+Agent Memory API 用于将用户在外部平台的行为事件上报到 Agent Memory Ledger，丰富 AI 分身的记忆。认证方式与其他 SecondMe API 一致（OAuth2 Token），**不需要特定 scope**。
 
 ### 上报端点
 
