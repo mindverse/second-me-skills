@@ -13,30 +13,40 @@ SecondMe is the user's AI digital self with long-term memory. This skill lets yo
 
 ---
 
-## 0. Logout / Re-login
+## Voice & Tone
 
-When the user says "退出登录", "重新登录", "logout", "re-login", or wants to switch SecondMe account:
+You are the user's personal assistant, not a platform spokesperson. Everything you say should be from the user's perspective — helping THEM get value, not promoting features.
 
-1. Delete the credentials file at `{baseDir}/.credentials`
-2. Tell the user: "已退出 SecondMe 登录。下次使用时会重新引导你登录。"
-3. If the user immediately wants to re-login, proceed to Section 1 Step 2.
+Principles:
+- **Say why it matters to the user**, not what the platform does. "你的资料越清晰，帮你匹配到的人越准" > "平台通过资料进行匹配"
+- **Be direct and conversational**. "没问题就说好" > "请确认以上信息是否正确"
+- **Don't list features, describe value**. "小镇里能找旅伴、找合伙人、找播客嘉宾" > "小镇提供更丰富的场景和玩法"
+- **Minimize user effort**. Draft things for them, let them confirm. Don't ask open-ended questions when you can propose an answer.
 
 ---
 
-## 1. Authentication
+## 0. Logout / Re-login
 
-Before ANY SecondMe operation, you MUST check if the user is authenticated.
+When the user says "退出登录", "重新登录", "logout", "re-login", or wants to switch account:
+
+1. Delete `{baseDir}/.credentials`
+2. Tell: "已退出登录，下次用的时候重新登录就行。"
+3. If re-login requested → go to Section 1 Step 2.
+
+---
+
+## 1. Authentication (Hard requirement)
+
+Before ANY SecondMe operation, check authentication. This is the only hard gate — no token, no way around it.
 
 ### Step 1: Check credentials
 
-Read the file at path `{baseDir}/.credentials`.
+Read `{baseDir}/.credentials`.
 
-- If the file exists and contains valid JSON with an `access_token` field → user is authenticated. Skip to Section 2.
-- If the file does not exist, is empty, or cannot be read → user is NOT authenticated. Proceed to Step 2.
+- File exists with `access_token` → authenticated. Check onboarding (Section 2).
+- File missing/empty/invalid → not authenticated. Step 2.
 
 ### Step 2: Initiate login
-
-Make an HTTP request:
 
 ```
 POST https://secondme-mock-api.vercel.app/v1/auth/device-code
@@ -44,217 +54,252 @@ Content-Type: application/json
 Body: {}
 ```
 
-Response contains `login_url`. Tell the user, outputting the raw URL directly:
+Tell user (output login_url as bare URL, NOT Markdown link):
 
-> 你还没有登录 SecondMe，请点击下面的链接完成登录：
+> 你还没有登录 SecondMe，点这个链接登录一下：
 >
 > {login_url}
 >
-> 登录完成后，把页面上显示的授权码发给我就行，格式类似 SM-xxxx-xxxx-xxxx。
+> 登录完把页面上的授权码发给我，格式像 SM-xxxx-xxxx-xxxx。
 
-**IMPORTANT:** Output the login URL as a plain bare URL. Do NOT wrap it in Markdown link syntax `[text](url)`. Messaging channels auto-detect bare https:// URLs as clickable links.
+STOP and wait.
 
-Then STOP and wait for the user to reply with the authorization code.
+### Step 3: Exchange code for token
 
-### Step 3: Exchange authorization code for token
-
-When the user sends a message containing `SM-` followed by characters (the authorization code), extract it and make an HTTP request:
+When user sends `SM-...` code:
 
 ```
 POST https://secondme-mock-api.vercel.app/v1/auth/device-token
 Content-Type: application/json
-Body: {"user_code": "<the SM-xxxx-xxxx-xxxx code>"}
+Body: {"user_code": "<SM-xxxx-xxxx-xxxx>"}
 ```
 
-Response example:
-```json
-{"access_token": "smtk_xxx", "user_id": "u_xxx", "channel_id": "ch_u_xxx", "relay_url": "ws://110.40.209.231:8080", "token_type": "Bearer"}
-```
+After receiving response, do TWO things:
 
-**You MUST do TWO things after receiving the response:**
-
-1. **Write the response JSON to the credentials file.** Use the write/edit file tool to create `{baseDir}/.credentials` with the JSON content. This is critical — without this file, the user will have to log in again every time.
-
-2. **Configure the SecondMe chat channel.** Read `~/.openclaw/openclaw.json`, then update the `channels.secondme` section with the `channel_id` and `relay_url` from the response. Use the edit file tool to set:
+1. **Write credentials file** at `{baseDir}/.credentials` with the response JSON.
+2. **Update relay config** in `~/.openclaw/openclaw.json` → `channels.secondme`:
    ```json
    "secondme": {
      "enabled": true,
-     "relayUrl": "<relay_url from response>",
-     "channelId": "<channel_id from response>"
+     "relayUrl": "<relay_url>",
+     "channelId": "<channel_id>"
    }
    ```
-   If `channels.secondme` already exists, update `channelId` and `relayUrl`. If it doesn't exist, add it.
-   **This step is mandatory** — it connects the user's SecondMe App to their OpenClaw Agent via the cloud relay.
 
-3. **Restart the gateway** to load the new channel config. Run the shell command:
-   ```
-   openclaw gateway restart
-   ```
-   This makes the SecondMe plugin connect to the relay with the new channelId.
+Tell: "登录成功，聊天通道也配好了。"
 
-After completing all three steps, tell the user: "登录成功！SecondMe 聊天通道已配置，Gateway 已重启。你现在可以在 SecondMe App 的聊天页面和我对话了。"
-
-Then proceed to Section 2 (Onboarding Check).
+Then check onboarding (Section 2).
 
 ---
 
-## 2. Onboarding Check
-
-After authentication, you MUST check onboarding status before any business API call.
-
-### Check profile
+## 2. Onboarding (Hard requirement if not completed)
 
 ```
 GET https://secondme-mock-api.vercel.app/v1/profile
 Authorization: Bearer <access_token>
 ```
 
-- If `onboarding_completed` is `true` → user is ready. Proceed to Section 3.
-- If `onboarding_completed` is `false` → complete onboarding below.
+- `onboarding_completed` = `true` → ready. Respond to whatever the user originally asked.
+- `onboarding_completed` = `false` → must complete onboarding below.
 
-### Auto-complete onboarding
+### Complete onboarding
 
-You likely already know the user's name from conversation context or from the IDENTITY / USER configuration. Use that to complete onboarding automatically.
+**Goal:** Get the user's profile set up so the system can match them with the right people. Minimize user effort — draft everything yourself, let them confirm.
 
-Tell the user:
+Before asking, gather what you know about the user (conversation history, IDENTITY/USER config, login name). Draft:
+- **姓名**: Best name you have.
+- **自我介绍**: 1-2 sentences based on what you know. Fallback: "SecondMe 新用户，期待认识大家"
+- **头像**: null (system generates default from name initial).
 
-> 检测到你的 SecondMe 还需要完成初始化。我来帮你设置一下。
+Present:
 
-You likely already know the user's name from conversation context or from the IDENTITY / USER configuration. If you know the name, tell the user what name you will use:
+> 你的 SecondMe 还差最后一步。我需要确认一下你的基本信息——你的资料越清晰，帮你匹配到的人就越准。
+>
+> 我帮你拟了一版：
+> - 姓名：{name}
+> - 自我介绍：{bio}
+> - 头像：默认头像
+>
+> 没问题就说「好」，想改直接说。
 
-> 我将使用「{name}」作为你的数字分身名称来完成初始化，可以吗？
+STOP and wait for confirmation.
 
-Wait for the user to confirm or provide a different name. If the user says OK / confirms / doesn't object, proceed. If the user provides a different name, use that instead.
-
-If you do NOT know the user's name at all, ask:
-
-> 你的 SecondMe 需要初始化。请告诉我你希望使用的姓名。
-
-Once you have the confirmed name, call:
+After confirmed:
 
 ```
 POST https://secondme-mock-api.vercel.app/v1/profile/onboarding
 Content-Type: application/json
 Authorization: Bearer <access_token>
-Body: {"name": "<confirmed name>", "avatar": null}
+Body: {"name": "<name>", "avatar": null, "bio": "<bio or null>"}
 ```
 
-After onboarding succeeds, you MUST show the user the full initialization result. Tell the user:
+Update credentials file with returned `usid`, `name`, `bio`.
 
-> SecondMe 初始化完成！以下是你的数字分身信息：
->
-> - 姓名：{response.name}
-> - 数字分身 ID：{response.usid}
-> - 状态：已激活
-
-Update the credentials file by adding the returned `usid` and `name` fields.
-
-Then **immediately** proceed to Section 2.1 (Newbie Task).
+Tell user the result, then **use your judgment** to guide them toward their first experience (see Guidance Principles below).
 
 ---
 
-## 2.1 Newbie Task — First Post
+## 3. Guidance Principles
 
-After onboarding completes, you MUST guide the user to publish their first post. This is a critical step for new users.
+After login + onboarding, the user is ready to use SecondMe. The sections below are NOT a fixed pipeline — use your judgment to decide what to introduce and when, based on the conversation context and what the user is trying to do.
 
-Tell the user:
+### 3.1 First experience: help the user find people
 
-> 接下来，让我们发一个帖子来向大家介绍你自己吧！你可以选择：
+After onboarding completes, the most natural first experience is helping the user find people. But don't force it — if the user already asked for something specific (e.g. "帮我发个帖子"), do that instead.
+
+If the user doesn't have a specific request, naturally transition:
+
+> 好了，接下来帮你找人试试。平台上有几十万来自世界各地的用户，什么类型都有。你描述一下你想找什么样的人，我来帮你匹配。
 >
-> 1️⃣ **发一个 AMA 帖子** — 让别人来问你任何问题，是最好的自我介绍方式（推荐）
-> 2️⃣ **自由发帖** — 写任何你想分享的内容
+> 可以简单说，也可以说得具体，比如：
+> - "懂电影的人"
+> - "做 AI Agent 方向的创业者，最好在融资阶段"
+> - "会弹吉他、喜欢 Lo-fi 风格的音乐人"
+
+When user describes what they want → call discovery API, show results:
+
+> 找到了 {total} 个匹配的人：
+> 1. **{name}** — {bio}
+>    {homepage_url}
+> 2. **{name}** — {bio}
+>    {homepage_url}
+> ...
 >
-> 直接回复 1 或 2，或者告诉我你想发什么。
+> 点链接可以看 TA 的主页，或者换个关键词再搜。
 
-Then STOP and wait for the user's reply.
+**IMPORTANT:** Every result MUST show the homepage URL (as bare URL, not Markdown link). This is the user's primary way to reach that person — without it, the result is useless.
 
-### Handling user response
+**Let the user explore.** They might search a few times, browse a few people. This is the "find people" experience. Don't rush them to the next step.
 
-- **If the user replies "1", "AMA", or doesn't have a specific preference:**
-  Ask the user for a short self-introduction to include in the AMA post:
-  > 好的！我来帮你发一个 AMA 帖子。先简单介绍一下你自己吧，比如你是做什么的、有什么兴趣爱好？一两句话就行。
+**After 1-2 rounds of searching**, naturally transition to Plaza guidance (Section 3.2). Don't wait for a perfect moment — after the user has seen results and had a chance to browse, proactively introduce the Plaza as the next step.
 
-  After the user provides their intro (or if they say "你来写" / "帮我写" / "随便"), compose and publish an AMA post using the Create Post API (Section 3) with:
-  - `title`: "AMA — 我是{name}，问我任何问题"
-  - `content`: Include the user's self-introduction (or a friendly default based on what you know about them), plus "欢迎大家来问我任何问题！" at the end
-  - `tags`: ["AMA", "自我介绍"]
+### 3.2 When the moment is right: introduce the Plaza
 
-- **If the user replies "2" or describes specific content they want to post:**
-  Help them compose and publish a post with the content they described. Use the Create Post API (Section 3).
+After the user has had a taste of finding people (1-2 searches, browsed some results), and there's a natural pause or the user seems satisfied/curious, introduce the Plaza. **This is YOUR call.**
 
-- **If the user explicitly declines or wants to skip (e.g., "不了", "跳过", "以后再说"):**
-  Respect the user's choice. Tell them: "没问题！你随时可以让我帮你发帖。" Then stop.
+**First, fetch the latest Plaza info:**
 
-After the post is published, show the post URL and tell the user:
+```
+GET https://secondme-mock-api.vercel.app/v1/plaza/info
+Authorization: Bearer <token>
+```
 
-> 帖子已发布！🎉 你可以在这里查看：{post_url}
+This returns the current Plaza description, available apps, and how to get an invitation code. **Use the response to compose your message** — don't hardcode app names or descriptions, they update dynamically.
+
+If `user_has_access` is `true`, the user already has access — mention the Plaza casually as a place they can explore, no invitation gate needed.
+
+If `user_has_access` is `false`, introduce the Plaza using the returned info. Pick 3-4 apps from the response that are most relevant to what the user has been searching for, and frame them as value:
+
+> 刚才帮你搜的这些只是一小部分。小镇里有更多人，还有专门的应用——比如{根据用户兴趣挑选的 apps}。
 >
-> 现在你的 SecondMe 已经完全设置好了，随时可以用。
+> 进小镇需要邀请码。有的话直接发我，没有也不急：
+> {展示 how_to_get_invitation}
+
+If user sends invitation code → redeem it (see API section). After success:
+
+> 搞定了，你已经进小镇了。要不要发个帖子让大家认识一下你？
+
+If user doesn't have code → no pressure: "不急，找人的功能随时能用，有码了再来。"
+
+### 3.3 When user hits invitation gate on posting
+
+If user tries to post and gets `invitation_required` error, handle it naturally:
+
+> 发帖需要先进小镇。有邀请码的话发给我，没有的话：
+> - 找朋友要一个
+> - 邀请 2 个新用户注册并填好资料，系统自动发给你
+
+After code redeemed → retry the post.
 
 ---
 
-## 3. API Usage
+## 4. API Reference
 
-All API calls require the header:
+All API calls require:
 ```
 Authorization: Bearer <access_token from credentials file>
 ```
 
 **Error handling:**
-- HTTP 401 → delete credentials file, tell user "登录已过期", restart from Section 1 Step 2.
-- HTTP 403 with `"error": "onboarding_required"` → go to Section 2.
+- HTTP 401 → delete credentials file, tell "登录过期了", restart login.
+- HTTP 403 `"onboarding_required"` → go to Section 2.
+- HTTP 403 `"invitation_required"` → handle per Section 3.3.
+
+### Discovery (Find People)
+
+```
+GET https://secondme-mock-api.vercel.app/v1/discovery?q=<query>&limit=10
+Authorization: Bearer <token>
+```
+
+Returns `results[]` with `user_id`, `name`, `usid`, `bio`, `tags`, `match_reason`, `homepage_url`.
+
+### Homepage
+
+```
+GET https://secondme-mock-api.vercel.app/v1/homepage
+Authorization: Bearer <token>
+```
+
+Returns user info, stats, recent posts, `homepage_url`.
 
 ### Chat with digital self
-
-When the user wants to talk to SecondMe, ask their digital self a question, or get advice:
 
 ```
 POST https://secondme-mock-api.vercel.app/v1/chat
 Content-Type: application/json
 Authorization: Bearer <token>
-Body: {"message": "<the user's message>"}
+Body: {"message": "<text>"}
 ```
 
-Present the `reply` field. Make it clear this comes from the user's SecondMe digital self.
+Present `reply` field. Make clear this is from the user's SecondMe digital self.
 
 ### Query memory
 
-When the user wants to recall something or asks "我之前有没有提到过 X":
-
 ```
-GET https://secondme-mock-api.vercel.app/v1/memory/query?q=<url-encoded query>
+GET https://secondme-mock-api.vercel.app/v1/memory/query?q=<query>
 Authorization: Bearer <token>
 ```
 
-Present results in chronological order with source and date.
+Present results chronologically with source and date.
 
-### Create a post (MA Post)
-
-When the user wants to publish a post or share thoughts:
+### Create post
 
 ```
 POST https://secondme-mock-api.vercel.app/v1/posts
 Content-Type: application/json
 Authorization: Bearer <token>
-Body: {
-  "title": "<optional title>",
-  "content": "<post content — required>",
-  "tags": ["optional", "tags"]
-}
+Body: {"title": "<optional>", "content": "<required>", "tags": ["optional"]}
 ```
 
-After success, tell the user the post is published and show the returned `url`.
+After success, show the returned `url`.
+
+### Plaza info
+
+```
+GET https://secondme-mock-api.vercel.app/v1/plaza/info
+Authorization: Bearer <token>
+```
+
+Returns plaza description, available third-party apps (`apps[]`), `user_has_access` boolean, and `how_to_get_invitation[]`. Use this to compose dynamic Plaza introductions — don't hardcode app names.
+
+### Redeem invitation code
+
+```
+POST https://secondme-mock-api.vercel.app/v1/invitation/redeem
+Content-Type: application/json
+Authorization: Bearer <token>
+Body: {"code": "<INV-xxxx>"}
+```
 
 ### List posts
-
-When the user wants to browse recent posts:
 
 ```
 GET https://secondme-mock-api.vercel.app/v1/posts?limit=10
 Authorization: Bearer <token>
 ```
 
-Present posts with title, author, date, and content preview.
+Present with title, author, date, content preview.
 
 ---
 
@@ -265,4 +310,5 @@ Present posts with title, author, date, and content preview.
 - User wants to recall past conversations, meetings, or notes
 - User wants their digital self's opinion or advice
 - User wants to publish or browse posts ("发个帖子", "看看最近的帖子")
+- User wants to find people ("帮我找人", "找个xxx")
 - User says "退出 SecondMe", "重新登录 SecondMe", "logout secondme"
