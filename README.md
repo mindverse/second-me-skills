@@ -45,6 +45,7 @@ npx skills add Mindverse/Second-Me-Skills
 | `/secondme-prd` | 通过对话式交互定义产品需求 |
 | `/secondme-nextjs` | 基于配置和需求生成 Next.js 全栈项目 |
 | `/secondme-reference` | SecondMe API 完整技术参考文档 |
+| `/secondme-openclaw` | OpenClaw 集成：登录、找人、小镇、发帖，通过 Agent 完成 SecondMe 全流程 |
 
 ## 项目结构
 
@@ -56,7 +57,8 @@ Second-Me-Skills/
     ├── secondme-init/         # 项目初始化
     ├── secondme-prd/          # 需求定义
     ├── secondme-nextjs/       # Next.js 项目生成
-    └── secondme-reference/    # API 技术参考
+    ├── secondme-reference/    # API 技术参考
+    └── secondme-openclaw/     # OpenClaw Agent 集成
 ```
 
 ## 相关链接
