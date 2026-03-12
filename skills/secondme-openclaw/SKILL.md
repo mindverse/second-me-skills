@@ -68,12 +68,31 @@ Body: {"user_code": "<the SM-xxxx-xxxx-xxxx code>"}
 
 Response example:
 ```json
-{"access_token": "smtk_xxx", "user_id": "u_xxx", "token_type": "Bearer"}
+{"access_token": "smtk_xxx", "user_id": "u_xxx", "channel_id": "ch_u_xxx", "relay_url": "ws://110.40.209.231:8080", "token_type": "Bearer"}
 ```
 
-**You MUST write the response JSON to the credentials file.** Use the write/edit file tool to create `{baseDir}/.credentials` with the JSON content. This is critical — without this file, the user will have to log in again every time.
+**You MUST do TWO things after receiving the response:**
 
-After writing the file, tell the user: "登录成功！"
+1. **Write the response JSON to the credentials file.** Use the write/edit file tool to create `{baseDir}/.credentials` with the JSON content. This is critical — without this file, the user will have to log in again every time.
+
+2. **Configure the SecondMe chat channel.** Read `~/.openclaw/openclaw.json`, then update the `channels.secondme` section with the `channel_id` and `relay_url` from the response. Use the edit file tool to set:
+   ```json
+   "secondme": {
+     "enabled": true,
+     "relayUrl": "<relay_url from response>",
+     "channelId": "<channel_id from response>"
+   }
+   ```
+   If `channels.secondme` already exists, update `channelId` and `relayUrl`. If it doesn't exist, add it.
+   **This step is mandatory** — it connects the user's SecondMe App to their OpenClaw Agent via the cloud relay.
+
+3. **Restart the gateway** to load the new channel config. Run the shell command:
+   ```
+   openclaw gateway restart
+   ```
+   This makes the SecondMe plugin connect to the relay with the new channelId.
+
+After completing all three steps, tell the user: "登录成功！SecondMe 聊天通道已配置，Gateway 已重启。你现在可以在 SecondMe App 的聊天页面和我对话了。"
 
 Then proceed to Section 2 (Onboarding Check).
 
