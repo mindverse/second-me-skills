@@ -1,42 +1,88 @@
 # SecondMe Skills
 
-**用 AI Agent 构建 SecondMe 应用 —— 从想法到上线，一句话搞定。**
+**SecondMe Skills 包含两类能力：给开发者构建基于 SecondMe 的第三方应用，也给终端用户通过 Agent 直接使用 SecondMe。**
 
-SecondMe Skills 是一套 [Claude Code](https://claude.com/claude-code) 技能包，让你通过自然语言对话，快速开发基于 SecondMe API 的全栈应用。无需手动翻文档、写样板代码 —— AI Agent 替你完成从项目初始化、需求定义到代码生成的全流程。
+SecondMe Skills 是一套技能包，当前主要覆盖两条使用路径：
+
+- **开发者技能**：面向想基于 SecondMe API 开发第三方应用的开发者，帮助完成初始化、需求定义、代码生成和 API 参考查阅
+- **Agent 使用技能**：面向想通过 OpenClaw / Agent 直接登录和使用 SecondMe 的用户，覆盖登录、资料、Plaza、Discover、Notes、Key Memory、Activity 等场景
 
 ## 你能用它做什么？
 
-- **构建 SecondMe 集成应用**：聊天机器人、智能客服、个性化助手、知识管理工具……任何基于 SecondMe API 的应用
-- **入驻 SecondMe AppStore**：优秀作品可在 [SecondMe AppStore](https://app.second.me) 展示，触达真实用户
-- **参加月度黑客松**：SecondMe 每月举办一期 Hackathon，已成为 A2A（Agent-to-Agent）领域内最成功的开发者活动之一。查看首届黑客松回顾 → [hackathon.second.me](https://hackathon.second.me)
+### 面向开发者
+
+- 用自然语言快速生成基于 SecondMe API 的应用
+- 初始化 OAuth、数据库、模块配置
+- 通过对话定义 PRD，再生成 Next.js 全栈项目
+- 查阅 SecondMe API 参考，辅助集成和调试
+
+### 面向 Agent / OpenClaw 用户
+
+- 登录 SecondMe，完成授权码登录流程
+- 查看和更新个人资料
+- 激活 Plaza、发帖、查看帖子和评论
+- 浏览推荐用户，并直接拿到个人主页链接
+- 写入和搜索 Key Memory
+- 创建和搜索 Notes
+- 查看每日 Activity / Day Overview
+- 浏览 SecondMe 远端外部技能目录，并把服务端返回的 skill bundle 安装到本地 OpenClaw
 
 ## 快速开始
 
-### 安装
+### 1. 安装仓库技能
 
 ```bash
 npx skills add Mindverse/Second-Me-Skills
 ```
 
-### 使用
+### 2. 开发者用法
 
 在 Claude Code 中输入：
 
 ```bash
-/secondme              # 一站式创建项目（推荐）
-/secondme --quick      # 快速模式，跳过需求定义，直接生成代码
+/secondme
+/secondme --quick
 ```
 
 也可以分步执行：
 
 ```bash
-/secondme-init         # 第 1 步：选择功能模块，初始化项目配置
-/secondme-prd          # 第 2 步：通过对话定义产品需求
-/secondme-nextjs       # 第 3 步：生成 Next.js 全栈项目
-/secondme-reference    # 随时查看 SecondMe API 参考文档
+/secondme-init
+/secondme-prd
+/secondme-nextjs
+/secondme-reference
 ```
 
+### 3. OpenClaw / Agent 用法
+
+如果你的 Agent 支持从 GitHub repo/path 安装技能，可以安装 `openclaw/` 下的 SecondMe 技能，例如：
+
+- `openclaw/secondme-connect`
+- `openclaw/secondme-profile`
+- `openclaw/secondme-plaza`
+- `openclaw/secondme-discover`
+- `openclaw/secondme-key-memory`
+- `openclaw/secondme-notes`
+- `openclaw/secondme-activity`
+- `openclaw/secondme-external-skill-catalog`
+
+其中 `secondme-external-skill-catalog` 用于从 SecondMe 远端技能目录发现可安装技能，读取服务端返回的 bundle 文件，并按原样安装到本地 OpenClaw skill 目录。
+
+安装后，用户可以直接通过 Agent 发起 SecondMe 相关操作，例如：
+
+- `登录 SecondMe`
+- `帮我看看资料`
+- `发一个 Plaza 帖子`
+- `看看推荐用户`
+- `帮我记一个 Key Memory`
+- `搜一下我的笔记`
+- `看看我今天的 activity`
+- `看看有哪些外部技能可以装`
+- `从远端技能目录里找一个能装的技能`
+
 ## 包含的 Skills
+
+### 开发者技能
 
 | Skill | 说明 |
 |-------|------|
@@ -45,24 +91,47 @@ npx skills add Mindverse/Second-Me-Skills
 | `/secondme-prd` | 通过对话式交互定义产品需求 |
 | `/secondme-nextjs` | 基于配置和需求生成 Next.js 全栈项目 |
 | `/secondme-reference` | SecondMe API 完整技术参考文档 |
-| `/secondme-openclaw` | OpenClaw 集成：登录、找人、小镇、发帖，通过 Agent 完成 SecondMe 全流程 |
+
+### OpenClaw / Agent 使用技能
+
+| Skill | 说明 |
+|-------|------|
+| `secondme-connect` | 登录、退出登录、重新登录、保存 token、配置 relay |
+| `secondme-profile` | 查看和更新个人资料 |
+| `secondme-plaza` | 查询 Plaza 激活状态、核销邀请码、发帖、看帖子、看评论 |
+| `secondme-discover` | 浏览推荐用户 / 附近的人，输出主页链接 |
+| `secondme-key-memory` | 写入和搜索 SecondMe Key Memory |
+| `secondme-notes` | 创建和搜索 Notes，支持文本、链接、文档、图片、音频 |
+| `secondme-activity` | 查看每日 Activity / Day Overview |
+| `secondme-external-skill-catalog` | 浏览 SecondMe 远端可安装外部技能，查看详情并按服务端 bundle 落地安装 |
 
 ## 项目结构
 
-```
+```text
 Second-Me-Skills/
 ├── README.md
-└── skills/
-    ├── secondme/              # 一站式工作流
-    ├── secondme-init/         # 项目初始化
-    ├── secondme-prd/          # 需求定义
-    ├── secondme-nextjs/       # Next.js 项目生成
-    ├── secondme-reference/    # API 技术参考
-    └── secondme-openclaw/     # OpenClaw Agent 集成
+├── skills/
+│   ├── secondme/              # 一站式开发者工作流
+│   ├── secondme-init/         # 项目初始化
+│   ├── secondme-prd/          # 需求定义
+│   ├── secondme-nextjs/       # Next.js 项目生成
+│   └── secondme-reference/    # API 技术参考
+├── openclaw/
+│   ├── secondme-connect/      # 登录与授权
+│   ├── secondme-profile/      # 资料查看与修改
+│   ├── secondme-plaza/        # Plaza 访问、激活、发帖
+│   ├── secondme-discover/     # 推荐用户浏览
+│   ├── secondme-key-memory/   # Key Memory
+│   ├── secondme-notes/        # Notes
+│   ├── secondme-activity/     # Activity / Day Overview
+│   └── secondme-external-skill-catalog/ # 外部技能目录与安装
+└── docs/
+    └── superpowers/           # 设计和计划文档
 ```
 
 ## 相关链接
 
+- [SecondMe 主站](https://second-me.cn/)
 - [SecondMe 官网](https://second.me)
 - [开发者文档](https://develop-docs.second.me/zh/docs)
 - [OAuth2 认证指南](https://develop-docs.second.me/zh/docs/authentication/oauth2)
