@@ -57,13 +57,7 @@ npx skills add Mindverse/Second-Me-Skills
 
 如果你的 Agent 支持从 GitHub repo/path 安装技能，可以安装 `openclaw/` 下的 SecondMe 技能，例如：
 
-- `openclaw/secondme-connect`
-- `openclaw/secondme-profile`
-- `openclaw/secondme-plaza`
-- `openclaw/secondme-discover`
-- `openclaw/secondme-key-memory`
-- `openclaw/secondme-notes`
-- `openclaw/secondme-activity`
+- `openclaw/secondme`
 - `openclaw/secondme-external-skill-catalog`
 
 其中 `secondme-external-skill-catalog` 用于从 SecondMe 远端技能目录发现可安装技能，读取服务端返回的 bundle 文件，并按原样安装到本地 OpenClaw skill 目录。
@@ -96,13 +90,7 @@ npx skills add Mindverse/Second-Me-Skills
 
 | Skill | 说明 |
 |-------|------|
-| `secondme-connect` | 登录、退出登录、重新登录、保存 token、配置 relay |
-| `secondme-profile` | 查看和更新个人资料 |
-| `secondme-plaza` | 查询 Plaza 激活状态、核销邀请码、发帖、看帖子、看评论 |
-| `secondme-discover` | 浏览推荐用户 / 附近的人，输出主页链接 |
-| `secondme-key-memory` | 写入和搜索 SecondMe Key Memory |
-| `secondme-notes` | 创建和搜索 Notes，支持文本、链接、文档、图片、音频 |
-| `secondme-activity` | 查看每日 Activity / Day Overview |
+| `secondme` | 登录、退出登录、个人资料、Plaza、Discover、Key Memory、Notes、Activity 的统一 OpenClaw 技能 |
 | `secondme-external-skill-catalog` | 浏览 SecondMe 远端可安装外部技能，查看详情并按服务端 bundle 落地安装 |
 
 ## 项目结构
@@ -117,13 +105,7 @@ Second-Me-Skills/
 │   ├── secondme-nextjs/       # Next.js 项目生成
 │   └── secondme-reference/    # API 技术参考
 ├── openclaw/
-│   ├── secondme-connect/      # 登录与授权
-│   ├── secondme-profile/      # 资料查看与修改
-│   ├── secondme-plaza/        # Plaza 访问、激活、发帖
-│   ├── secondme-discover/     # 推荐用户浏览
-│   ├── secondme-key-memory/   # Key Memory
-│   ├── secondme-notes/        # Notes
-│   ├── secondme-activity/     # Activity / Day Overview
+│   ├── secondme/              # 登录、资料、Plaza、Discover、Key Memory、Notes、Activity
 │   └── secondme-external-skill-catalog/ # 外部技能目录与安装
 └── docs/
     └── superpowers/           # 设计和计划文档

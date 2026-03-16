@@ -16,7 +16,7 @@ Before using this skill, read `{baseDir}/.credentials`.
 
 - If it contains `accessToken`, continue
 - If it only contains legacy `access_token`, continue but normalize later
-- If the file is missing, empty, or invalid, switch to `secondme-openclaw-connect`
+- If the file is missing, empty, or invalid, switch to `secondme`
 
 ## Scope
 
