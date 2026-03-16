@@ -1,6 +1,6 @@
 ---
 name: secondme
-description: Use when the user wants to log in to SecondMe from OpenClaw, re-login, logout, get the auth URL, manage their SecondMe profile, use Plaza, redeem an invitation code, browse discover users, use SecondMe Key Memory, create or search SecondMe notes, or view SecondMe activity and day overview
+description: Use when the user wants to log in to SecondMe from OpenClaw, re-login, logout, get the auth URL, manage their SecondMe profile, use Plaza, redeem an invitation code, or browse discover users
 user-invocable: true
 ---
 
@@ -12,9 +12,6 @@ This skill owns the normal SecondMe user workflow in OpenClaw:
 - profile read and update
 - Plaza activation, invitation redeem, posting, post details, and comments
 - discover user browsing
-- explicit SecondMe Key Memory operations
-- notes creation and search
-- activity and day overview queries
 
 **Credentials file:** `{baseDir}/.credentials`
 
@@ -43,13 +40,10 @@ Use a short introduction like:
 > - 看和改个人资料
 > - 发 Plaza、看帖子和评论
 > - 看推荐用户
-> - 写和查 Key Memory
-> - 创建和搜索 Notes
-> - 看今天的 Activity
 >
 > 这些能力都要先登录才能用。我先带你登录，登录完再继续带你看资料这些常用操作。
 
-If the user has already given a clear task such as viewing profile, posting, searching notes, or checking activity, do not give the generic capability introduction. Follow the user's request directly and only do the minimum required login prerequisite if they are not authenticated.
+If the user has already given a clear task such as viewing profile, posting, or browsing discover users, do not give the generic capability introduction. Follow the user's request directly and only do the minimum required login prerequisite if they are not authenticated.
 
 ### Logout / Re-login
 
@@ -429,193 +423,3 @@ When presenting recommended users:
 - If `route` is missing or blank, say clearly that the user's homepage is currently unavailable
 
 If the user asks for highly specific semantic matching, explain that the current interface is discover-style browsing rather than free-text people search.
-
-## Key Memory
-
-This section is only for explicit SecondMe Key Memory operations.
-
-If the user only says generic `记忆`, `memory`, `你记得吗`, or `查我的记忆`, do not assume they mean this skill. That wording may refer to OpenClaw local memory.
-
-If ambiguous, ask:
-
-> 你要查 OpenClaw 本地记忆，还是 SecondMe 的 Key Memory？
-
-### Insert Key Memory
-
-Direct mode:
-
-```
-POST https://app.mindos.com/gate/in/rest/third-party-agent/v1/memories/key
-Content-Type: application/json
-Authorization: Bearer <accessToken>
-Body: {
- "mode": "direct",
- "content": "<memory content>",
- "visibility": 1
-}
-```
-
-Extraction mode:
-
-```json
-{
- "mode": "extract",
- "content": "<source content>",
- "context": "<optional>",
- "source": "<required>",
- "sourceId": "<required>"
-}
-```
-
-Use Key Memory for durable facts like:
-- user preferences
-- stable biographical facts
-- durable relationship/context facts
-
-### Search Key Memory
-
-```
-GET https://app.mindos.com/gate/in/rest/third-party-agent/v1/memories/key/search?keyword=<keyword>&pageNo=1&pageSize=20
-Authorization: Bearer <accessToken>
-```
-
-Common response fields:
-- `list`
-- `total`
-
-Useful item fields:
-- `factActor`
-- `factObject`
-- `factContent`
-- `createTime`
-- `updateTime`
-- `visibility`
-
-Do not merge OpenClaw local memory results with SecondMe Key Memory results unless the user explicitly asks for both.
-
-## Notes
-
-### Create Note
-
-```
-POST https://app.mindos.com/gate/in/rest/third-party-agent/v1/notes
-Content-Type: application/json
-Authorization: Bearer <accessToken>
-Body: {
- "title": "<optional>",
- "content": "<optional by type>",
- "memoryType": "TEXT",
- "urls": ["<optional by type>"],
- "audioLanguage": "<optional>",
- "html": "<optional>",
- "permission": "PRIVATE",
- "localId": "<optional>"
-}
-```
-
-Supported `memoryType` values:
-- `TEXT`
-- `LINK`
-- `DOC`
-- `IMAGE`
-- `AUDIO`
-
-Field constraints by `memoryType`:
-- `TEXT`: `content` is required
-- `LINK`: `urls` is required, `content` is optional. Put the real link in `urls`; use `content` only as description text
-- `DOC`: `urls` is required
-- `IMAGE`: `urls` is required
-- `AUDIO`: `urls` is required, `audioLanguage` is optional
-
-Response:
-- `data` is the new `noteId`
-
-Text note example:
-
-```json
-{
- "title": "Trip Idea",
- "content": "Go to Kyoto in autumn",
- "memoryType": "TEXT",
- "permission": "PRIVATE"
-}
-```
-
-Link note example:
-
-```json
-{
- "title": "Second Me homepage",
- "content": "Official website",
- "memoryType": "LINK",
- "urls": [
- "https://second-me.cn/"
- ],
- "permission": "PRIVATE"
-}
-```
-
-Image note example:
-
-```json
-{
- "title": "Travel photo",
- "memoryType": "IMAGE",
- "urls": [
- "https://cdn.second-me.cn/note/photo-1.jpg"
- ],
- "permission": "PRIVATE"
-}
-```
-
-Audio note example:
-
-```json
-{
- "title": "Voice memo",
- "memoryType": "AUDIO",
- "urls": [
- "https://cdn.second-me.cn/note/audio-1.mp3"
- ],
- "audioLanguage": "en",
- "permission": "PRIVATE"
-}
-```
-
-### Search Notes
-
-```
-GET https://app.mindos.com/gate/in/rest/third-party-agent/v1/notes/search?keyword=<keyword>&pageNo=1&pageSize=20
-Authorization: Bearer <accessToken>
-```
-
-Common response fields:
-- `list`
-- `total`
-
-Useful item fields:
-- `noteId`
-- `title`
-- `content`
-- `summary`
-- `memoryType`
-- `createTimestamp`
-
-## Activity
-
-### Day Overview
-
-Use:
-
-```
-GET https://app.mindos.com/gate/in/rest/third-party-agent/v1/agent/events/day-overview?date=<yyyy-MM-dd>&pageNo=1&pageSize=10
-Authorization: Bearer <accessToken>
-```
-
-Rules:
-- `date` is optional and uses `yyyy-MM-dd`
-- default `pageNo` is `1`
-- default `pageSize` is `10`
-- use the returned structure as-is
-
-When presenting results, summarize the day's important items in chronological order.
