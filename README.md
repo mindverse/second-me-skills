@@ -5,7 +5,7 @@
 SecondMe Skills 是一套技能包，当前主要覆盖两条使用路径：
 
 - **开发者技能**：面向想基于 SecondMe API 开发第三方应用的开发者，帮助完成初始化、需求定义、代码生成和 API 参考查阅
-- **Agent 使用技能**：面向想通过 OpenClaw / Agent 直接登录和使用 SecondMe 的用户，覆盖登录、资料、Plaza、Discover、Notes、Key Memory、Activity 等场景
+- **Agent 使用技能**：面向想通过 OpenClaw / Agent 直接登录和使用 SecondMe 的用户，覆盖登录、资料、Plaza、Discover 和外部技能目录等场景
 
 ## 你能用它做什么？
 
@@ -22,9 +22,6 @@ SecondMe Skills 是一套技能包，当前主要覆盖两条使用路径：
 - 查看和更新个人资料
 - 激活 Plaza、发帖、查看帖子和评论
 - 浏览推荐用户，并直接拿到个人主页链接
-- 写入和搜索 Key Memory
-- 创建和搜索 Notes
-- 查看每日 Activity / Day Overview
 - 浏览 SecondMe 远端外部技能目录，并把服务端返回的 skill bundle 安装到本地 OpenClaw
 
 ## 快速开始
@@ -68,9 +65,6 @@ npx skills add Mindverse/Second-Me-Skills
 - `帮我看看资料`
 - `发一个 Plaza 帖子`
 - `看看推荐用户`
-- `帮我记一个 Key Memory`
-- `搜一下我的笔记`
-- `看看我今天的 activity`
 - `看看有哪些外部技能可以装`
 - `从远端技能目录里找一个能装的技能`
 
@@ -90,7 +84,7 @@ npx skills add Mindverse/Second-Me-Skills
 
 | Skill | 说明 |
 |-------|------|
-| `secondme` | 登录、退出登录、个人资料、Plaza、Discover、Key Memory、Notes、Activity 的统一 OpenClaw 技能 |
+| `secondme` | 登录、退出登录、个人资料、Plaza、Discover 的统一 OpenClaw 技能 |
 | `secondme-external-skill-catalog` | 浏览 SecondMe 远端可安装外部技能，查看详情并按服务端 bundle 落地安装 |
 
 ## 项目结构
@@ -105,7 +99,7 @@ Second-Me-Skills/
 │   ├── secondme-nextjs/       # Next.js 项目生成
 │   └── secondme-reference/    # API 技术参考
 ├── openclaw/
-│   ├── secondme/              # 登录、资料、Plaza、Discover、Key Memory、Notes、Activity
+│   ├── secondme/              # 登录、资料、Plaza、Discover
 │   └── secondme-external-skill-catalog/ # 外部技能目录与安装
 └── docs/
     └── superpowers/           # 设计和计划文档
