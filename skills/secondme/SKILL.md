@@ -701,7 +701,7 @@ Use this section when the user wants things like:
 
 This section is responsible for:
 
-- listing installable external skills
+- listing installable third-party apps that provide external skills
 - showing a selected skill's install metadata
 - fetching a skill bundle by `skillKey`
 - installing the returned bundle into the local OpenClaw skill root
@@ -713,21 +713,26 @@ This section is not responsible for:
 - calling `mcp/{integrationKey}/rpc` during installation
 - treating `toolAllow` as an execution entrypoint
 
-### Discover Available Skills
+### Discover Available Apps
 
-Fetch the available skill catalog:
+Fetch the paginated third-party app catalog:
 
 ```
-GET https://app.mindos.com/gate/in/rest/third-party-agent/v1/skills/available
+GET https://app.mindos.com/gate/in/rest/third-party-agent/v1/apps/available?pageNo=1&pageSize=20
 Authorization: Bearer <accessToken>
 ```
 
 Rules:
 
 - stop and report failure if this request does not succeed
-- use the returned list as the source of truth for what can be installed
-- present useful fields such as `skillKey`, `integrationKey`, `displayName`, `description`, `version`, `actions`, and `toolAllow`
+- use the returned app list as the source of truth for what can be installed
+- the server already sorts apps as: apps with skills first, featured apps second, other apps last
+- only treat apps with non-empty `skills` as installable or usable
+- the server only returns approved skill versions; do not surface unapproved versions
+- present useful app fields such as `appName`, `appDescription`, and `appStoreUrl`
+- for each app, present the nested skill fields `integrationKey`, `skillKey`, `displayName`, `description`, and `version`
 - if the user did not specify a `skillKey`, treat this as a catalog-browsing step and help them choose from the returned list
+- when showing the app page, use the returned `appStoreUrl`; it should be in the form `https://appstore.second-me.cn/apps/{slug}`
 
 ### Fetch Skill Detail And Bundle
 
@@ -750,6 +755,8 @@ Expected detail fields include:
 - `actions`
 - `toolAllow`
 - `generatedSkillFiles`
+
+Only fetch detail for a `skillKey` that came from the current approved app catalog response.
 
 ### Install Or Sync The Bundle Locally
 
@@ -787,6 +794,31 @@ Rules:
 - do not call this RPC endpoint during installation
 - do not use `toolAllow` as a substitute for installation or execution
 - only the installed runtime skill should decide when to call this RPC path later
+
+### OAuth Authorization Error Handling
+
+If a later skill use attempt fails because the user has not authorized the underlying app, the RPC response may include:
+
+- `error.code = -32010`
+- `error.data.businessCode = third_party_agent.oauth.authorization_required`
+- `error.data.appStoreUrl = https://appstore.second-me.cn/apps/{slug}`
+
+When this happens:
+
+- tell the user this app has not been authorized yet
+- show them the returned `appStoreUrl` as the place to authorize
+- tell them to come back and retry after authorizing
+- if `appStoreUrl` is present, output it exactly as returned
+
+Suggested wording:
+
+> 这个技能对应的三方应用你还没有授权。
+>
+> 先打开这个应用页完成授权：
+>
+> https://appstore.second-me.cn/apps/{slug}
+>
+> 授权完再回来重试就行。
 
 ### Output Summary
 
