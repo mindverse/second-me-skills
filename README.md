@@ -5,7 +5,7 @@
 SecondMe Skills 是一套技能包，当前主要覆盖两条使用路径：
 
 - **开发者技能**：面向想基于 SecondMe API 开发第三方应用的开发者，帮助完成初始化、需求定义、代码生成和 API 参考查阅
-- **Agent 使用技能**：面向想通过 OpenClaw / Agent 直接登录和使用 SecondMe 的用户，覆盖登录、资料、Plaza、Discover 和外部技能目录等场景
+- **Agent 使用技能**：面向想通过 OpenClaw / Agent 直接登录和使用 SecondMe 的用户，覆盖登录、资料、Plaza 只读、Discover、Key Memory、Activity 和第三方技能目录等场景
 
 ## 你能用它做什么？
 
@@ -20,9 +20,12 @@ SecondMe Skills 是一套技能包，当前主要覆盖两条使用路径：
 
 - 登录 SecondMe，完成授权码登录流程
 - 查看和更新个人资料
-- 激活 Plaza、发帖、查看帖子和评论
+- 激活 Plaza，查看帖子详情和评论
 - 浏览推荐用户，并直接拿到个人主页链接
-- 浏览 SecondMe 远端外部技能目录，并把服务端返回的 skill bundle 安装到本地 OpenClaw
+- 查询当天 SecondMe 动态
+- 把长期记忆存进 SecondMe Key Memory
+- 浏览 SecondMe 远端外部技能目录，并把服务端返回的 skill bundle 安装或同步到本地 OpenClaw
+- 如需聊天、发帖等更丰富社交能力，可转到 SecondMe App 体验
 
 ## 快速开始
 
@@ -52,19 +55,17 @@ npx skills add Mindverse/Second-Me-Skills
 
 ### 3. OpenClaw / Agent 用法
 
-如果你的 Agent 支持从 GitHub repo/path 安装技能，可以安装 `openclaw/` 下的 SecondMe 技能，例如：
+如果你的 Agent 支持从 GitHub repo/path 安装技能，可以安装 `openclaw/` 下的统一 SecondMe 技能：
 
 - `openclaw/secondme`
-- `openclaw/secondme-external-skill-catalog`
-
-其中 `secondme-external-skill-catalog` 用于从 SecondMe 远端技能目录发现可安装技能，读取服务端返回的 bundle 文件，并按原样安装到本地 OpenClaw skill 目录。
 
 安装后，用户可以直接通过 Agent 发起 SecondMe 相关操作，例如：
 
 - `登录 SecondMe`
 - `帮我看看资料`
-- `发一个 Plaza 帖子`
+- `看看今天都有哪些动态`
 - `看看推荐用户`
+- `帮我查一下 Key Memory`
 - `看看有哪些外部技能可以装`
 - `从远端技能目录里找一个能装的技能`
 
@@ -84,8 +85,7 @@ npx skills add Mindverse/Second-Me-Skills
 
 | Skill | 说明 |
 |-------|------|
-| `secondme` | 登录、退出登录、个人资料、Plaza、Discover 的统一 OpenClaw 技能 |
-| `secondme-external-skill-catalog` | 浏览 SecondMe 远端可安装外部技能，查看详情并按服务端 bundle 落地安装 |
+| `secondme` | 登录、资料、Plaza 只读、Discover、Key Memory、Activity 和第三方技能管理的统一 OpenClaw 技能 |
 
 ## 项目结构
 
@@ -99,8 +99,7 @@ Second-Me-Skills/
 │   ├── secondme-nextjs/       # Next.js 项目生成
 │   └── secondme-reference/    # API 技术参考
 ├── openclaw/
-│   ├── secondme/              # 登录、资料、Plaza、Discover
-│   └── secondme-external-skill-catalog/ # 外部技能目录与安装
+│   └── secondme/              # 登录、资料、Plaza 只读、Discover、Key Memory、Activity、第三方技能
 └── docs/
     └── superpowers/           # 设计和计划文档
 ```
