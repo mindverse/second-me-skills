@@ -729,6 +729,7 @@ Rules:
 - the server already sorts apps as: apps with skills first, featured apps second, other apps last
 - only treat apps with non-empty `skills` as installable or usable
 - the server only returns approved skill versions; do not surface unapproved versions
+- when listing third-party apps, always show the app address together with the app name and description
 - present useful app fields such as `appName`, `appDescription`, and `appStoreUrl`
 - for each app, present the nested skill fields `integrationKey`, `skillKey`, `displayName`, `description`, and `version`
 - if the user did not specify a `skillKey`, treat this as a catalog-browsing step and help them choose from the returned list
