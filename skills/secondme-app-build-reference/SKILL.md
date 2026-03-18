@@ -163,6 +163,114 @@ const response = await fetch(`${API_BASE_URL}/api/oauth/token/refresh`, {
 
 ---
 
+## MCP Bearer Token 与用户解析
+
+如果 SecondMe 以用户态调用你的 MCP，平台会在 MCP 请求的 `Authorization` header 中传入当前用户的 access token：
+
+```http
+Authorization: Bearer <accessToken>
+```
+
+这个 token 不是静态应用密钥，而是当前触发 MCP 的 SecondMe 用户身份。
+
+推荐实现方式参考 `SemeCompat`：
+
+1. MCP 服务端或 API 路由读取 `Authorization` header
+2. 解析出 bearer token，缺失或格式错误时直接返回 `401`
+3. 用该 token 调用上游 `user/info` 接口识别当前 SecondMe 用户
+4. 用上游用户 id 映射到本地 `users.oauth_id` 或等价外部 id
+5. 查不到时自动 upsert 本地用户
+6. 用解析出的本地 `user.id` 执行业务逻辑
+
+### 推荐分层
+
+- App API 层：负责 bearer token 鉴权、解析 SecondMe 用户、映射本地用户、校验资源归属
+- MCP server / transport 层：负责 MCP tool 暴露和把 `Authorization` header 原样透传到站内 API
+- 业务服务层：只接收已解析的本地用户 id，不直接处理 bearer token
+
+### Bearer Token 读取示例
+
+```typescript
+function readBearerToken(request: Request): string | null {
+  const header = request.headers.get('authorization');
+  if (!header?.startsWith('Bearer ')) {
+    return null;
+  }
+  return header.slice('Bearer '.length).trim() || null;
+}
+```
+
+### 本地用户解析流程示例
+
+```typescript
+export async function requireApiAuth(request: Request): Promise<AuthUser> {
+  const accessToken = readBearerToken(request);
+  if (!accessToken) {
+    throw new Error('UNAUTHORIZED');
+  }
+
+  const userInfo = await getUserInfo(accessToken);
+  const user = await upsertUserByOauthProfile({
+    oauthId: userInfo.id,
+    nickname: userInfo.nickname,
+    avatar: userInfo.avatar || null,
+    accessToken,
+  });
+
+  return toAuthUser(user);
+}
+```
+
+### MCP Server 透传示例
+
+```typescript
+const authorization = request.headers.authorization || null;
+await authStorage.run({ authorization }, async () => {
+  await transport.handleRequest(request, response, parsedBody);
+});
+```
+
+如果 MCP server 再去调用站内 HTTP API，继续透传这个 header：
+
+```typescript
+await fetch(`${baseUrl}/api/mcp/compat/random`, {
+  method: 'POST',
+  headers: {
+    Authorization: accessToken,
+    Accept: 'application/json',
+  },
+});
+```
+
+### 常见实现错误
+
+- 把 bearer token 当成全局 API key 使用，没有解析当前用户
+- 直接在 MCP server 里访问数据库，绕过应用现有鉴权和资源归属检查
+- 没有把上游用户映射到本地用户，导致业务层拿不到稳定的本地 user id
+- token 无效时返回 `500`，而不是明确的 `401`
+- 查询他人资源时没有做用户归属校验
+
+### 推荐错误码
+
+| 场景 | 推荐状态码 |
+|------|-----------|
+| token 缺失或无效 | `401` |
+| 资源不属于当前用户 | `403` |
+| 目标资源不存在 | `404` |
+| 输入不合法 | `400` |
+| 其他未处理异常 | `500` |
+
+### 推荐测试项
+
+- bearer token 缺失时拒绝请求
+- bearer token 无效时映射为 `401`
+- 现有上游用户能够解析并同步最新 access token
+- 新上游用户能够自动 upsert 到本地用户表
+- MCP server 调用站内 API 时会原样透传 `Authorization`
+- 资源归属错误时返回 `403`
+
+---
+
 ## 权限列表（Scopes）
 
 | 权限 | 说明 |
