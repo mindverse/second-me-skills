@@ -71,6 +71,29 @@ Do not stop at "this project has no MCP." Continue by proposing the MCP-facing s
 
 After the user approves the direction, continue with the appropriate planning or implementation work so those candidate capabilities are exposed as a real MCP server in the project's codebase before returning to the integration payload and save flow.
 
+#### MCP Runtime Auth And User Resolution
+
+When SecondMe invokes an MCP endpoint for a user-scoped integration, it passes the current user's access token through the `Authorization` header.
+
+Treat this token as the runtime user context for the MCP request, not as a static app credential.
+
+Implementation rules for MCP services:
+
+- read `Authorization: Bearer <accessToken>` from the incoming MCP request
+- reject missing or malformed bearer tokens immediately
+- use that access token to call the upstream user info endpoint, or an equivalent identity endpoint, to identify the current SecondMe user
+- map that upstream user identity to the app's local user model, typically through `oauth_id` or an equivalent stable external id
+- if the local user does not exist yet, upsert it before running the business logic
+- execute MCP-backed business logic with the resolved local user id, not with an anonymous or global app context
+- return `401` for missing or invalid tokens, `403` for resources not owned by the resolved user, and `404` only for truly missing resources
+
+Architecture guidance based on `SemeCompat`:
+
+- prefer keeping token parsing and local-user resolution in the app's own HTTP API layer
+- let the standalone MCP server or transport layer forward the bearer token, but not own user persistence
+- keep MCP tools thin: they should call app routes that already enforce bearer auth and user ownership
+- if the MCP server calls internal app APIs over HTTP, forward the same `Authorization` header unchanged
+
 ### 2. Draft The Integration Payload
 
 Build a candidate payload with:
@@ -90,6 +113,7 @@ Inference rules:
 - Prompts: infer from usage examples, prompt files, skill docs, or README; if signal is low, draft conservative prompts and mark them inferred
 - Actions: map directly to real MCP tools; keep `toolName` identical to the registration
 - MCP auth: if the MCP requires `Authorization: Bearer {{token}}`, set `authMode` to `bearer_token`
+- for `bearer_token`, assume the runtime token represents the current SecondMe user and the service must resolve that user server-side
 - If custom placeholder headers are required, set `authMode` to `header_template`
 - If no auth is required, use `none`
 
@@ -101,6 +125,7 @@ Additional rules:
 - Never infer a release MCP endpoint from local code alone; it must be user-confirmed
 - `envSecrets.release.values` must only contain placeholders actually needed by templates or deployment config
 - If `authMode` is `bearer_token`, do not default to a manual `Authorization` header template; prefer leaving `headersTemplate` empty unless a real custom header template is required
+- for user-scoped tools, do not design the MCP service around a shared service account; the request must run as the user identified by the runtime access token
 
 For OAuth:
 
@@ -262,6 +287,15 @@ Common release failure pattern:
 - If `authMode = bearer_token` and `headersTemplate.Authorization = "Bearer {{token}}"`, release validation may fail with an empty rendered header such as `Bearer `
 - In that case, prefer an empty `headersTemplate` and let bearer-token handling inject auth automatically
 - Only use `headersTemplate` or `envSecrets.release.values.token` when a real custom placeholder-based header is required
+
+Implementation checklist before save or release:
+
+- the MCP endpoint accepts `Authorization: Bearer <accessToken>`
+- the app resolves the upstream SecondMe user from that token
+- the app maps or upserts that user into the local user table before business logic runs
+- protected resources are checked against the resolved local user
+- the standalone MCP server forwards the incoming bearer token unchanged when calling internal app APIs
+- tests cover missing token, invalid token, existing-user resolution, new-user upsert, bearer-token forwarding, and resource-ownership failures
 
 Release request body:
 

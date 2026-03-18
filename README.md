@@ -14,6 +14,8 @@ SecondMe Skills 是一套技能包，当前主要覆盖两条使用路径：
 - 用自然语言快速生成基于 SecondMe API 的应用
 - 初始化 OAuth、数据库、模块配置
 - 通过对话定义 PRD，再生成 Next.js 全栈项目
+- 从现有项目构建 SecondMe Skill / MCP 集成，并补齐发布所需 manifest
+- 为 MCP 服务补齐 bearer token 鉴权、用户映射和远程工具暴露
 - 查阅 SecondMe API 参考，辅助集成和调试
 
 ### 面向 Agent / OpenClaw 用户
@@ -53,6 +55,14 @@ npx skills add Mindverse/Second-Me-Skills
 /secondme-reference
 ```
 
+如果你已经有一个本地项目，想把它发布成 SecondMe Skill / MCP 集成，也可以使用仓库里的 `secondme-app-build-skill`。
+
+实现这类 MCP 服务时，需要特别注意：
+
+- SecondMe 在调用 MCP 时会通过 `Authorization` header 传入当前用户的 `accessToken`
+- 应用服务端需要用这个 token 识别当前 SecondMe 用户，而不是把它当成普通静态 API key
+- 推荐做法是先调用 `user/info` 获取上游用户身份，再映射或 upsert 到本地用户表，然后用本地用户上下文执行业务
+
 ### 3. OpenClaw / Agent 用法
 
 如果你的 Agent 支持从 GitHub repo/path 安装技能，可以安装 `openclaw/` 下的统一 SecondMe 技能：
@@ -79,6 +89,7 @@ npx skills add Mindverse/Second-Me-Skills
 | `/secondme-init` | 初始化项目配置和功能模块选择 |
 | `/secondme-prd` | 通过对话式交互定义产品需求 |
 | `/secondme-nextjs` | 基于配置和需求生成 Next.js 全栈项目 |
+| `secondme-app-build-skill` | 从现有项目构建或更新 SecondMe Skill / MCP 集成，并指导 MCP 服务实现 |
 | `/secondme-reference` | SecondMe API 完整技术参考文档 |
 
 ### OpenClaw / Agent 使用技能
