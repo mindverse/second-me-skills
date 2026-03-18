@@ -1,9 +1,9 @@
 ---
-name: secondme-app-build-skill
+name: secondme-dev-assistant
 description: Use when the user wants to configure, create, or update a SecondMe Skill/MCP integration from a local project, or needs help exposing existing project capabilities through MCP.
 ---
 
-# SecondMe Integration Builder
+# SecondMe Dev Assistant
 
 This skill turns a local project into a live SecondMe integration. It scans the repository to infer MCP-backed integration fields, identifies suitable functions to expose as tools if no MCP server exists yet, helps the user define and implement the MCP-facing surface, handles the CLI OAuth flow, and calls the official save and release APIs.
 
@@ -20,7 +20,7 @@ Do not use this skill to guess production secrets, invent missing configurations
 
 - Display name: `SecondMe Builder Skill`
 - Short description: `Find MCP code in a project, help expose missing MCP capabilities, then save the integration`
-- Default prompt: `Use $secondme-app-build-skill to scan this project, infer MCP fields, help expose any missing MCP capabilities, save the integration, then ask whether to release it for SecondMe review.`
+- Default prompt: `Use $secondme-dev-assistant to scan this project, infer MCP fields, help expose any missing MCP capabilities, save the integration, then ask whether to release it for SecondMe review.`
 - Implicit invocation: Allowed
 
 ## Workflow

@@ -55,7 +55,7 @@ npx skills add Mindverse/Second-Me-Skills
 /secondme-reference
 ```
 
-如果你已经有一个本地项目，想把它发布成 SecondMe Skill / MCP 集成，也可以使用仓库里的 `secondme-app-build-skill`。
+如果你已经有一个本地项目，想把它发布成 SecondMe Skill / MCP 集成，也可以使用仓库里的 `secondme-dev-assistant`。
 
 实现这类 MCP 服务时，需要特别注意：
 
@@ -89,7 +89,7 @@ npx skills add Mindverse/Second-Me-Skills
 | `/secondme-init` | 初始化项目配置和功能模块选择 |
 | `/secondme-prd` | 通过对话式交互定义产品需求 |
 | `/secondme-nextjs` | 基于配置和需求生成 Next.js 全栈项目 |
-| `secondme-app-build-skill` | 从现有项目构建或更新 SecondMe Skill / MCP 集成，并指导 MCP 服务实现 |
+| `secondme-dev-assistant` | 从现有项目构建或更新 SecondMe Skill / MCP 集成，并指导 MCP 服务实现 |
 | `/secondme-reference` | SecondMe API 完整技术参考文档 |
 
 ### OpenClaw / Agent 使用技能
