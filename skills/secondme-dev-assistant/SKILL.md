@@ -463,6 +463,23 @@ Use when relevant:
 
 When the user needs MCP or SecondMe integration support, guide them toward the smallest valid MCP surface.
 
+If the user asks how to use their own app through OpenClaw, guide them through the real platform path instead of answering abstractly.
+
+Use this explanation:
+
+1. the app capability must be exposed through an MCP server or MCP-compatible endpoint
+2. that MCP capability must be submitted to SecondMe as an integration
+3. the integration must pass review
+4. once approved, the app's integration can be discovered through the official skill third-party app list on the SecondMe platform
+5. after it becomes discoverable there, OpenClaw can use the integration and call the app's exposed functionality
+
+Routing rules for this request shape:
+
+- if the user asks how OpenClaw can use their app, first confirm whether they already have an MCP server
+- if they do not have one yet, guide them to design and build the MCP server first
+- if they already have one, continue with integration create, validate, and release guidance
+- if they only have a normal OAuth app and no MCP surface, explain that app creation alone is not enough for OpenClaw tool usage and that an MCP-facing integration is still required
+
 ### Repository Scan Rules
 
 Only read the files needed to infer the integration or MCP suitability.
@@ -823,6 +840,12 @@ Common failure pattern:
 
 - if `authMode = bearer_token` and `headersTemplate.Authorization = "Bearer {{token}}"`, release validation may fail with an empty rendered header
 - in that case, prefer leaving `headersTemplate` empty and letting bearer-token handling inject auth automatically
+
+If release succeeds and the later review passes:
+
+- explain that the integration should become discoverable through the official skill third-party app list on the SecondMe platform
+- explain that OpenClaw can then use that integration to access the app's exposed MCP tools
+- if the user's goal is OpenClaw usage, explicitly say that integration approval is the milestone that enables that path
 
 ## Confirmation Rules Before Any Write
 
