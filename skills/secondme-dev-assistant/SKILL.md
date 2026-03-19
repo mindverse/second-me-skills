@@ -442,8 +442,10 @@ If release fails:
 
 1. fetch integration detail immediately
 2. inspect the latest version's `validationReport`
-3. report the exact failing environment and error text
-4. fix the manifest or secret cause before retrying
+3. inspect whether `pendingReleaseReview` exists or `releaseStatus` is `pending_review`
+4. if the integration is still in review, tell the user that the previous review is probably still pending and that a new submission is usually blocked until that review finishes
+5. otherwise report the exact failing environment and error text
+6. fix the manifest or secret cause before retrying
 
 Common failure pattern:
 
