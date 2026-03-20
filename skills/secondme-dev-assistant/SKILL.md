@@ -106,6 +106,13 @@ Inspect only the files needed to answer the question or infer the missing platfo
 
 When the user needs a SecondMe app, default to creating it for them through the platform APIs after collecting the required fields and completing authentication.
 
+Default interaction rule:
+
+- do not ask the user to manually draft the full App Info block or platform form first
+- ask for the minimum missing facts one by one or in a compact list
+- then assemble the App Info, create payload, listing payload, or integration payload on the user's behalf
+- present the drafted values for confirmation and continue the operation unless the user explicitly wants to fill the form themselves
+
 Required outcome:
 
 - app exists on the platform
@@ -171,6 +178,16 @@ If App Info is unavailable, collect:
 - `Allowed Scopes`
 
 Then create the app on the user's behalf unless they explicitly want to operate manually.
+
+Do not respond by telling the user "please fill these fields yourself" as the default path.
+
+Instead:
+
+- ask the user for any missing facts
+- infer safe defaults when the user allows it
+- draft the final structure yourself
+- ask for confirmation on the drafted result
+- then execute the platform action
 
 ### Scope-To-Module Inference
 
@@ -497,22 +514,30 @@ Use when relevant:
 
 When the user needs MCP or SecondMe integration support, guide them toward the smallest valid MCP surface.
 
+Important platform model:
+
+- SecondMe already provides the unified MCP server layer for platform integrations
+- an application does not need to build a separate platform-level MCP server from scratch
+- the application only needs to expose the required MCP-compatible interfaces or tool endpoints
+- this skill then helps register those capabilities as a SecondMe integration and submit them for review
+- once approved, other agents can call the application's exposed tools through the platform
+
 If the user asks how to use their own app through OpenClaw, guide them through the real platform path instead of answering abstractly.
 
 Use this explanation:
 
-1. the app capability must be exposed through an MCP server or MCP-compatible endpoint
-2. that MCP capability must be submitted to SecondMe as an integration
+1. the app capability must be exposed through MCP-compatible interfaces or endpoints
+2. those MCP-compatible capabilities must be submitted to SecondMe as an integration
 3. the integration must pass review
 4. once approved, the app's integration can be discovered through the official skill third-party app list on the SecondMe platform
 5. after it becomes discoverable there, OpenClaw can use the integration and call the app's exposed functionality
 
 Routing rules for this request shape:
 
-- if the user asks how OpenClaw can use their app, first confirm whether they already have an MCP server
-- if they do not have one yet, guide them to design and build the MCP server first
-- if they already have one, continue with integration create, validate, and release guidance
-- if they only have a normal OAuth app and no MCP surface, explain that app creation alone is not enough for OpenClaw tool usage and that an MCP-facing integration is still required
+- if the user asks how OpenClaw can use their app, first confirm whether the app already exposes MCP-compatible interfaces or endpoints
+- if it does not yet expose them, guide the user to add those interfaces first
+- if those interfaces already exist, continue with integration create, validate, and release guidance
+- if they only have a normal OAuth app and no MCP-compatible tool surface, explain that app creation alone is not enough for OpenClaw tool usage and that an integration-facing MCP interface is still required
 
 ### Repository Scan Rules
 
@@ -548,7 +573,7 @@ Never invent:
 
 ### MCP Suitability Guidance
 
-If no MCP server exists yet, do not stop there.
+If no MCP-compatible interface exists yet, do not stop there.
 
 Propose:
 
@@ -562,8 +587,11 @@ Propose:
 
 Recommend one of:
 
-- an HTTP MCP endpoint inside the existing app
-- a thin MCP server that calls the existing app over HTTP
+- an HTTP MCP-compatible endpoint inside the existing app
+- a thin MCP adapter layer that calls the existing app over HTTP
+
+Do not imply that the app team must recreate the whole SecondMe MCP server stack.
+The app only needs the exposed tool interfaces that can be registered through this skill as an integration.
 
 ### MCP Runtime Auth Rules
 
@@ -681,6 +709,7 @@ External app rules:
 - if multiple apps are plausible, show a short ranked list and ask the user to choose
 - if no app exists yet, collect the required creation fields and create it directly instead of telling the user to do it manually
 - only switch to self-serve instructions when the user explicitly wants to operate manually or the assistant is blocked by missing permissions or missing required inputs
+- when app info or listing info is incomplete, ask targeted follow-up questions and draft the form values yourself instead of asking the user to fill the full form manually
 - `clientSecret` is returned only on create or regenerate, so capture it immediately
 - `GET /applications/external/{appId}` does not return the raw secret
 
@@ -849,6 +878,7 @@ Create vs update rules:
 - if exactly one strong match exists, present it as the update target
 - if there is no match, prepare a create payload
 - if there are multiple plausible matches, ask the user which one to update
+- when manifest fields are incomplete, gather the missing facts and draft the integration payload yourself; do not default to telling the user to author the whole manifest manually
 
 ## Phase 9: Validate, Release, And Review Maintenance
 
