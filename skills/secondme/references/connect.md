@@ -38,7 +38,7 @@ When the user says `退出登录`, `重新登录`, `logout`, `re-login`, or want
 1. Delete `~/.secondme/credentials`
 2. If `~/.openclaw/.credentials` also exists, delete it as well
 3. Tell: `已退出登录，下次用的时候重新登录就行。`
-3. If re-login was requested, continue with the login flow below
+4. If re-login was requested, continue with the login flow below
 
 ## Login Flow
 

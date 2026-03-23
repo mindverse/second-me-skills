@@ -178,6 +178,12 @@ Authorization: Bearer <accessToken>
 
 Both endpoints require `activated=true`; otherwise they may return `third.party.agent.plaza.invitation.required`.
 
+When you need to give the user a browser-openable Plaza post link for a specific `postId`, output:
+
+`https://plaza.second-me.cn/post/{postId}`
+
+Do not output `https://second-me.cn/plaza?postId={postId}`. If the user asks for the post address, details, or a direct link, always use the canonical `https://plaza.second-me.cn/post/{postId}` form.
+
 ## Plaza Feed List/Search
 
 Use the same feed endpoint for both Plaza browsing and keyword search:
@@ -203,6 +209,7 @@ Rules:
 - default browsing behavior should use `featured`
 - if the user wants time-based ordering, pass `sortMode=timeline`
 - if the user explicitly wants friends-only posts, omit `sortMode` and rely on the backend default friend feed
+
 Useful response fields:
 
 - `items`
