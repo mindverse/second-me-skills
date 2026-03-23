@@ -5,8 +5,8 @@ on:
     branches:
       - main
     paths:
-      - "skills/secondme/SKILL.md"
-      - "skills/secondme-dev-assistant/SKILL.md"
+      - "skills/secondme/**"
+      - "skills/secondme-dev-assistant/**"
       - ".github/workflows/sync-skills-to-cos.yml"
   workflow_dispatch:
 
@@ -27,10 +27,15 @@ jobs:
         with:
           python-version: "3.x"
 
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
       - name: Install coscmd
         run: python -m pip install --upgrade pip coscmd
 
-      - name: Detect changed skill files
+      - name: Detect changed skill directories
         id: changes
         shell: bash
         run: |
@@ -51,13 +56,13 @@ jobs:
 
           printf '%s\n' "$CHANGED_FILES"
 
-          if printf '%s\n' "$CHANGED_FILES" | grep -qx 'skills/secondme/SKILL.md'; then
+          if printf '%s\n' "$CHANGED_FILES" | grep -q '^skills/secondme/'; then
             echo "secondme_changed=true" >> "$GITHUB_OUTPUT"
           else
             echo "secondme_changed=false" >> "$GITHUB_OUTPUT"
           fi
 
-          if printf '%s\n' "$CHANGED_FILES" | grep -qx 'skills/secondme-dev-assistant/SKILL.md'; then
+          if printf '%s\n' "$CHANGED_FILES" | grep -q '^skills/secondme-dev-assistant/'; then
             echo "dev_assistant_changed=true" >> "$GITHUB_OUTPUT"
           else
             echo "dev_assistant_changed=false" >> "$GITHUB_OUTPUT"
@@ -71,29 +76,77 @@ jobs:
             -b "mindverseglobal-cos-1309544882" \
             -r "ap-shanghai"
 
-      - name: Upload secondme skill
+      - name: Sync secondme directory to COS
         if: steps.changes.outputs.secondme_changed == 'true'
         run: |
+          coscmd upload -r -s --delete -f -y \
+            skills/secondme \
+            skill/secondme/
+
           coscmd upload -f -y \
             -H '{"Content-Type":"text/markdown; charset=utf-8","Cache-Control":"no-cache"}' \
             skills/secondme/SKILL.md \
-            skill/test/secondme/SKILL.md
+            skill/secondme/SKILL.md
 
-      - name: Upload secondme-dev-assistant skill
+      - name: Sync secondme-dev-assistant directory to COS
         if: steps.changes.outputs.dev_assistant_changed == 'true'
         run: |
+          coscmd upload -r -s --delete -f -y \
+            skills/secondme-dev-assistant \
+            skill/secondme-dev-assistant/
+
           coscmd upload -f -y \
             -H '{"Content-Type":"text/markdown; charset=utf-8","Cache-Control":"no-cache"}' \
             skills/secondme-dev-assistant/SKILL.md \
-            skill/test/secondme-dev-assistant/SKILL.md
+            skill/secondme-dev-assistant/SKILL.md
+
+      - name: Publish secondme to ClawHub
+        if: steps.changes.outputs.secondme_changed == 'true'
+        env:
+          CLAWHUB_TOKEN: ${{ secrets.CLAWHUB_TOKEN }}
+        run: |
+          if [ -z "$CLAWHUB_TOKEN" ]; then
+            echo "CLAWHUB_TOKEN is not configured. Skipping ClawHub publish."
+            exit 0
+          fi
+
+          bunx clawhub login --token "$CLAWHUB_TOKEN"
+          bunx clawhub sync \
+            --root skills/secondme \
+            --all \
+            --no-input \
+            --bump patch \
+            --changelog "Auto sync from GitHub Actions (${GITHUB_SHA})"
+
+      - name: Publish secondme-dev-assistant to ClawHub
+        if: steps.changes.outputs.dev_assistant_changed == 'true'
+        env:
+          CLAWHUB_TOKEN: ${{ secrets.CLAWHUB_TOKEN }}
+        run: |
+          if [ -z "$CLAWHUB_TOKEN" ]; then
+            echo "CLAWHUB_TOKEN is not configured. Skipping ClawHub publish."
+            exit 0
+          fi
+
+          bunx clawhub login --token "$CLAWHUB_TOKEN"
+          bunx clawhub sync \
+            --root skills/secondme-dev-assistant \
+            --all \
+            --no-input \
+            --bump patch \
+            --changelog "Auto sync from GitHub Actions (${GITHUB_SHA})"
 
       - name: Print uploaded targets
         if: steps.changes.outputs.secondme_changed == 'true' || steps.changes.outputs.dev_assistant_changed == 'true'
         run: |
           if [ "${{ steps.changes.outputs.secondme_changed }}" = "true" ]; then
-            echo "Uploaded: https://mindverseglobal-cos-1309544882.cos.ap-shanghai.myqcloud.com/skill/test/secondme/SKILL.md"
+            echo "Uploaded: https://mindverseglobal-cos-1309544882.cos.ap-shanghai.myqcloud.com/skill/secondme/SKILL.md"
+            echo "Synced directory: https://mindverseglobal-cos-1309544882.cos.ap-shanghai.myqcloud.com/skill/secondme/"
+            echo "ClawHub sync requested for: skills/secondme"
           fi
 
           if [ "${{ steps.changes.outputs.dev_assistant_changed }}" = "true" ]; then
-            echo "Uploaded: https://mindverseglobal-cos-1309544882.cos.ap-shanghai.myqcloud.com/skill/test/secondme-dev-assistant/SKILL.md"
+            echo "Uploaded: https://mindverseglobal-cos-1309544882.cos.ap-shanghai.myqcloud.com/skill/secondme-dev-assistant/SKILL.md"
+            echo "Synced directory: https://mindverseglobal-cos-1309544882.cos.ap-shanghai.myqcloud.com/skill/secondme-dev-assistant/"
+            echo "ClawHub sync requested for: skills/secondme-dev-assistant"
           fi
