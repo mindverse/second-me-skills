@@ -162,6 +162,7 @@ jobs:
       # --- ClawHub publish ---
 
       - name: Publish secondme to ClawHub
+        continue-on-error: true
         if: steps.changes.outputs.secondme_changed == 'true'
         env:
           CLAWHUB_TOKEN: ${{ secrets.CLAWHUB_TOKEN }}
@@ -180,6 +181,7 @@ jobs:
             --changelog "Auto sync from GitHub Actions (${GITHUB_SHA})"
 
       - name: Publish secondme-dev-assistant to ClawHub
+        continue-on-error: true
         if: steps.changes.outputs.dev_assistant_changed == 'true'
         env:
           CLAWHUB_TOKEN: ${{ secrets.CLAWHUB_TOKEN }}
