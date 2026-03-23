@@ -5,7 +5,7 @@ license: MIT
 compatibility: Requires network access to SecondMe API (app.mindos.com)
 metadata:
   author: mindverse
-  version: "2.0"
+  version: "2.0.0"
   user-invocable: true
 ---
 
