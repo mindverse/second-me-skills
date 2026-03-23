@@ -1,29 +1,28 @@
-# Second-Me-Skills Development Guidelines
-
-Auto-generated from all feature plans. Last updated: 2026-02-05
-
-## Active Technologies
-
-- Markdown (Claude Code Skills format) + Claude Code Skills framework, AskUserQuestion tool (001-secondme-skills-refactor)
+# secondme-skills Development Guidelines
 
 ## Project Structure
 
 ```text
-src/
-tests/
+skills/
+  secondme/                       # 用户 skill（登录、资料、Plaza、Discover、Key Memory、Activity、第三方技能）
+    SKILL.md                      # 概览和路由（< 500 行）
+    references/                   # 详细参考文档（按需加载）
+  secondme-dev-assistant/         # 开发者 skill（应用创建、OAuth、MCP、集成管理）
+    SKILL.md                      # 概览和路由（< 500 行）
+    references/                   # 详细参考文档（按需加载）
 ```
 
-## Commands
+## Skills 编写规范
 
-# Add commands for Markdown (Claude Code Skills format)
+- SKILL.md 主体必须 < 500 行
+- 详细内容放 references/ 目录（渐进式披露）
+- Reference 引用只能一层深（SKILL.md → reference，不嵌套）
+- 超过 100 行的 reference 文件必须有 TOC
+- Skill name：仅小写字母 + 数字 + 连字符
+- description 用第三人称，包含触发关键词
+- SKILL.md frontmatter 应包含 license 字段（当前使用 MIT）
 
-## Code Style
+## Plugin Identity
 
-Markdown (Claude Code Skills format): Follow standard conventions
-
-## Recent Changes
-
-- 001-secondme-skills-refactor: Added Markdown (Claude Code Skills format) + Claude Code Skills framework, AskUserQuestion tool
-
-<!-- MANUAL ADDITIONS START -->
-<!-- MANUAL ADDITIONS END -->
+- Plugin name: `secondme-skills`
+- Skills: `secondme`, `secondme-dev-assistant`
