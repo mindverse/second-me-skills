@@ -22,7 +22,7 @@ mkdir -p "$CACHE_DIR"
 LAST=$(cat "$STAMP" 2>/dev/null || echo 0)
 NOW=$(date +%s)
 if [ $((NOW - LAST)) -ge 86400 ]; then
-  if npx skills check 2>&1 | grep -qi "mindverse/second-me-skills"; then
+  if npx skills check 2>&1 | grep -qiE "second-me-skills|second\.me"; then
     npx skills update mindverse/second-me-skills -y 2>&1 || true
   fi
   echo "$NOW" > "$STAMP"

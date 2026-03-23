@@ -5,8 +5,8 @@ on:
     branches:
       - main
     paths:
-      - "skills/secondme/**"
-      - "skills/secondme-dev-assistant/**"
+      - "skills/**"
+      - "cdn/**"
       - ".github/workflows/sync-skills-to-cos.yml"
   workflow_dispatch:
 
@@ -76,6 +76,8 @@ jobs:
             -b "mindverseglobal-cos-1309544882" \
             -r "ap-shanghai"
 
+      # --- COS directory sync (skill/ path) ---
+
       - name: Sync secondme directory to COS
         if: steps.changes.outputs.secondme_changed == 'true'
         run: |
@@ -99,6 +101,75 @@ jobs:
             -H '{"Content-Type":"text/markdown; charset=utf-8","Cache-Control":"no-cache"}' \
             skills/secondme-dev-assistant/SKILL.md \
             skill/secondme-dev-assistant/SKILL.md
+
+      # --- Well-known endpoint (for npx skills add https://second.me) ---
+
+      - name: Generate index.json
+        run: |
+          mkdir -p .well-known/skills
+          echo '{"skills":[' > .well-known/skills/index.json
+          first=true
+          for skill_dir in skills/*/; do
+            [ -f "$skill_dir/SKILL.md" ] || continue
+            name=$(basename "$skill_dir")
+
+            # Extract description from frontmatter
+            desc=$(sed -n '/^---$/,/^---$/{ /^description:/{ s/^description: *//; s/^"//; s/"$//; p; q; } }' "$skill_dir/SKILL.md")
+
+            # Collect all .md files relative to skill dir
+            files=$(cd "$skill_dir" && find . -name "*.md" -type f | sed 's|^\./||' | sort | jq -R . | jq -s .)
+
+            if [ "$first" = true ]; then
+              first=false
+            else
+              echo ',' >> .well-known/skills/index.json
+            fi
+
+            jq -n --arg n "$name" --arg d "$desc" --argjson f "$files" \
+              '{name:$n, description:$d, files:$f}' >> .well-known/skills/index.json
+          done
+          echo ']}' >> .well-known/skills/index.json
+
+          echo "Generated index.json:"
+          cat .well-known/skills/index.json
+
+      - name: Prepare well-known directory
+        run: |
+          for skill_dir in skills/*/; do
+            [ -f "$skill_dir/SKILL.md" ] || continue
+            name=$(basename "$skill_dir")
+            target=".well-known/skills/$name"
+            mkdir -p "$target"
+            cp -r "$skill_dir"/* "$target/"
+          done
+
+          echo "Well-known structure:"
+          find .well-known -type f
+
+      - name: Upload well-known skills to COS
+        run: |
+          coscmd upload -r -f -y \
+            -H '{"Content-Type":"text/markdown; charset=utf-8","Cache-Control":"no-cache"}' \
+            .well-known/skills/ \
+            .well-known/skills/
+
+          # Upload index.json with correct content type
+          coscmd upload -f -y \
+            -H '{"Content-Type":"application/json; charset=utf-8","Cache-Control":"no-cache"}' \
+            .well-known/skills/index.json \
+            .well-known/skills/index.json
+
+      - name: Upload skill.md landing file
+        run: |
+          if [ -f cdn/skill.md ]; then
+            coscmd upload -f -y \
+              -H '{"Content-Type":"text/markdown; charset=utf-8","Cache-Control":"no-cache"}' \
+              cdn/skill.md \
+              skill.md
+            echo "Uploaded: https://second.me/skill.md"
+          fi
+
+      # --- ClawHub publish ---
 
       - name: Publish secondme to ClawHub
         if: steps.changes.outputs.secondme_changed == 'true'
@@ -136,17 +207,16 @@ jobs:
             --bump patch \
             --changelog "Auto sync from GitHub Actions (${GITHUB_SHA})"
 
-      - name: Print uploaded targets
-        if: steps.changes.outputs.secondme_changed == 'true' || steps.changes.outputs.dev_assistant_changed == 'true'
-        run: |
-          if [ "${{ steps.changes.outputs.secondme_changed }}" = "true" ]; then
-            echo "Uploaded: https://mindverseglobal-cos-1309544882.cos.ap-shanghai.myqcloud.com/skill/secondme/SKILL.md"
-            echo "Synced directory: https://mindverseglobal-cos-1309544882.cos.ap-shanghai.myqcloud.com/skill/secondme/"
-            echo "ClawHub sync requested for: skills/secondme"
-          fi
+      # --- Summary ---
 
-          if [ "${{ steps.changes.outputs.dev_assistant_changed }}" = "true" ]; then
-            echo "Uploaded: https://mindverseglobal-cos-1309544882.cos.ap-shanghai.myqcloud.com/skill/secondme-dev-assistant/SKILL.md"
-            echo "Synced directory: https://mindverseglobal-cos-1309544882.cos.ap-shanghai.myqcloud.com/skill/secondme-dev-assistant/"
-            echo "ClawHub sync requested for: skills/secondme-dev-assistant"
-          fi
+      - name: Print uploaded targets
+        run: |
+          echo "=== Uploaded Files ==="
+          echo "Landing:    https://second.me/skill.md"
+          echo "Index:      https://second.me/.well-known/skills/index.json"
+          for skill_dir in skills/*/; do
+            [ -f "$skill_dir/SKILL.md" ] || continue
+            name=$(basename "$skill_dir")
+            echo "Skill:      https://second.me/.well-known/skills/$name/SKILL.md"
+            echo "COS dir:    https://mindverseglobal-cos-1309544882.cos.ap-shanghai.myqcloud.com/skill/$name/"
+          done
