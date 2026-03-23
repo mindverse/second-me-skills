@@ -1,6 +1,7 @@
 ---
 name: secondme-dev-assistant
 description: Use when the user wants to create a SecondMe app, obtain Client ID or Client Secret, define requirements, scaffold or plan a SecondMe project, implement SecondMe OAuth or MCP integration rules, or manage app and integration records on SecondMe Develop.
+version: 0.1.0
 ---
 
 # SecondMe Dev Assistant

@@ -1,6 +1,7 @@
 ---
 name: secondme
 description: Use when the user wants to log in to SecondMe from OpenClaw, re-login, logout, get the auth URL, manage their SecondMe profile, create or browse Plaza content, redeem an invitation code, browse discover users, use Key Memory, check daily activity, or manage installable third-party skills
+version: 0.1.0
 user-invocable: true
 ---
 
