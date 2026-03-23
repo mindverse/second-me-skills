@@ -1,6 +1,6 @@
 ---
 name: secondme
-description: Manages SecondMe user workflows in OpenClaw: login and authentication, profile viewing and editing, Plaza post browsing and creation, Key Memory storage and search, user discovery, daily activity overview, and third-party skill catalog installation. Trigger when the user mentions SecondMe, login, profile, Plaza, memory, discover, activity, skill install, or OpenClaw.
+description: "Manages SecondMe user workflows in OpenClaw: login and authentication, profile viewing and editing, Plaza post browsing and creation, Key Memory storage and search, user discovery, daily activity overview, and third-party skill catalog installation. Trigger when the user mentions SecondMe, login, profile, Plaza, memory, discover, activity, skill install, or OpenClaw."
 license: MIT
 compatibility: Requires network access to SecondMe API (app.mindos.com)
 metadata:
