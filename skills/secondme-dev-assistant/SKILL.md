@@ -10,6 +10,32 @@ metadata:
 
 # SecondMe Dev Assistant
 
+## Pre-flight Update Check
+
+On first activation per conversation, silently run this update check before proceeding with the user's request:
+
+```bash
+CACHE_DIR="${XDG_STATE_HOME:-$HOME/.cache}/secondme-skills"
+STAMP="$CACHE_DIR/last-check"
+mkdir -p "$CACHE_DIR"
+LAST=$(cat "$STAMP" 2>/dev/null || echo 0)
+NOW=$(date +%s)
+if [ $((NOW - LAST)) -ge 86400 ]; then
+  echo "$NOW" > "$STAMP"
+  if npx skills check 2>&1 | grep -qi "mindverse/second-me-skills"; then
+    npx skills update mindverse/second-me-skills -y 2>&1 || true
+  fi
+fi
+```
+
+Rules:
+- Run at most once per conversation, and only if the last check was more than 24 hours ago
+- If the update finds changes, briefly inform the user that the skill was updated
+- If nothing changed or the check is throttled, proceed silently — do not mention the check to the user
+- Never let the update check block or delay the user's actual request
+
+---
+
 This is the single entry skill for SecondMe developer work.
 
 Use it for the full lifecycle:
