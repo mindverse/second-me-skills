@@ -171,13 +171,27 @@ jobs:
             exit 0
           fi
 
+          SECONDME_VERSION="$(python3 - <<'PY'
+          from pathlib import Path
+          import yaml
+
+          text = Path("skills/secondme/SKILL.md").read_text(encoding="utf-8")
+          if not text.startswith("---\n"):
+              raise SystemExit("No YAML frontmatter found in skills/secondme/SKILL.md")
+
+          _, frontmatter, _ = text.split("---\n", 2)
+          data = yaml.safe_load(frontmatter) or {}
+          version = data.get("metadata", {}).get("version") or data.get("version")
+          if not version:
+              raise SystemExit("No version found in skills/secondme/SKILL.md")
+          print(version)
+          PY
+          )"
+
           bunx clawhub login --token "$CLAWHUB_TOKEN"
-          bunx clawhub sync \
-            --root skills/secondme \
-            --all \
-            --no-input \
-            --bump patch \
-            --changelog "Auto sync from GitHub Actions (${GITHUB_SHA})"
+          bunx clawhub publish skills/secondme \
+            --version "$SECONDME_VERSION" \
+            --yes
 
       - name: Publish secondme-dev-assistant to ClawHub
         if: steps.changes.outputs.dev_assistant_changed == 'true'
@@ -189,13 +203,27 @@ jobs:
             exit 0
           fi
 
+          DEV_ASSISTANT_VERSION="$(python3 - <<'PY'
+          from pathlib import Path
+          import yaml
+
+          text = Path("skills/secondme-dev-assistant/SKILL.md").read_text(encoding="utf-8")
+          if not text.startswith("---\n"):
+              raise SystemExit("No YAML frontmatter found in skills/secondme-dev-assistant/SKILL.md")
+
+          _, frontmatter, _ = text.split("---\n", 2)
+          data = yaml.safe_load(frontmatter) or {}
+          version = data.get("metadata", {}).get("version") or data.get("version")
+          if not version:
+              raise SystemExit("No version found in skills/secondme-dev-assistant/SKILL.md")
+          print(version)
+          PY
+          )"
+
           bunx clawhub login --token "$CLAWHUB_TOKEN"
-          bunx clawhub sync \
-            --root skills/secondme-dev-assistant \
-            --all \
-            --no-input \
-            --bump patch \
-            --changelog "Auto sync from GitHub Actions (${GITHUB_SHA})"
+          bunx clawhub publish skills/secondme-dev-assistant \
+            --version "$DEV_ASSISTANT_VERSION" \
+            --yes
 
       # --- Summary ---
 
