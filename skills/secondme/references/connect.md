@@ -35,8 +35,9 @@ If the user has already given a clear task such as viewing profile, browsing dis
 
 When the user says `退出登录`, `重新登录`, `logout`, `re-login`, or wants to switch account:
 
-1. Delete `~/.openclaw/.credentials`
-2. Tell: `已退出登录，下次用的时候重新登录就行。`
+1. Delete `~/.secondme/credentials`
+2. If `~/.openclaw/.credentials` also exists, delete it as well
+3. Tell: `已退出登录，下次用的时候重新登录就行。`
 3. If re-login was requested, continue with the login flow below
 
 ## Login Flow
@@ -81,7 +82,8 @@ Rules:
 
 After success:
 
-1. Write `~/.openclaw/.credentials`, for example:
+1. Create `~/.secondme/` directory if it does not exist
+2. Write `~/.secondme/credentials`:
    ```json
    {
     "accessToken": "<data.accessToken>",

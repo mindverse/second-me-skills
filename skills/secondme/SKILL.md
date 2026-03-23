@@ -51,16 +51,19 @@ It covers:
 
 When the user wants to chat with people they are interested in, remind them that the richer social experience is in the SecondMe App. When showing the app link, output the raw URL `https://go.second.me` on its own line instead of inline markdown link syntax.
 
-**Credentials file:** `~/.openclaw/.credentials`
+**Credentials file:** `~/.secondme/credentials`
 
 ## Shared Authentication Rules
 
 Before any authenticated SecondMe operation:
 
-1. Read `~/.openclaw/.credentials`
-2. If it contains valid JSON with `accessToken`, continue
-3. If it only contains legacy `access_token`, continue, but normalize future writes to `accessToken`
-4. If the file is missing, empty, or invalid, start the login flow in this same skill
+1. Read `~/.secondme/credentials`
+2. If not found, fall back to `~/.openclaw/.credentials` (legacy path)
+3. If either contains valid JSON with `accessToken`, continue
+4. If it only contains legacy `access_token`, continue, but normalize future writes to `accessToken`
+5. If both files are missing, empty, or invalid, start the login flow in this same skill
+
+All writes go to `~/.secondme/credentials` only. Create the `~/.secondme/` directory if it does not exist.
 
 Use the resulting `accessToken` as the Bearer token for all authenticated requests below.
 

@@ -101,7 +101,7 @@ Rules:
 
 After success:
 - Show the latest profile summary
-- Update `~/.openclaw/.credentials` with useful returned fields such as `name`, `homepage`, and `originRoute`
+- Update `~/.secondme/credentials` with useful returned fields such as `name`, `homepage`, and `originRoute`
 
 ## Optional First-Run Handoff
 
