@@ -33,7 +33,7 @@ jobs:
           bun-version: latest
 
       - name: Install coscmd
-        run: python -m pip install --upgrade pip coscmd
+        run: python -m pip install --upgrade pip coscmd tencentcloud-sdk-python
 
       - name: Detect changed skill directories
         id: changes
@@ -159,6 +159,57 @@ jobs:
             echo "Uploaded: https://second.me/skill.md"
           fi
 
+      - name: Refresh Tencent CDN skill directories
+        if: steps.changes.outputs.secondme_changed == 'true' || steps.changes.outputs.dev_assistant_changed == 'true'
+        env:
+          SECONDME_CHANGED: ${{ steps.changes.outputs.secondme_changed }}
+          DEV_ASSISTANT_CHANGED: ${{ steps.changes.outputs.dev_assistant_changed }}
+          TENCENT_CDN_SECRET_ID: ${{ secrets.TENCENT_CDN_SECRET_ID }}
+          TENCENT_CDN_SECRET_KEY: ${{ secrets.TENCENT_CDN_SECRET_KEY }}
+          TENCENT_COS_SECRET_ID: ${{ secrets.TENCENT_COS_SECRET_ID }}
+          TENCENT_COS_SECRET_KEY: ${{ secrets.TENCENT_COS_SECRET_KEY }}
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+
+          from tencentcloud.cdn.v20180606 import cdn_client, models
+          from tencentcloud.common import credential
+          from tencentcloud.common.profile.client_profile import ClientProfile
+          from tencentcloud.common.profile.http_profile import HttpProfile
+
+          secret_id = os.environ.get("TENCENT_CDN_SECRET_ID") or os.environ.get("TENCENT_COS_SECRET_ID")
+          secret_key = os.environ.get("TENCENT_CDN_SECRET_KEY") or os.environ.get("TENCENT_COS_SECRET_KEY")
+
+          if not secret_id or not secret_key:
+              print("No Tencent CDN credentials configured. Skipping CDN refresh.")
+              raise SystemExit(0)
+
+          paths = []
+          if os.environ.get("SECONDME_CHANGED") == "true":
+              paths.append("https://mindverseglobal-cos-cdn.mindverse.com/skill/secondme/")
+          if os.environ.get("DEV_ASSISTANT_CHANGED") == "true":
+              paths.append("https://mindverseglobal-cos-cdn.mindverse.com/skill/secondme-dev-assistant/")
+
+          if not paths:
+              print("No changed skill directories. Skipping CDN refresh.")
+              raise SystemExit(0)
+
+          cred = credential.Credential(secret_id, secret_key)
+          http_profile = HttpProfile(endpoint="cdn.tencentcloudapi.com")
+          client_profile = ClientProfile()
+          client_profile.httpProfile = http_profile
+          client = cdn_client.CdnClient(cred, "", client_profile)
+
+          request = models.PurgePathCacheRequest()
+          request.from_json_string(json.dumps({
+              "Paths": paths,
+              "FlushType": "flush"
+          }))
+          response = client.PurgePathCache(request)
+          print(response.to_json_string())
+          PY
+
       # --- ClawHub publish ---
 
       - name: Publish secondme to ClawHub
@@ -237,4 +288,5 @@ jobs:
             name=$(basename "$skill_dir")
             echo "Skill:      https://second.me/.well-known/skills/$name/SKILL.md"
             echo "COS dir:    https://mindverseglobal-cos-1309544882.cos.ap-shanghai.myqcloud.com/skill/$name/"
+            echo "CDN dir:    https://mindverseglobal-cos-cdn.mindverse.com/skill/$name/"
           done
