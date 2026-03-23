@@ -1,0 +1,99 @@
+name: Sync Skills To COS
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "skills/secondme/SKILL.md"
+      - "skills/secondme-dev-assistant/SKILL.md"
+      - ".github/workflows/sync-skills-to-cos.yml"
+  workflow_dispatch:
+
+jobs:
+  sync-skills:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install coscmd
+        run: python -m pip install --upgrade pip coscmd
+
+      - name: Detect changed skill files
+        id: changes
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "secondme_changed=true" >> "$GITHUB_OUTPUT"
+            echo "dev_assistant_changed=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          BEFORE_SHA="${{ github.event.before }}"
+          AFTER_SHA="${{ github.sha }}"
+
+          if [ -z "$BEFORE_SHA" ] || [ "$BEFORE_SHA" = "0000000000000000000000000000000000000000" ] || ! git cat-file -e "$BEFORE_SHA^{commit}" 2>/dev/null; then
+            CHANGED_FILES="$(git diff-tree --no-commit-id --name-only -r "$AFTER_SHA")"
+          else
+            CHANGED_FILES="$(git diff --name-only "$BEFORE_SHA" "$AFTER_SHA")"
+          fi
+
+          printf '%s\n' "$CHANGED_FILES"
+
+          if printf '%s\n' "$CHANGED_FILES" | grep -qx 'skills/secondme/SKILL.md'; then
+            echo "secondme_changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "secondme_changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          if printf '%s\n' "$CHANGED_FILES" | grep -qx 'skills/secondme-dev-assistant/SKILL.md'; then
+            echo "dev_assistant_changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "dev_assistant_changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Configure coscmd
+        run: |
+          coscmd config \
+            -a "${{ secrets.TENCENT_COS_SECRET_ID }}" \
+            -s "${{ secrets.TENCENT_COS_SECRET_KEY }}" \
+            -b "mindverseglobal-cos-1309544882" \
+            -r "ap-shanghai"
+
+      - name: Upload secondme skill
+        if: steps.changes.outputs.secondme_changed == 'true'
+        run: |
+          coscmd upload -f -y \
+            -H '{"Content-Type":"text/markdown; charset=utf-8","Cache-Control":"no-cache"}' \
+            skills/secondme/SKILL.md \
+            skill/test/secondme/SKILL.md
+
+      - name: Upload secondme-dev-assistant skill
+        if: steps.changes.outputs.dev_assistant_changed == 'true'
+        run: |
+          coscmd upload -f -y \
+            -H '{"Content-Type":"text/markdown; charset=utf-8","Cache-Control":"no-cache"}' \
+            skills/secondme-dev-assistant/SKILL.md \
+            skill/test/secondme-dev-assistant/SKILL.md
+
+      - name: Print uploaded targets
+        if: steps.changes.outputs.secondme_changed == 'true' || steps.changes.outputs.dev_assistant_changed == 'true'
+        run: |
+          if [ "${{ steps.changes.outputs.secondme_changed }}" = "true" ]; then
+            echo "Uploaded: https://mindverseglobal-cos-1309544882.cos.ap-shanghai.myqcloud.com/skill/test/secondme/SKILL.md"
+          fi
+
+          if [ "${{ steps.changes.outputs.dev_assistant_changed }}" = "true" ]; then
+            echo "Uploaded: https://mindverseglobal-cos-1309544882.cos.ap-shanghai.myqcloud.com/skill/test/secondme-dev-assistant/SKILL.md"
+          fi
