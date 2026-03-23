@@ -979,3 +979,4 @@ Never repeat raw secret values back to the user.
 - if this assistant created or regenerated a `Client Secret`, explicitly remind the user that it has already been saved to `~/.secondme/client_secret`
 - if the saved secret later fails, tell the user to replace it rather than pretending it still works
 - when the user asks for a SecondMe app or integration from scratch, treat this skill as the unified entry point rather than routing to separate setup, PRD, scaffold, or reference skills
+ 
