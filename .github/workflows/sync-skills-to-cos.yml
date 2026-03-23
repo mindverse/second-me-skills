@@ -82,6 +82,7 @@ jobs:
         if: steps.changes.outputs.secondme_changed == 'true'
         run: |
           coscmd upload -r -s --delete -f -y \
+            -H '{"Content-Type":"text/plain; charset=utf-8","Cache-Control":"no-cache"}' \
             skills/secondme/ \
             skill/secondme/
 
@@ -89,6 +90,7 @@ jobs:
         if: steps.changes.outputs.dev_assistant_changed == 'true'
         run: |
           coscmd upload -r -s --delete -f -y \
+            -H '{"Content-Type":"text/plain; charset=utf-8","Cache-Control":"no-cache"}' \
             skills/secondme-dev-assistant/ \
             skill/secondme-dev-assistant/
 
@@ -139,7 +141,7 @@ jobs:
       - name: Upload well-known skills to COS
         run: |
           coscmd upload -r -f -y \
-            -H '{"Content-Type":"text/markdown; charset=utf-8","Cache-Control":"no-cache"}' \
+            -H '{"Content-Type":"text/plain; charset=utf-8","Cache-Control":"no-cache"}' \
             .well-known/skills/ \
             .well-known/skills/
 
@@ -153,7 +155,7 @@ jobs:
         run: |
           if [ -f cdn/skill.md ]; then
             coscmd upload -f -y \
-              -H '{"Content-Type":"text/markdown; charset=utf-8","Cache-Control":"no-cache"}' \
+              -H '{"Content-Type":"text/plain; charset=utf-8","Cache-Control":"no-cache"}' \
               cdn/skill.md \
               skill.md
             echo "Uploaded: https://second.me/skill.md"
