@@ -242,8 +242,7 @@ jobs:
 
           bunx clawhub login --token "$CLAWHUB_TOKEN"
           bunx clawhub publish skills/secondme \
-            --version "$SECONDME_VERSION" \
-            --yes
+            --version "$SECONDME_VERSION"
 
       - name: Publish secondme-dev-assistant to ClawHub
         continue-on-error: true
@@ -275,8 +274,7 @@ jobs:
 
           bunx clawhub login --token "$CLAWHUB_TOKEN"
           bunx clawhub publish skills/secondme-dev-assistant \
-            --version "$DEV_ASSISTANT_VERSION" \
-            --yes
+            --version "$DEV_ASSISTANT_VERSION"
 
       # --- Summary ---
 
