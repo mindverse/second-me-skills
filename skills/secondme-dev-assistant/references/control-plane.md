@@ -2,7 +2,7 @@
 
 ## Contents
 
-- [Phase 6: CLI Auth](#phase-6-authenticate-with-secondme-develop-cli-auth)
+- [Phase 6: Skills Auth](#phase-6-authenticate-with-secondme-develop-skills-auth)
 - [Phase 7: Manage External OAuth Apps](#phase-7-manage-external-oauth-apps-on-secondme-develop)
   - [Developer Routes](#developer-routes)
   - [Public Routes](#public-routes)
@@ -17,37 +17,71 @@
   - [Field Rules](#field-rules)
   - [Create vs Update Rules](#create-vs-update-rules)
 
-## Phase 6: Authenticate With SecondMe Develop CLI Auth
+## Phase 6: Authenticate With SecondMe Develop (Skills Auth)
 
 Use the gateway base:
 
-- `https://app.mindos.com/gate/lab/api`
+- `https://app.mindos.com/gate/lab`
 
 Routes:
 
-- `POST /auth/cli/session`
-- `GET /auth/cli/session/{sessionId}/poll`
-- `POST /auth/cli/session/{sessionId}/authorize`
-- `POST /auth/cli/session/authorize-by-code`
+- `POST /api/auth/skills/token` — exchange auth code for access token (public, no auth required)
 
 Process:
 
-1. create a CLI auth session
-2. show the user:
-   - auth URL: `https://develop.second.me/auth/cli?session={sessionId}`
-   - `userCode`
-   - expiry time if available
-3. tell the user that if the page asks for a manual code, they should paste `userCode`
-4. poll until `authorized`, `expired`, or timeout
-5. if the token contains `|suffix`, strip the suffix and use only the substring before `|`
-6. if the token does not contain `|suffix`, use it as returned
-7. use that normalized token form for the rest of the session
+1. direct the user to open `https://develop.second.me/auth/skills` in their browser
+2. the user logs in (if not already) and the page automatically generates a one-time authorization code (`lba_ac_xxx`)
+3. the user copies the code back to the terminal
+4. exchange the code for a token:
 
-Poll states:
+```
+POST {BASE}/api/auth/skills/token
+Content-Type: application/json
+Body: { "code": "lba_ac_xxx" }
+```
 
-- `pending`
-- `authorized`
-- `expired`
+5. expected response:
+
+```json
+{
+  "code": 0,
+  "data": {
+    "accessToken": "lba_at_xxx",
+    "tokenType": "Bearer",
+    "expiresIn": 604800
+  }
+}
+```
+
+6. save the token to `~/.secondme/dev_credentials`:
+
+```json
+{
+  "accessToken": "lba_at_xxx",
+  "tokenType": "Bearer"
+}
+```
+
+7. use `Authorization: Bearer <accessToken>` for all subsequent API calls
+
+Credential file:
+
+- path: `~/.secondme/dev_credentials`
+- directory: `~/.secondme`
+- preferred permissions: directory `700`, file `600`
+
+Rules:
+
+1. if the task needs authentication, first try reading `~/.secondme/dev_credentials`
+2. if the file is missing, empty, or the token is expired/rejected (401), start the auth flow above
+3. after saving, continue using the stored value instead of re-asking
+4. never print the raw token in summaries
+
+Code rules:
+
+- the auth code starts with `lba_ac_` prefix
+- the code is valid for 5 minutes and single-use only
+- if the code is expired or already used, ask the user to generate a new one
 
 Route debugging rule:
 
