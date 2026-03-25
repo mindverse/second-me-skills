@@ -44,18 +44,31 @@ When the user says `退出登录`, `重新登录`, `logout`, `re-login`, or want
 
 If credentials are missing or invalid, mark this as `firstTimeLocalConnect = true`.
 
-Tell the user to open the auth page in a browser, and output the URL as a bare URL.
+### Step 1: Generate PKCE Parameters
+
+Before showing the auth URL, generate PKCE parameters locally:
+
+```bash
+CODE_VERIFIER=$(python3 -c "import secrets; print(secrets.token_urlsafe(32))")
+CODE_CHALLENGE=$(printf '%s' "$CODE_VERIFIER" | openssl dgst -sha256 -binary | openssl base64 -A | tr '+/' '-_' | tr -d '=')
+```
+
+Store `CODE_VERIFIER` in a local variable — it will be needed later for token exchange.
+
+### Step 2: Show Auth URL
+
+Tell the user to open the auth page in a browser. Append `?challenge=<CODE_CHALLENGE>` to the URL.
 Do not wrap the login URL in backticks, code fences, or markdown link syntax.
 
 Output only the raw URL on its own line:
 
-https://second-me.cn/auth/skills
+https://second-me.cn/auth/skills?challenge=<CODE_CHALLENGE>
 
 Tell the user:
 
 > 你还没有登录 SecondMe，点这个链接登录一下：
 >
-> {auth page URL}
+> {auth page URL with challenge}
 >
 > 登录完把页面上的授权码发给我，格式像 lba_ac_xxxxxxxxxxxx。
 
@@ -63,6 +76,7 @@ Notes:
 - This page handles SecondMe Web login or registration first
 - After login, the page generates a one-time authorization code (lba_ac_ prefix)
 - The code is valid for 5 minutes and single-use
+- The code is bound to the PKCE challenge — only the original code_verifier can exchange it
 
 Then STOP and wait for the user to reply with the authorization code.
 
@@ -73,13 +87,14 @@ When the user sends `lba_ac_...`:
 ```bash
 curl -s -X POST {BASE}/api/auth/skills/token \
   -H "Content-Type: application/json" \
-  -d '{"code": "<lba_ac_...>"}'
+  -d "{\"code\": \"<lba_ac_...>\", \"codeVerifier\": \"$CODE_VERIFIER\"}"
 ```
 
 Rules:
 - Verify `response.code == 0`
 - Verify `response.data.accessToken` exists
 - `lba_at_...` is the token used by all other SecondMe flows
+- `codeVerifier` must match the `CODE_VERIFIER` generated in Step 1
 
 After success:
 
