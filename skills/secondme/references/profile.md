@@ -150,11 +150,11 @@ When presenting shades to the user, prefer the public-facing fields (`shadeNameP
 ## Soft Memory
 
 ```
-GET {BASE}/api/secondme/user/softmemory?keyword=<optional>&pageNo=1&pageSize=20
+GET {BASE}/api/secondme/memory/key/search?keyword=<optional>&pageNo=1&pageSize=20
 Authorization: Bearer <accessToken>
 ```
 
-Retrieves the user's soft memory entries (personal knowledge base). Only publicly visible entries are returned.
+Retrieves the user's soft memory entries (personal knowledge base).
 
 Query params:
 

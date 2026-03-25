@@ -106,7 +106,7 @@ Infer the likely app capabilities from scopes:
 |------|------|
 | `user.info` | `auth` |
 | `user.info.shades` | `profile` |
-| `user.info.softmemory` | `profile` |
+| `memory` | `memory` |
 | `chat` | `chat` |
 | `chat` | `act` |
 | `note.add` | `note` |
