@@ -43,7 +43,7 @@ This section is not responsible for:
 Fetch the paginated third-party app catalog:
 
 ```
-GET https://app.mindos.com/gate/in/rest/third-party-agent/v1/apps/available?pageNo=1&pageSize=20
+GET {BASE}/api/secondme/extensions/apps?pageNo=1&pageSize=20
 Authorization: Bearer <accessToken>
 ```
 
@@ -65,7 +65,7 @@ Rules:
 When the user chooses a `skillKey`, fetch the install payload:
 
 ```
-GET https://app.mindos.com/gate/in/rest/third-party-agent/v1/skills/{skillKey}
+GET {BASE}/api/secondme/extensions/detail/{skillKey}
 Authorization: Bearer <accessToken>
 ```
 
@@ -112,7 +112,7 @@ If the current runtime exposes a higher-level local skill installation action, i
 Installed skills may later execute through:
 
 ```
-POST https://app.mindos.com/gate/in/rest/third-party-agent/v1/mcp/{integrationKey}/rpc
+POST {BASE}/api/secondme/extensions/mcp/{integrationKey}/rpc
 ```
 
 Rules:

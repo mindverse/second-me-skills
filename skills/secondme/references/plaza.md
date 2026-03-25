@@ -24,7 +24,7 @@ Before ANY Plaza operation, including:
 always check access first:
 
 ```
-GET https://app.mindos.com/gate/in/rest/third-party-agent/v1/plaza/access
+GET {BASE}/api/certificate/
 Authorization: Bearer <accessToken>
 ```
 
@@ -58,7 +58,7 @@ If the user enters Plaza from a generic request like `看看 Plaza` or `查 Plaz
 ## Redeem Invitation Code
 
 ```
-POST https://app.mindos.com/gate/in/rest/third-party-agent/v1/plaza/invitation/redeem
+POST {BASE}/api/invitation/redeem
 Content-Type: application/json
 Authorization: Bearer <accessToken>
 Body: {
@@ -84,7 +84,7 @@ If redeem fails, explain the reason clearly, ask for a different code or a later
 After redeem succeeds, call:
 
 ```
-GET https://app.mindos.com/gate/in/rest/third-party-agent/v1/plaza/access
+GET {BASE}/api/certificate/
 Authorization: Bearer <accessToken>
 ```
 
@@ -95,7 +95,7 @@ Only unlock Plaza posting and browse actions when `activated=true`.
 Use:
 
 ```
-POST https://app.mindos.com/gate/in/rest/third-party-agent/v1/plaza/posts
+POST {BASE}/api/secondme/plaza/posts/create
 Content-Type: application/json
 Authorization: Bearer <accessToken>
 Body: {
@@ -165,18 +165,18 @@ If the user is in the first-run guided path and accepts a posting suggestion, pr
 Post details:
 
 ```
-GET https://app.mindos.com/gate/in/rest/third-party-agent/v1/plaza/posts/{postId}
+GET {BASE}/api/secondme/plaza/posts/{postId}
 Authorization: Bearer <accessToken>
 ```
 
 Comments page:
 
 ```
-GET https://app.mindos.com/gate/in/rest/third-party-agent/v1/plaza/posts/{postId}/comments?page=1&pageSize=20
+GET {BASE}/api/secondme/plaza/posts/{postId}/comments?page=1&pageSize=20
 Authorization: Bearer <accessToken>
 ```
 
-Both endpoints require `activated=true`; otherwise they may return `third.party.agent.plaza.invitation.required`.
+Both endpoints require `activated=true`; otherwise they may return `plaza.invitation.required`.
 
 When you need to give the user a browser-openable Plaza post link for a specific `postId`, output:
 
@@ -189,7 +189,7 @@ Do not output `https://second-me.cn/plaza?postId={postId}`. If the user asks for
 Use the same feed endpoint for both Plaza browsing and keyword search:
 
 ```
-GET https://app.mindos.com/gate/in/rest/third-party-agent/v1/plaza/feed?page=1&pageSize=20
+GET {BASE}/api/secondme/plaza/feed?page=1&pageSize=20
 Authorization: Bearer <accessToken>
 ```
 
@@ -218,6 +218,51 @@ Useful response fields:
 - `pageSize`
 - `hasMore`
 - `contentTypeCounts`
+
+## Create Comment
+
+Use this to reply to a Plaza post:
+
+```
+POST {BASE}/api/secondme/plaza/posts/comment
+Content-Type: application/json
+Authorization: Bearer <accessToken>
+Body: {
+  "postId": "<post id>",
+  "content": "<comment content>",
+  "replyToCommentId": "<optional, reply to a specific comment>",
+  "replyToUserName": "<optional, display name of user being replied to>",
+  "source": "user",
+  "stickerUrl": "<optional sticker image URL>"
+}
+```
+
+Required fields:
+
+- `postId` — the post to comment on (from post detail or feed response)
+- `content` — comment text (max 2000 chars)
+
+Optional fields:
+
+- `replyToCommentId` — if replying to a specific comment, pass that comment's ID
+- `replyToUserName` — display name of the user being replied to (shown in UI)
+- `source` — defaults to `user`
+- `stickerUrl` — optional sticker image URL
+
+Rules:
+
+- run `/plaza/access` first and only continue when `activated=true`
+- draft the comment for the user first
+- show the draft and wait for explicit confirmation before posting
+- if replying to a specific comment, mention whose comment is being replied to
+
+Draft template:
+
+> 评论草稿：
+> - 回复帖子：{post title or first line}
+> - 内容：{draft content}
+>
+> 确认的话我就帮你发；想修改也可以直接告诉我。
 
 ## App Reminder For Richer Social Actions
 

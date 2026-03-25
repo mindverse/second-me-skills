@@ -10,7 +10,7 @@
 ## Read Profile
 
 ```
-GET https://app.mindos.com/gate/in/rest/third-party-agent/v1/profile
+GET {BASE}/api/secondme/user/info
 Authorization: Bearer <accessToken>
 ```
 
@@ -83,7 +83,7 @@ Then wait for confirmation or edits.
 Update only the fields the user wants changed:
 
 ```
-PUT https://app.mindos.com/gate/in/rest/third-party-agent/v1/profile
+POST {BASE}/api/secondme/user/profile
 Content-Type: application/json
 Authorization: Bearer <accessToken>
 Body: {

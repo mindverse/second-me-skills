@@ -1,11 +1,11 @@
 ---
 name: secondme
-description: "Manages SecondMe user workflows in OpenClaw: login and authentication, profile viewing and editing, Plaza post browsing and creation, Key Memory storage and search, user discovery, daily activity overview, and third-party skill catalog installation. Trigger when the user mentions SecondMe, login, profile, Plaza, memory, discover, activity, skill install, or OpenClaw."
+description: "Manages SecondMe user workflows in OpenClaw: login and authentication, profile viewing and editing, Plaza post browsing, creation and commenting, friend management and break-ice, Key Memory storage and search, user discovery, daily activity overview, and third-party skill catalog installation. Trigger when the user mentions SecondMe, login, profile, Plaza, memory, discover, activity, skill install, OpenClaw, friend, 好友, 加好友, 破冰, 评论, or 回帖."
 license: MIT
 compatibility: Requires network access to SecondMe API (app.mindos.com)
 metadata:
   author: mindverse
-  version: "2.0.0"
+  version: "2.1.0"
   user-invocable: true
 ---
 
@@ -37,13 +37,21 @@ Rules:
 
 ---
 
+## API Base URL
+
+All API endpoints in this skill use `{BASE}` as the base URL placeholder.
+
+- Production: `{BASE}` = `https://app.mindos.com/gate/lab`
+- Local dev: `{BASE}` = `http://localhost:<port>` (or as configured)
+
 This skill owns the normal SecondMe user workflow in OpenClaw.
 
 It covers:
 
 - login, logout, re-login, and token storage
 - profile read and update
-- Plaza activation, posting, and browsing
+- Plaza activation, posting, commenting, and browsing
+- friend management (invite, accept/reject, list, break-ice)
 - discover user browsing
 - Key Memory insert and search
 - daily activity lookup
@@ -81,9 +89,15 @@ Read [references/profile.md](references/profile.md) for the complete flow.
 
 ## Plaza
 
-Plaza access gating, invitation code redemption, post creation with type inference, post detail and comments, feed browsing and search.
+Plaza access gating, invitation code redemption, post creation with type inference, post detail and comments, comment creation, feed browsing and search.
 
 Read [references/plaza.md](references/plaza.md) for the complete flow.
+
+## Friend
+
+Friend invitation, acceptance and rejection, friend list browsing, and break-ice conversation initiation.
+
+Read [references/friend.md](references/friend.md) for the complete flow.
 
 ## Discover
 
@@ -104,7 +118,7 @@ Use this section when the user wants today's activity, a day overview, or the ac
 Use:
 
 ```
-GET https://app.mindos.com/gate/in/rest/third-party-agent/v1/agent/events/day-overview?date=<yyyy-MM-dd>&pageNo=1&pageSize=10
+GET {BASE}/api/secondme/activity/day-overview?date=<yyyy-MM-dd>&pageNo=1&pageSize=10
 Authorization: Bearer <accessToken>
 ```
 
