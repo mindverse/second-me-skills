@@ -166,7 +166,7 @@ Read [references/mcp-integration.md](references/mcp-integration.md) for the comp
 
 ## Phase 6-8: Control Plane Operations
 
-CLI auth with SecondMe Develop, external OAuth app management (CRUD, listing, CDN upload), and integration management (CRUD, manifest, validate, release).
+Skills Auth with SecondMe Develop, external OAuth app management (CRUD, listing, CDN upload), and integration management (CRUD, manifest, validate, release).
 
 Read [references/control-plane.md](references/control-plane.md) for the complete flow.
 
