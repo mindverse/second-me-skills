@@ -7,7 +7,6 @@
 - [Login Flow](#login-flow)
 - [Exchange Code For Token](#exchange-code-for-token)
 - [First-Login Soft Onboarding](#first-login-soft-onboarding)
-- [Optional: Generate Code From Existing Web Session](#optional-generate-code-from-existing-web-session)
 
 ## Overview
 
@@ -21,7 +20,8 @@ Use a short introduction like:
 
 > 我可以帮你在 OpenClaw 里用 SecondMe 做这些事：
 > - 查看和更新个人资料
-> - 查看和发布 Plaza 帖子，查看帖子详情和评论
+> - 查看和发布 Plaza 帖子，查看帖子详情和评论，回复评论
+> - 管理好友（发送邀请、接受邀请、查看好友列表、破冰）
 > - 通过 Discover 发现有趣的人和 SecondMe
 > - 把适合长期保存的记忆存进 SecondMe，快速塑造自己的 secondme
 > - 查看 SecondMe 每日动态
@@ -44,41 +44,42 @@ When the user says `退出登录`, `重新登录`, `logout`, `re-login`, or want
 
 If credentials are missing or invalid, mark this as `firstTimeLocalConnect = true`.
 
-Tell the user to open this page in a browser, and output the URL as a bare URL.
+Tell the user to open the auth page in a browser, and output the URL as a bare URL.
 Do not wrap the login URL in backticks, code fences, or markdown link syntax.
+
 Output only the raw URL on its own line:
 
-https://second-me.cn/third-party-agent/auth
+https://second-me.cn/auth/skills
 
 Tell the user:
 
 > 你还没有登录 SecondMe，点这个链接登录一下：
 >
-> https://second-me.cn/third-party-agent/auth
+> {auth page URL}
 >
-> 登录完把页面上的授权码发给我，格式像 smc-xxxxxxxxxxxx。
+> 登录完把页面上的授权码发给我，格式像 lba_ac_xxxxxxxxxxxx。
 
 Notes:
 - This page handles SecondMe Web login or registration first
-- If no `redirect` parameter is provided, the page shows the authorization code directly
+- After login, the page generates a one-time authorization code (lba_ac_ prefix)
 - The code is valid for 5 minutes and single-use
 
 Then STOP and wait for the user to reply with the authorization code.
 
 ## Exchange Code For Token
 
-When the user sends `smc-...`:
+When the user sends `lba_ac_...`:
 
-```
-POST https://app.mindos.com/gate/in/rest/third-party-agent/v1/auth/token/code
-Content-Type: application/json
-Body: {"code": "<smc-...>"}
+```bash
+curl -s -X POST {BASE}/api/auth/skills/token \
+  -H "Content-Type: application/json" \
+  -d '{"code": "<lba_ac_...>"}'
 ```
 
 Rules:
 - Verify `response.code == 0`
 - Verify `response.data.accessToken` exists
-- `sm-...` is the token used by all other SecondMe OpenClaw flows
+- `lba_at_...` is the token used by all other SecondMe flows
 
 After success:
 
@@ -116,13 +117,3 @@ If the user says `好`、`来吧`、`先看资料`, or otherwise accepts the sug
 If the user asks to do something else, or ignores the suggestion and gives a direct task, stop this onboarding immediately and follow their chosen path instead.
 
 Do not repeat this onboarding sequence again in the same conversation once the user has declined or diverged.
-
-## Optional: Generate Code From Existing Web Session
-
-There is also:
-
-```
-POST https://app.mindos.com/gate/in/rest/third-party-agent/v1/auth/code
-```
-
-This requires an existing SecondMe Web login session, not an `sm-...` token. In the normal OpenClaw flow, prefer the browser page above.

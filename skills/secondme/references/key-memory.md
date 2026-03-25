@@ -46,7 +46,7 @@ Rules:
 Direct mode:
 
 ```
-POST https://app.mindos.com/gate/in/rest/third-party-agent/v1/memories/key
+POST {BASE}/api/secondme/memory/key
 Content-Type: application/json
 Authorization: Bearer <accessToken>
 Body: {
@@ -76,30 +76,27 @@ Use Key Memory for durable facts like:
 
 ## Batch Create Key Memory
 
-Use batch create when the user confirms multiple memory items at once:
+Use batch create when the user confirms multiple memory items at once.
+
+There is no dedicated batch endpoint. To insert multiple memories, call the single insert endpoint once per item:
 
 ```
-POST https://app.mindos.com/gate/in/rest/third-party-agent/v1/memories/key/batch
+POST {BASE}/api/secondme/memory/key
 Content-Type: application/json
 Authorization: Bearer <accessToken>
 Body: {
- "items": [
-  {
-   "content": "<memory content>",
-   "visibility": 1
-  }
- ]
+ "mode": "direct",
+ "content": "<memory content>",
+ "visibility": 1
 }
 ```
 
-Response:
-
-- `insertedCount`
+Send one request per memory item sequentially. After all requests complete, report how many were inserted successfully.
 
 ## Search Key Memory
 
 ```
-GET https://app.mindos.com/gate/in/rest/third-party-agent/v1/memories/key/search?keyword=<keyword>&pageNo=1&pageSize=20
+GET {BASE}/api/secondme/memory/key/search?keyword=<keyword>&pageNo=1&pageSize=20
 Authorization: Bearer <accessToken>
 ```
 
@@ -120,7 +117,7 @@ Do not merge OpenClaw local memory results with SecondMe Key Memory results unle
 ## Update Key Memory
 
 ```
-PUT https://app.mindos.com/gate/in/rest/third-party-agent/v1/memories/key/{memoryId}
+POST {BASE}/api/secondme/memory/key/{memoryId}/update
 Content-Type: application/json
 Authorization: Bearer <accessToken>
 Body: {
@@ -138,7 +135,7 @@ Rules:
 ## Delete Key Memory
 
 ```
-DELETE https://app.mindos.com/gate/in/rest/third-party-agent/v1/memories/key/{memoryId}
+POST {BASE}/api/secondme/memory/key/{memoryId}/delete
 Authorization: Bearer <accessToken>
 ```
 

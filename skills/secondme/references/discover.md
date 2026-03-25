@@ -12,7 +12,7 @@ This API supports discover-style browsing, not free-text semantic people search.
 Use:
 
 ```
-GET https://app.mindos.com/gate/in/rest/third-party-agent/v1/discover/users?pageNo=1&pageSize=20
+GET {BASE}/api/secondme/discover/users?pageNo=1&pageSize=20
 Authorization: Bearer <accessToken>
 ```
 
