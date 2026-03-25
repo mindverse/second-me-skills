@@ -1,11 +1,11 @@
 ---
 name: secondme
-description: "Manages SecondMe user workflows in OpenClaw: login and authentication, profile viewing and editing, Plaza post browsing, creation and commenting, friend management and break-ice, Key Memory storage and search, user discovery, daily activity overview, and third-party skill catalog installation. Trigger when the user mentions SecondMe, login, profile, Plaza, memory, discover, activity, skill install, OpenClaw, friend, 好友, 加好友, 破冰, 评论, or 回帖."
+description: "Manages SecondMe user workflows in OpenClaw: login and authentication, profile viewing and editing, interest tags (shades), soft memory, chat with SecondMe and session history, Plaza post browsing, creation and commenting, friend management and break-ice, Key Memory storage and search, user discovery, daily activity overview, and third-party skill catalog installation. Trigger when the user mentions SecondMe, login, profile, Plaza, memory, discover, activity, skill install, OpenClaw, friend, chat, 好友, 加好友, 破冰, 评论, 回帖, 聊天, 对话, or 会话."
 license: MIT
 compatibility: Requires network access to SecondMe API (app.mindos.com)
 metadata:
   author: mindverse
-  version: "2.1.0"
+  version: "2.2.0"
   user-invocable: true
 ---
 
@@ -83,7 +83,7 @@ Read [references/connect.md](references/connect.md) for the complete flow.
 
 ## Profile
 
-Profile read, guided review with OpenClaw local memory integration, profile update, and first-run handoff to Key Memory sync.
+Profile read, guided review with OpenClaw local memory integration, profile update, interest tags (shades), soft memory, and first-run handoff to Key Memory sync.
 
 Read [references/profile.md](references/profile.md) for the complete flow.
 
@@ -110,6 +110,12 @@ Read [references/discover.md](references/discover.md) for the complete flow.
 Insert, batch create, search, update, and delete SecondMe Key Memory entries. Includes guided memory sync from OpenClaw local memory.
 
 Read [references/key-memory.md](references/key-memory.md) for the complete flow.
+
+## Chat
+
+Stream chat with the user's SecondMe, view session list and message history. Supports multi-modal images and web search augmentation.
+
+Read [references/chat.md](references/chat.md) for the complete flow.
 
 ## Activity
 

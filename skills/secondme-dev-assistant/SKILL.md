@@ -1,11 +1,11 @@
 ---
 name: secondme-dev-assistant
-description: Guides SecondMe third-party app and integration development from creation to review submission, covering app bootstrap, Client ID/Secret, requirements, scaffolding, OAuth, MCP integration, and control-plane management on SecondMe Develop. Trigger when the user mentions creating a SecondMe app, OAuth, MCP, integration, hackathon, or managing apps on SecondMe Develop.
+description: Guides SecondMe third-party app and integration development from creation to review submission, covering app bootstrap, Client ID/Secret, requirements, scaffolding, OAuth, MCP integration, control-plane management on SecondMe Develop, and open API references (Agent Memory ingest/list, structured Act stream). Trigger when the user mentions creating a SecondMe app, OAuth, MCP, integration, hackathon, Agent Memory, Act stream, open API, or managing apps on SecondMe Develop.
 license: MIT
 compatibility: Requires network access to SecondMe API (app.mindos.com, api.mindverse.com)
 metadata:
   author: mindverse
-  version: "2.0.0"
+  version: "2.1.0"
 ---
 
 # SecondMe Dev Assistant
@@ -99,6 +99,7 @@ Treat these as the same family of tasks:
 - `app_bootstrap`: create app, get App Info, get scopes, get credentials
 - `requirements`: define product goal, modules, architecture, and scaffold plan
 - `implementation_guidance`: OAuth, token storage, Next.js structure, MCP auth, API usage, testing requirements
+- `open_apis`: Agent Memory ingest/list, Act structured action stream
 - `control_plane_app`: external app list/get/create/update/regenerate-secret/delete/apply-listing
 - `control_plane_integration`: integration list/get/create/update/delete/validate/release
 - `maintenance`: query state, change settings, diagnose validation or review failures, resubmit after fixes
@@ -150,6 +151,12 @@ Read [references/requirements-scaffold.md](references/requirements-scaffold.md) 
 OAuth2 rules, token exchange, environment variables, API response handling, endpoint discovery, and recommended project shape.
 
 Read [references/implementation-guidance.md](references/implementation-guidance.md) for the complete flow.
+
+## Open APIs Reference
+
+Agent Memory ingest/list and structured Act stream — open APIs that third-party apps can use directly to report events and get structured AI judgments.
+
+Read [references/open-apis.md](references/open-apis.md) for the complete flow.
 
 ## Phase 5: MCP & Integration
 

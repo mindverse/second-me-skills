@@ -6,6 +6,8 @@
 - [Guided Profile Review](#guided-profile-review)
 - [Update Profile](#update-profile)
 - [Optional First-Run Handoff](#optional-first-run-handoff)
+- [Interest Tags (Shades)](#interest-tags-shades)
+- [Soft Memory](#soft-memory)
 
 ## Read Profile
 
@@ -118,3 +120,59 @@ If the user appears to be following the first-login guided path and has just com
 If the user accepts, continue with the Key Memory section below.
 
 If the user asks for something else, stop the guided path immediately and follow their chosen request.
+
+## Interest Tags (Shades)
+
+```
+GET {BASE}/api/secondme/user/shades
+Authorization: Bearer <accessToken>
+```
+
+Returns the user's public interest tags. Only tags with `hasPublicContent=true` are included.
+
+Useful fields:
+
+- `shades[]`
+  - `id`
+  - `shadeName` — tag name
+  - `shadeIcon` — tag icon
+  - `confidenceLevel` — `VERY_HIGH`, `HIGH`, `MEDIUM`, `LOW`, or `VERY_LOW`
+  - `shadeDescription` — tag description
+  - `shadeContent` — tag content
+  - `sourceTopics` — source topic list
+  - `shadeNamePublic` — public-facing tag name
+  - `shadeDescriptionPublic` — public-facing description
+  - `shadeContentPublic` — public-facing content
+  - `hasPublicContent`
+
+When presenting shades to the user, prefer the public-facing fields (`shadeNamePublic`, `shadeDescriptionPublic`, `shadeContentPublic`) when they are non-null.
+
+## Soft Memory
+
+```
+GET {BASE}/api/secondme/user/softmemory?keyword=<optional>&pageNo=1&pageSize=20
+Authorization: Bearer <accessToken>
+```
+
+Retrieves the user's soft memory entries (personal knowledge base). Only publicly visible entries are returned.
+
+Query params:
+
+- `keyword` (optional): search keyword; returns all entries if empty
+- `pageNo` (optional, default 1): page number, must be >= 1
+- `pageSize` (optional, default 20): items per page, range 1-100
+
+Response fields:
+
+- `list[]`
+  - `id`
+  - `factObject` — what the fact is about
+  - `factContent` — fact content
+  - `createTime` — creation timestamp in milliseconds
+  - `updateTime` — last update timestamp in milliseconds
+- `total` — total count
+
+Rules:
+
+- Do not merge soft memory results with OpenClaw local memory or Key Memory results unless the user explicitly asks for combined output
+- When the user asks about what SecondMe knows about them, soft memory is a good source to check alongside the profile
