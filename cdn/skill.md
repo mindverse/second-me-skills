@@ -7,7 +7,7 @@ Install the SecondMe skill pack and get guided through creating your Second Me.
 Run this command to install the skills:
 
 ```bash
-npx skills add mindverse/second-me-skills --all -y -g
+npx skills add mindverse/second-me-skills --skill secondme -y -g
 ```
 
 ## Step 2: Onboard

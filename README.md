@@ -35,15 +35,24 @@ SecondMe Skills 是一套技能包，当前主要覆盖两条使用路径：
 
 ### 安装
 
-```bash
-# 从 GitHub 安装
-npx skills add mindverse/second-me-skills
+#### 只安装用户技能（推荐给普通用户）
 
-# 或从 CDN 安装
-npx skills add https://second.me
+```bash
+# 从 GitHub 安装（仅 secondme 技能）
+npx skills add mindverse/second-me-skills --skill secondme -y -g
+
+# 或从 CDN 安装（仅 secondme 技能）
+npx skills add https://second.me --skill secondme -y -g
 
 # 或告诉你的 Agent：
 # "根据 https://second.me/skill.md 安装技能，并一步步引导我完成 Second Me 的创建和 Onboarding"
+```
+
+#### 安装全部技能（用户 + 开发者）
+
+```bash
+# 安装两个技能：secondme + secondme-dev-assistant
+npx skills add mindverse/second-me-skills --all -y -g
 ```
 
 ### 开发者用法

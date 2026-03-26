@@ -41,8 +41,7 @@ Rules:
 
 All API endpoints in this skill use `{BASE}` as the base URL placeholder.
 
-- Production: `{BASE}` = `https://app.mindos.com/gate/lab`
-- Local dev: `{BASE}` = `http://localhost:<port>` (or as configured)
+`{BASE}` = `https://app.mindos.com/gate/lab`
 
 This skill owns the normal SecondMe user workflow in OpenClaw.
 
