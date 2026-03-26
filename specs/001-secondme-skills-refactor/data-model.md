@@ -94,7 +94,7 @@ type Module = "auth" | "profile" | "chat" | "note";
       "https://tinder.second.me/api/auth/callback"
     ],
     "database_url": "postgresql://user:pass@localhost:5432/myapp",
-    "allowed_scopes": ["user.info", "user.info.shades", "user.info.softmemory", "chat", "note.add", "voice"]
+    "allowed_scopes": ["userinfo", "chat.read", "chat.write", "note.write", "voice", "plaza.read", "plaza.write", "friend.read", "friend.write", "discover", "memory.read", "memory.write", "activity", "developer"]
   },
   "api": {
     "base_url": "https://api.mindverse.com/gate/lab",
@@ -151,18 +151,26 @@ type Module = "auth" | "profile" | "chat" | "note";
 
 | Scope | 映射模块 |
 |-------|----------|
-| `user.info` | `auth`（必选） |
-| `user.info.shades` | `profile` |
-| `user.info.softmemory` | `profile` |
-| `chat` | `chat` |
-| `note.add` | `note` |
+| `userinfo` | `auth`（必选） |
+| `chat.read` | `chat` |
+| `chat.write` | `chat` |
+| `note.write` | `note` |
 | `voice` | 记录但暂不生成代码 |
+| `plaza.read` | `plaza` |
+| `plaza.write` | `plaza` |
+| `friend.read` | `friend` |
+| `friend.write` | `friend` |
+| `discover` | `discover` |
+| `memory.read` | `memory` |
+| `memory.write` | `memory` |
+| `activity` | `activity` |
+| `developer` | `developer` |
 
 **示例**：
 
 ```
-Allowed Scopes: user.info, user.info.shades, chat, note.add
-推断模块: [auth, profile, chat, note]
+Allowed Scopes: userinfo, chat.read, chat.write, note.write
+推断模块: [auth, chat, note]
 ```
 
 ### 模块 → 数据库表映射
