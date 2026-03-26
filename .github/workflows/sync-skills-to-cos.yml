@@ -6,7 +6,7 @@ on:
       - main
     paths:
       - "skills/**"
-      - "cdn/**"
+
       - ".github/workflows/sync-skills-to-cos.yml"
   workflow_dispatch:
 
@@ -151,16 +151,6 @@ jobs:
             .well-known/skills/index.json \
             .well-known/skills/index.json
 
-      - name: Upload skill.md landing file
-        run: |
-          if [ -f cdn/skill.md ]; then
-            coscmd upload -f -y \
-              -H '{"Content-Type":"text/plain; charset=utf-8","Cache-Control":"no-cache"}' \
-              cdn/skill.md \
-              skill.md
-            echo "Uploaded: https://second.me/skill.md"
-          fi
-
       - name: Refresh Tencent CDN skill directories
         if: steps.changes.outputs.secondme_changed == 'true' || steps.changes.outputs.dev_assistant_changed == 'true'
         env:
@@ -283,7 +273,6 @@ jobs:
       - name: Print uploaded targets
         run: |
           echo "=== Uploaded Files ==="
-          echo "Landing:    https://second.me/skill.md"
           echo "Index:      https://second.me/.well-known/skills/index.json"
           for skill_dir in skills/*/; do
             [ -f "$skill_dir/SKILL.md" ] || continue

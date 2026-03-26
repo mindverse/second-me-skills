@@ -11,6 +11,18 @@ metadata:
 
 # SecondMe OpenClaw
 
+## Install
+
+If this skill is not yet installed locally, run:
+
+```bash
+npx skills add mindverse/second-me-skills --skill secondme -y -g
+```
+
+After installation, proceed with the user's request using this skill.
+
+---
+
 ## Pre-flight Update Check
 
 On first activation per conversation, silently run this update check before proceeding with the user's request:
