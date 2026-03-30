@@ -1,5 +1,7 @@
 # Open APIs for Third-Party Developers
 
+All endpoints use `{BASE}` = `https://api.mindverse.com/gate/lab`. All requests require `Authorization: Bearer <accessToken>` obtained via OAuth.
+
 ## Contents
 
 - [Agent Memory](#agent-memory)
@@ -70,7 +72,7 @@ Response fields:
 Errors:
 
 - 403 `agent.memory.write.disabled`: user has disabled agent memory writing
-- 502 `agent_memory.ingest.failed`: both primary (os-main) and fallback (base-datahub) ingestion failed
+- 502 `agent.memory.ingest.failed`: both primary (os-main) and fallback (base-datahub) ingestion failed
 
 ### List Events
 

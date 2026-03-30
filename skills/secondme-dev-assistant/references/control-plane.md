@@ -16,6 +16,7 @@
   - [Manifest Shape](#manifest-shape)
   - [Field Rules](#field-rules)
   - [Create vs Update Rules](#create-vs-update-rules)
+- [Common Error Handling](#common-error-handling)
 
 ## Phase 6: Authenticate With SecondMe Develop (Skills Auth)
 
@@ -314,3 +315,24 @@ Use these actions to cover the Develop list and detail pages:
 - if there is no match, prepare a create payload
 - if there are multiple plausible matches, ask the user which one to update
 - when manifest fields are incomplete, gather the missing facts and draft the integration payload yourself; do not default to telling the user to author the whole manifest manually
+
+## Common Error Handling
+
+All control-plane API responses follow the standard `{ "code": 0, "data": {...} }` structure. When `code` is not `0`, treat it as an error.
+
+Common HTTP-level and business-level errors:
+
+| Status / Code | Meaning | Action |
+|---------------|---------|--------|
+| 401 | Token expired or invalid | Delete `~/.secondme/dev_credentials` and restart Skills Auth flow |
+| 403 | Insufficient permissions or app banned | Report to user; do not retry with same token |
+| 404 | Resource not found (app/integration ID invalid) | Re-list resources to confirm correct ID |
+| 422 | Validation failed (manifest or app fields) | Inspect `result.message` for field-level issues and fix before retrying |
+| 429 | Rate limit exceeded | Wait and retry after a short delay |
+| 502 | Upstream service error | Retry once; if persistent, report to user |
+
+Rules:
+
+- always check `result.code` before consuming `result.data`
+- if a 401 is received, do not retry with the same token — delete stale credentials and re-authenticate
+- surface the error message to the user rather than silently swallowing failures

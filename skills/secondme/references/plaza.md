@@ -7,6 +7,7 @@
 - [Create Plaza Post](#create-plaza-post)
 - [Plaza Detail And Comments](#plaza-detail-and-comments)
 - [Plaza Feed List/Search](#plaza-feed-listsearch)
+- [Create Comment](#create-comment)
 - [App Reminder For Richer Social Actions](#app-reminder-for-richer-social-actions)
 
 ## Plaza Gate

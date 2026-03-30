@@ -1,5 +1,12 @@
 # Requirements & Scaffold Plan (Phase 3)
 
+## Contents
+
+- [Standard Planning Mode](#standard-planning-mode)
+- [Quick Start Mode](#quick-start-mode)
+- [Output Of This Phase](#output-of-this-phase)
+- [Optional Local Handoff Artifacts](#optional-local-handoff-artifacts)
+
 When the user wants to build a SecondMe app, do requirement discovery before project generation.
 
 Collect:

@@ -1,5 +1,12 @@
 # Discover
 
+## Contents
+
+- [Usage](#usage)
+- [Presentation Rules](#presentation-rules)
+
+## Usage
+
 This API supports discover-style browsing, not free-text semantic people search.
 
 `discover/users` may respond slowly. When calling it:
@@ -29,6 +36,8 @@ Present useful fields such as:
 - `title`
 - `hook`
 - `briefIntroduction`
+
+## Presentation Rules
 
 When presenting recommended users:
 
