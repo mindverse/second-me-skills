@@ -2,11 +2,274 @@
 
 ## API Reference
 
-> **Doc sources:**
-> - https://develop-docs.second.me/zh/docs/secondme/profile (profile update)
-> - https://develop-docs.second.me/zh/docs/secondme/user (user info, shades, soft memory)
->
-> Fetch the relevant doc page for endpoint definitions, request parameters, response fields, and error codes.
+### 获取用户信息
+
+获取授权用户的基本信息。
+
+```
+GET {BASE}/api/secondme/user/info
+```
+
+#### 请求示例
+
+```bash
+curl -X GET "{BASE}/api/secondme/user/info" \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
+#### 响应
+
+**成功 (200)**
+
+```json
+{
+  "code": 0,
+  "data": {
+    "userId": "12345678",
+    "name": "用户名",
+    "email": "user@example.com",
+    "avatar": "https://cdn.example.com/avatar.jpg",
+    "bio": "个人简介",
+    "selfIntroduction": "自我介绍内容",
+    "profileCompleteness": 8,
+    "route": "username"
+  }
+}
+```
+
+#### 响应字段
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| userId | string | 用户 ID |
+| name | string | 用户姓名 |
+| email | string | 用户邮箱 |
+| avatar | string | 头像 URL |
+| bio | string | 个人简介 |
+| selfIntroduction | string | 自我介绍 |
+| profileCompleteness | number | 资料完整度等级（0-10） |
+| route | string | 用户主页路由 |
+
+#### 错误码
+
+| 错误码 | 说明 |
+|-------|------|
+| auth.token.invalid | Token 无效或已过期 |
+
+---
+
+### 获取用户兴趣标签
+
+获取用户的兴趣标签（仅返回有公开内容的标签）。
+
+```
+GET {BASE}/api/secondme/user/shades
+```
+
+#### 请求示例
+
+```bash
+curl -X GET "{BASE}/api/secondme/user/shades" \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
+#### 响应
+
+**成功 (200)**
+
+```json
+{
+  "code": 0,
+  "data": {
+    "shades": [
+      {
+        "id": 123,
+        "shadeName": "科技爱好者",
+        "shadeIcon": "https://cdn.example.com/icon.png",
+        "confidenceLevel": "HIGH",
+        "shadeDescription": "热爱科技",
+        "shadeDescriptionThirdView": "他/她热爱科技",
+        "shadeContent": "喜欢编程和数码产品",
+        "shadeContentThirdView": "他/她喜欢编程和数码产品",
+        "sourceTopics": ["编程", "AI"],
+        "shadeNamePublic": "科技达人",
+        "shadeIconPublic": "https://cdn.example.com/public-icon.png",
+        "confidenceLevelPublic": "HIGH",
+        "shadeDescriptionPublic": "科技爱好者",
+        "shadeDescriptionThirdViewPublic": "一位科技爱好者",
+        "shadeContentPublic": "热爱科技",
+        "shadeContentThirdViewPublic": "他/她热爱科技",
+        "sourceTopicsPublic": ["科技"],
+        "hasPublicContent": true
+      }
+    ]
+  }
+}
+```
+
+#### 响应字段
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| shades | array | 兴趣标签列表 |
+| shades[].id | number | 标签 ID |
+| shades[].shadeName | string | 标签名称 |
+| shades[].shadeIcon | string | 标签图标 URL |
+| shades[].confidenceLevel | string | 置信度：`VERY_HIGH`、`HIGH`、`MEDIUM`、`LOW`、`VERY_LOW` |
+| shades[].shadeDescription | string | 标签描述 |
+| shades[].shadeDescriptionThirdView | string | 第三人称描述 |
+| shades[].shadeContent | string | 标签内容 |
+| shades[].shadeContentThirdView | string | 第三人称内容 |
+| shades[].sourceTopics | array | 来源主题 |
+| shades[].shadeNamePublic | string | 公开标签名称 |
+| shades[].shadeIconPublic | string | 公开图标 URL |
+| shades[].confidenceLevelPublic | string | 公开置信度 |
+| shades[].shadeDescriptionPublic | string | 公开描述 |
+| shades[].shadeDescriptionThirdViewPublic | string | 公开第三人称描述 |
+| shades[].shadeContentPublic | string | 公开内容 |
+| shades[].shadeContentThirdViewPublic | string | 公开第三人称内容 |
+| shades[].sourceTopicsPublic | array | 公开来源主题 |
+| shades[].hasPublicContent | boolean | 是否有公开内容 |
+
+#### 错误码
+
+| 错误码 | 说明 |
+|-------|------|
+| auth.token.invalid | Token 无效或已过期 |
+
+---
+
+### 获取用户软记忆
+
+> **已弃用**: 此接口已被 `/api/secondme/memory/key/search` 替代，建议使用 Key Memory 搜索接口。本接口保留用于向后兼容。
+
+获取用户的软记忆数据（个人知识库），支持分页和搜索。
+
+```
+GET {BASE}/api/secondme/user/softmemory
+```
+
+#### 查询参数
+
+| 参数 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| keyword | string | 否 | 搜索关键词 |
+| pageNo | integer | 否 | 页码（默认: 1，最小: 1） |
+| pageSize | integer | 否 | 每页大小（默认: 20，最大: 100） |
+
+#### 请求示例
+
+```bash
+curl -X GET "{BASE}/api/secondme/user/softmemory?keyword=爱好&pageNo=1&pageSize=20" \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
+#### 响应
+
+**成功 (200)**
+
+```json
+{
+  "code": 0,
+  "data": {
+    "list": [
+      {
+        "id": 456,
+        "factObject": "兴趣爱好",
+        "factContent": "喜欢阅读科幻小说",
+        "createTime": 1705315800000,
+        "updateTime": 1705315800000
+      }
+    ],
+    "total": 100
+  }
+}
+```
+
+#### 响应字段
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| list | array | 软记忆列表 |
+| list[].id | number | 软记忆 ID |
+| list[].factObject | string | 事实对象/分类 |
+| list[].factContent | string | 事实内容 |
+| list[].createTime | number | 创建时间（毫秒时间戳） |
+| list[].updateTime | number | 更新时间（毫秒时间戳） |
+| total | number | 总数 |
+
+#### 错误码
+
+| 错误码 | 说明 |
+|-------|------|
+| auth.token.invalid | Token 无效或已过期 |
+
+---
+
+### 更新用户资料
+
+更新当前用户的个人资料信息，支持部分更新。
+
+```
+POST {BASE}/api/secondme/user/profile
+```
+
+#### 请求参数
+
+| 参数 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| name | string | 否 | 用户姓名（最长 50 字符） |
+| avatar | string | 否 | 头像 URL（最长 2000 字符） |
+| about_me | string | 否 | 自我介绍（最长 500 字符） |
+| origin_route | string | 否 | 用户主页路由，通常为字母和数字组成（最长 50 字符） |
+
+#### 请求示例
+
+```bash
+curl -X POST "{BASE}/api/secondme/user/profile" \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "新用户名",
+    "about_me": "热爱技术，喜欢探索新事物"
+  }'
+```
+
+#### 响应
+
+**成功 (200)**
+
+```json
+{
+  "code": 0,
+  "data": {
+    "name": "新用户名",
+    "avatar": "https://cdn.example.com/avatar.jpg",
+    "about_me": "热爱技术，喜欢探索新事物",
+    "origin_route": "username",
+    "homepage": "https://second-me.cn/username"
+  }
+}
+```
+
+#### 响应字段
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| name | string | 更新后的用户姓名 |
+| avatar | string | 头像 URL |
+| about_me | string | 自我介绍 |
+| origin_route | string | 用户主页路由 |
+| homepage | string | 用户主页完整 URL |
+
+#### 错误码
+
+| 错误码 | 说明 |
+|-------|------|
+| auth.token.invalid | Token 无效或已过期 |
+| user.profile.update_failed | 资料更新失败 |
+
+---
 
 ## Contents
 

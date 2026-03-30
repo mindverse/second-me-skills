@@ -64,7 +64,7 @@ Prefer parsing this format:
 - Redirect URIs:
   - http://localhost:3000/api/auth/callback
   - https://my-app.vercel.app/api/auth/callback
-- Allowed Scopes: user.info, user.info.shades, chat, note.add
+- Allowed Scopes: userinfo, chat.read, chat.write, note.write
 ```
 
 Extract:
@@ -104,15 +104,17 @@ Infer the likely app capabilities from scopes:
 
 | Scope | Module |
 |------|------|
-| `user.info` | `auth` |
-| `user.info.shades` | `profile` |
-| `memory` | `memory` |
-| `chat` | `chat` |
-| `chat` | `act` |
-| `note.add` | `note` |
-| `voice` | `voice` reference only |
+| `userinfo` | `auth` — user info, interest tags |
+| `memory.read` | `memory` — search Key Memory |
+| `chat.read` | `chat` — session list, message history |
+| `chat.write` | `chat` — stream chat / `act` — stream action |
+| `note.write` | `note` — add notes |
+| `voice` | `voice` — text-to-speech |
+| `plaza.read` | `plaza` — browse feed, post details, comments |
+| `plaza.write` | `plaza` — create posts, comments |
+| `agent_memory` | `agent_memory` — ingest and query events |
 
-Treat `auth` as mandatory whenever `user.info` is present, which is the normal case.
+Treat `userinfo` as the baseline scope — almost every app needs it.
 
 ## Phase 2: Client Secret Handling
 
