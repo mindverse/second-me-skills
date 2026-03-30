@@ -25,9 +25,9 @@ Useful fields:
 
 ## Guided Profile Review
 
-When the user asks to view or review their personal information, also review the most relevant stable facts OpenClaw already knows about the user. Use those local memory facts to check whether the current SecondMe profile has anything worth updating or supplementing.
+When the user asks to view or review their personal information, also review the most relevant stable facts the assistant already knows about the user. Use those local memory facts to check whether the current SecondMe profile has anything worth updating or supplementing.
 
-If the user is following the first-login guided path, first review the most relevant stable facts OpenClaw already knows about the user internally. Use those facts to decide whether the current SecondMe profile needs updates or supplements, but do not force a separate local-memory summary in the user-facing message.
+If the user is following the first-login guided path, first review the most relevant stable facts the assistant already knows about the user internally. Use those facts to decide whether the current SecondMe profile needs updates or supplements, but do not force a separate local-memory summary in the user-facing message.
 
 After reading the profile, focus on these key fields:
 
@@ -37,7 +37,7 @@ After reading the profile, focus on these key fields:
 
 Explain `originRoute` as the route used in the user's SecondMe homepage, normally an alphanumeric identifier.
 
-If all three fields are present and non-blank, first confirm the current values instead of drafting replacements. If OpenClaw local memory suggests useful additions or corrections, tell the user their profile is already quite complete, then briefly point out what could still be supplemented, and ask whether they want to update it.
+If all three fields are present and non-blank, first confirm the current values instead of drafting replacements. If local memory suggests useful additions or corrections, tell the user their profile is already quite complete, then briefly point out what could still be supplemented, and ask whether they want to update it.
 
 Present:
 
@@ -50,7 +50,7 @@ Present:
 >
 > 这些内容目前已经比较完整了。
 >
-> 如果结合 OpenClaw 里已有的信息，还有这些内容可以补充：{supplement candidates or say 暂时没有明显要补的内容}。
+> 如果结合已有的本地记忆，还有这些内容可以补充：{supplement candidates or say 暂时没有明显要补的内容}。
 >
 > 你想保持不变，还是要我帮你补充或更新其中一项？
 
@@ -59,7 +59,7 @@ If any key field is missing, or the user wants to edit their profile, draft an u
 Draft using:
 
 - current profile values
-- stable facts found in OpenClaw local memory
+- stable facts found in local memory
 - any stable information already known from the conversation
 - fallback `aboutMe`: `SecondMe 新用户，期待认识大家`
 - an `originRoute` draft only if you have enough context to propose a sensible alphanumeric value
@@ -109,7 +109,7 @@ After success:
 
 If the user appears to be following the first-login guided path and has just completed or confirmed their profile setup, offer Key Memory sync as the next optional step:
 
-> 资料这边差不多了。我刚才也顺手参考了 OpenClaw 里对你的了解。
+> 资料这边差不多了。我刚才也顺手参考了对你已有的了解。
 >
 > 如果你愿意，我可以进一步把其中适合长期保留的记忆整理出来，再同步到 SecondMe。
 >
@@ -174,5 +174,5 @@ Response fields:
 
 Rules:
 
-- Do not merge soft memory results with OpenClaw local memory or Key Memory results unless the user explicitly asks for combined output
+- Do not merge soft memory results with local memory or Key Memory results unless the user explicitly asks for combined output
 - When the user asks about what SecondMe knows about them, soft memory is a good source to check alongside the profile

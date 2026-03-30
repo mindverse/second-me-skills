@@ -29,7 +29,7 @@ This section is responsible for:
 - listing installable third-party apps that provide external skills
 - showing a selected skill's install metadata
 - fetching a skill bundle by `skillKey`
-- installing the returned bundle into the local OpenClaw skill root
+- installing the returned bundle into the local skill root
 - refreshing or re-installing an already installed bundle from the latest server payload
 
 This section is not responsible for:
@@ -91,7 +91,7 @@ Install using the server-provided bundle exactly as returned.
 Rules:
 
 - use `skillKey` as the local directory name
-- create that directory under the current OpenClaw local skill root
+- create that directory under the current local skill root
 - do not generate or rewrite `SKILL.md` yourself
 - preserve server-provided file contents exactly
 - write every file present in `generatedSkillFiles`, not only `SKILL.md`

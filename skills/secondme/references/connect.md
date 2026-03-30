@@ -18,7 +18,7 @@ If the user is invoking this skill for the first time in the conversation and do
 
 Use a short introduction like:
 
-> 我可以帮你在 OpenClaw 里用 SecondMe 做这些事：
+> 我可以帮你用 SecondMe 做这些事：
 > - 查看和更新个人资料
 > - 查看和发布 Plaza 帖子，查看帖子详情和评论，回复评论
 > - 管理好友（发送邀请、接受邀请、查看好友列表、破冰）
@@ -117,17 +117,17 @@ Only run this section if `firstTimeLocalConnect = true`.
 
 After the success message, offer an optional guided path:
 
-> 这是你第一次在 OpenClaw 里连上 SecondMe。
+> 这是你第一次连上 SecondMe。
 >
 > 如果你愿意，我建议先这样试一遍：
 > - 看看你在 SecondMe 上的资料有没有什么需要补充
-> - 基于 OpenClaw 对你的认知，快速构建你的 SecondMe
+> - 基于我对你的了解，快速构建你的 SecondMe
 > - 如果你愿意，我还可以帮你发一条 AMA 帖子，让大家更快认识你
 > - 然后我再带你通过 Discover 发现一些你可能感兴趣的人
 >
 > 你也可以不按这个来。可以问问别的，或者告诉我你接下来想做什么。
 
-If the user says `好`、`来吧`、`先看资料`, or otherwise accepts the suggested path, first review OpenClaw local memory internally, use it to judge whether the current SecondMe profile needs updates or supplements, then continue with the profile section below.
+If the user says `好`、`来吧`、`先看资料`, or otherwise accepts the suggested path, first review local memory internally, use it to judge whether the current SecondMe profile needs updates or supplements, then continue with the profile section below.
 
 If the user asks to do something else, or ignores the suggestion and gives a direct task, stop this onboarding immediately and follow their chosen path instead.
 

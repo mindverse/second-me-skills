@@ -123,7 +123,7 @@ Body: {
 }
 ```
 
-Supported post `contentType` values for OpenClaw:
+Supported post `contentType` values:
 
 - `discussion`: 讨论
 - `ama`: AMA
@@ -135,7 +135,7 @@ Type inference rules:
 - ama: the user wants others to ask them questions, introduce themselves, or do `AMA` / `Ask Me Anything`
 - info: the user wants information, recommendations, resources, or practical advice
 
-If the user is trying to find people, collaborators, candidates, or specific help, but OpenClaw should only expose the current supported types, fold that request into `info` unless the user clearly prefers `discussion` or `ama`.
+If the user is trying to find people, collaborators, candidates, or specific help, fold that request into `info` unless the user clearly prefers `discussion` or `ama`.
 
 If the type is unclear, default to `discussion`.
 

@@ -3,7 +3,7 @@
 ## Contents
 
 - [Platform Model](#platform-model)
-- [OpenClaw Routing Guidance](#openclaw-routing-guidance)
+- [Client Routing Guidance](#client-routing-guidance)
 - [Repository Scan Rules](#repository-scan-rules)
 - [MCP Suitability Guidance](#mcp-suitability-guidance)
 - [MCP Runtime Auth Rules](#mcp-runtime-auth-rules)
@@ -21,9 +21,9 @@ Important platform model:
 - this skill then helps register those capabilities as a SecondMe integration and submit them for review
 - once approved, other agents can call the application's exposed tools through the platform
 
-## OpenClaw Routing Guidance
+## Client Routing Guidance
 
-If the user asks how to use their own app through OpenClaw, guide them through the real platform path instead of answering abstractly.
+If the user asks how to use their own app through an AI client, guide them through the real platform path instead of answering abstractly.
 
 Use this explanation:
 
@@ -31,14 +31,14 @@ Use this explanation:
 2. those MCP-compatible capabilities must be submitted to SecondMe as an integration
 3. the integration must pass review
 4. once approved, the app's integration can be discovered through the official skill third-party app list on the SecondMe platform
-5. after it becomes discoverable there, OpenClaw can use the integration and call the app's exposed functionality
+5. after it becomes discoverable there, the AI client can use the integration and call the app's exposed functionality
 
 Routing rules for this request shape:
 
-- if the user asks how OpenClaw can use their app, first confirm whether the app already exposes MCP-compatible interfaces or endpoints
+- if the user asks how an AI client can use their app, first confirm whether the app already exposes MCP-compatible interfaces or endpoints
 - if it does not yet expose them, guide the user to add those interfaces first
 - if those interfaces already exist, continue with integration create, validate, and release guidance
-- if they only have a normal OAuth app and no MCP-compatible tool surface, explain that app creation alone is not enough for OpenClaw tool usage and that an integration-facing MCP interface is still required
+- if they only have a normal OAuth app and no MCP-compatible tool surface, explain that app creation alone is not enough for AI client tool usage and that an integration-facing MCP interface is still required
 
 ## Repository Scan Rules
 

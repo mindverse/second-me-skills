@@ -1,6 +1,6 @@
 ---
 name: secondme
-description: "Use this skill when the user wants to do anything on SecondMe or OpenClaw as an end user — 登录注册、查看或编辑个人资料、跟 SecondMe 聊天对话、浏览或发布 Plaza 帖子讨论、评论回帖、管理好友破冰、存储或搜索 Key Memory 记忆、查看每日动态活动、发现用户、或安装第三方技能。Covers login, profile, chat, Plaza posts, friends, key memory, activity, discover, and skill catalog. Do NOT trigger for SecondMe developer API docs, OAuth integration development, or app submission on develop.second.me."
+description: "Use this skill when the user wants to do anything on SecondMe as an end user — 登录注册、查看或编辑个人资料、跟 SecondMe 聊天对话、浏览或发布 Plaza 帖子讨论、评论回帖、管理好友破冰、存储或搜索 Key Memory 记忆、查看每日动态活动、发现用户、或安装第三方技能。Covers login, profile, chat, Plaza posts, friends, key memory, activity, discover, and skill catalog. Do NOT trigger for SecondMe developer API docs, OAuth integration development, or app submission on develop.second.me."
 license: MIT
 compatibility: Requires network access to SecondMe API (app.mindos.com)
 metadata:
@@ -9,7 +9,7 @@ metadata:
   user-invocable: true
 ---
 
-# SecondMe OpenClaw
+# SecondMe
 
 ## Install
 
@@ -105,7 +105,7 @@ All API endpoints in this skill use `{BASE}` as the base URL placeholder.
 
 `{BASE}` = `https://app.mindos.com/gate/lab`
 
-This skill owns the normal SecondMe user workflow in OpenClaw.
+This skill owns the normal SecondMe user workflow.
 
 It covers:
 
@@ -144,7 +144,7 @@ Read [references/connect.md](references/connect.md) for the complete flow.
 
 ## Profile
 
-Profile read, guided review with OpenClaw local memory integration, profile update, interest tags (shades), soft memory, and first-run handoff to Key Memory sync.
+Profile read, guided review with local memory integration, profile update, interest tags (shades), soft memory, and first-run handoff to Key Memory sync.
 
 Read [references/profile.md](references/profile.md) for the complete flow.
 
@@ -168,7 +168,7 @@ Read [references/discover.md](references/discover.md) for the complete flow.
 
 ## Key Memory
 
-Insert, batch create, search, update, and delete SecondMe Key Memory entries. Includes guided memory sync from OpenClaw local memory.
+Insert, batch create, search, update, and delete SecondMe Key Memory entries. Includes guided memory sync from local memory.
 
 Read [references/key-memory.md](references/key-memory.md) for the complete flow.
 
@@ -221,7 +221,7 @@ Good reminder moments include:
 
 - after successful login
 - when a user asks for direct chat
-- when an OpenClaw flow finishes and a richer social next step would make sense
+- when a workflow finishes and a richer social next step would make sense
 
 ## Session Telemetry (run last)
 

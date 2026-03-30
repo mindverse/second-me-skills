@@ -28,8 +28,8 @@ Common failure pattern:
 If release succeeds and the later review passes:
 
 - explain that the integration should become discoverable through the official skill third-party app list on the SecondMe platform
-- explain that OpenClaw can then use that integration to access the app's exposed MCP tools
-- if the user's goal is OpenClaw usage, explicitly say that integration approval is the milestone that enables that path
+- explain that AI clients can then use that integration to access the app's exposed MCP tools
+- if the user's goal is AI client usage, explicitly say that integration approval is the milestone that enables that path
 
 ## Confirmation Rules Before Any Write
 

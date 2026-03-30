@@ -14,17 +14,17 @@
 
 This section is only for explicit SecondMe Key Memory operations.
 
-If the user only says generic `记忆`, `memory`, `你记得吗`, or `查我的记忆`, do not assume they mean this section. That wording may refer to OpenClaw local memory.
+If the user only says generic `记忆`, `memory`, `你记得吗`, or `查我的记忆`, do not assume they mean this section. That wording may refer to local memory (the assistant's own memory of the user).
 
 If ambiguous, ask:
 
-> 你要查 OpenClaw 本地记忆，还是 SecondMe 的 Key Memory？
+> 你要查本地记忆，还是 SecondMe 的 Key Memory？
 
 ## Guided Memory Sync
 
 If the user is in onboarding, or asks how to shape their SecondMe faster, offer:
 
-> 如果你愿意，我可以把 OpenClaw 里适合长期保存的记忆整理成几条，再分条存进 SecondMe。
+> 如果你愿意，我可以把适合长期保存的记忆整理成几条，再分条存进 SecondMe。
 >
 > 这样通常能更快塑造你的 SecondMe。
 >
@@ -33,7 +33,7 @@ If the user is in onboarding, or asks how to shape their SecondMe faster, offer:
 Rules:
 
 - ask for consent before preparing or writing a sync batch
-- if the user accepts from the first-login handoff, first review OpenClaw local memory and extract candidate facts that are suitable for long-term storage in SecondMe
+- if the user accepts from the first-login handoff, first review local memory and extract candidate facts that are suitable for long-term storage in SecondMe
 - if there are no suitable local memory facts, say so clearly and do not push the import step
 - if the user agrees, first show the candidate facts in a compact list
 - only write the facts the user confirms
@@ -112,7 +112,7 @@ Useful item fields:
 - `updateTime`
 - `visibility`
 
-Do not merge OpenClaw local memory results with SecondMe Key Memory results unless the user explicitly asks for both.
+Do not merge local memory results with SecondMe Key Memory results unless the user explicitly asks for both.
 
 ## Update Key Memory
 
