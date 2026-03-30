@@ -151,6 +151,45 @@ jobs:
             .well-known/skills/index.json \
             .well-known/skills/index.json
 
+      # --- Develop well-known endpoint (for npx skills add https://develop.second.me) ---
+
+      - name: Generate develop index.json (dev-assistant only)
+        run: |
+          mkdir -p develop-well-known/skills
+
+          skill_dir="skills/secondme-dev-assistant"
+          name="secondme-dev-assistant"
+          desc=$(sed -n '/^---$/,/^---$/{ /^description:/{ s/^description: *//; s/^"//; s/"$//; p; q; } }' "$skill_dir/SKILL.md")
+          files=$(cd "$skill_dir" && find . -name "*.md" -type f | sed 's|^\./||' | sort | jq -R . | jq -s .)
+
+          jq -n --arg n "$name" --arg d "$desc" --argjson f "$files" \
+            '{"skills":[{name:$n, description:$d, files:$f}]}' > develop-well-known/skills/index.json
+
+          echo "Generated develop index.json:"
+          cat develop-well-known/skills/index.json
+
+      - name: Prepare develop well-known directory
+        run: |
+          target="develop-well-known/skills/secondme-dev-assistant"
+          mkdir -p "$target"
+          cp -r skills/secondme-dev-assistant/* "$target/"
+
+          echo "Develop well-known structure:"
+          find develop-well-known -type f
+
+      - name: Upload develop well-known to COS
+        if: steps.changes.outputs.dev_assistant_changed == 'true'
+        run: |
+          coscmd upload -r -f -y \
+            -H '{"Content-Type":"text/plain; charset=utf-8","Cache-Control":"no-cache"}' \
+            develop-well-known/skills/ \
+            develop-well-known/skills/
+
+          coscmd upload -f -y \
+            -H '{"Content-Type":"application/json; charset=utf-8","Cache-Control":"no-cache"}' \
+            develop-well-known/skills/index.json \
+            develop-well-known/skills/index.json
+
       - name: Refresh Tencent CDN skill directories
         if: steps.changes.outputs.secondme_changed == 'true' || steps.changes.outputs.dev_assistant_changed == 'true'
         env:
@@ -182,6 +221,7 @@ jobs:
               paths.append("https://mindverseglobal-cos-cdn.mindverse.com/skill/secondme/")
           if os.environ.get("DEV_ASSISTANT_CHANGED") == "true":
               paths.append("https://mindverseglobal-cos-cdn.mindverse.com/skill/secondme-dev-assistant/")
+              paths.append("https://mindverseglobal-cos-cdn.mindverse.com/develop-well-known/skills/")
 
           if not paths:
               print("No changed skill directories. Skipping CDN refresh.")
@@ -281,3 +321,7 @@ jobs:
             echo "COS dir:    https://mindverseglobal-cos-1309544882.cos.ap-shanghai.myqcloud.com/skill/$name/"
             echo "CDN dir:    https://mindverseglobal-cos-cdn.mindverse.com/skill/$name/"
           done
+          echo ""
+          echo "=== Develop Well-Known ==="
+          echo "Index:      https://develop.second.me/.well-known/skills/index.json"
+          echo "Skill:      https://develop.second.me/.well-known/skills/secondme-dev-assistant/SKILL.md"

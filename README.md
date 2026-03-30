@@ -45,8 +45,12 @@ npx skills add https://second.me
 # 只安装用户技能（不含开发者技能）
 npx skills add mindverse/second-me-skills --skill secondme -y -g
 
+# 只安装开发者技能（不含用户技能）
+npx skills add https://develop.second.me
+
 # 或告诉你的 Agent：
 # "根据 https://second.me/skill.md 安装技能，并一步步引导我完成 Second Me 的创建和 Onboarding"
+# "根据 https://develop.second.me/skill.md 安装技能，引导我完成联调与信息提交"
 ```
 
 ### 开发者用法
