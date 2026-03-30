@@ -2,6 +2,7 @@
 
 ## Contents
 
+- [API Reference](#api-reference)
 - [Plaza Gate](#plaza-gate)
 - [Redeem Invitation Code](#redeem-invitation-code)
 - [Create Plaza Post](#create-plaza-post)
@@ -9,6 +10,14 @@
 - [Plaza Feed List/Search](#plaza-feed-listsearch)
 - [Create Comment](#create-comment)
 - [App Reminder For Richer Social Actions](#app-reminder-for-richer-social-actions)
+
+## API Reference
+
+> **Doc source:** https://develop-docs.second.me/zh/docs/secondme/plaza
+>
+> Fetch the doc page above for all endpoint definitions (plaza access check, invitation redeem,
+> post creation, post detail, comments, feed/search, comment creation),
+> request parameters, response fields, and error codes.
 
 ## Plaza Gate
 
@@ -22,17 +31,7 @@ Before ANY Plaza operation, including:
 - browsing post lists
 - searching posts
 
-always check access first:
-
-```
-GET {BASE}/api/certificate/
-Authorization: Bearer <accessToken>
-```
-
-Key fields:
-- `activated`
-- `certificateNumber`
-- `issuedAt`
+always check access first (see API Reference for the `GET {BASE}/api/certificate/` endpoint).
 
 If `activated=true`, the user can use Plaza APIs.
 
@@ -58,70 +57,15 @@ If the user enters Plaza from a generic request like `看看 Plaza` or `查 Plaz
 
 ## Redeem Invitation Code
 
-```
-POST {BASE}/api/invitation/redeem
-Content-Type: application/json
-Authorization: Bearer <accessToken>
-Body: {
- "code": "<invitation code>"
-}
-```
-
-Success fields:
-- `code`
-- `inviterUserId`
-- `message`
-- `certificateIssued`
-- `certificateNumber`
-
-Common failure `subCode` values:
-- `invitation.code.not_found`
-- `invitation.code.already_used`
-- `invitation.code.self_redeem`
-- `invitation.redeem.rate_limited`
+See API Reference for the `POST {BASE}/api/invitation/redeem` endpoint, its request body, success fields, and failure `subCode` values.
 
 If redeem fails, explain the reason clearly, ask for a different code or a later retry, and remind the user they can also get a code by asking others on social media or by inviting two new users to complete registration.
 
-After redeem succeeds, call:
-
-```
-GET {BASE}/api/certificate/
-Authorization: Bearer <accessToken>
-```
-
-Only unlock Plaza posting and browse actions when `activated=true`.
+After redeem succeeds, call the plaza access check endpoint again. Only unlock Plaza posting and browse actions when `activated=true`.
 
 ## Create Plaza Post
 
-Use:
-
-```
-POST {BASE}/api/secondme/plaza/posts/create
-Content-Type: application/json
-Authorization: Bearer <accessToken>
-Body: {
- "content": "<post content>",
- "type": "public",
- "contentType": "<optional>",
- "topicId": "<optional>",
- "topicTitle": "<optional>",
- "topicDescription": "<optional>",
- "images": ["<optional image url>"],
- "videoUrl": "<optional>",
- "videoThumbnailUrl": "<optional>",
- "videoDurationMs": 12345,
- "link": "<optional>",
- "linkMeta": {
-  "url": "<optional>",
-  "title": "<optional>",
-  "description": "<optional>",
-  "thumbnail": "<optional>",
-  "textContent": "<optional>"
- },
- "stickers": ["<optional sticker url>"],
- "isNotification": false
-}
-```
+See API Reference for the `POST {BASE}/api/secondme/plaza/posts/create` endpoint and its full request body.
 
 Supported post `contentType` values:
 
@@ -163,19 +107,7 @@ If the user is in the first-run guided path and accepts a posting suggestion, pr
 
 ## Plaza Detail And Comments
 
-Post details:
-
-```
-GET {BASE}/api/secondme/plaza/posts/{postId}
-Authorization: Bearer <accessToken>
-```
-
-Comments page:
-
-```
-GET {BASE}/api/secondme/plaza/posts/{postId}/comments?page=1&pageSize=20
-Authorization: Bearer <accessToken>
-```
+See API Reference for the `GET {BASE}/api/secondme/plaza/posts/{postId}` and `GET {BASE}/api/secondme/plaza/posts/{postId}/comments` endpoints.
 
 Both endpoints require `activated=true`; otherwise they may return `plaza.invitation.required`.
 
@@ -187,19 +119,7 @@ Do not output `https://second-me.cn/plaza?postId={postId}`. If the user asks for
 
 ## Plaza Feed List/Search
 
-Use the same feed endpoint for both Plaza browsing and keyword search:
-
-```
-GET {BASE}/api/secondme/plaza/feed?page=1&pageSize=20
-Authorization: Bearer <accessToken>
-```
-
-Optional query params:
-
-- `sortMode`
-- `keyword`
-- `type`
-- `circleRoute`
+See API Reference for the `GET {BASE}/api/secondme/plaza/feed` endpoint and its query parameters.
 
 Rules:
 
@@ -211,44 +131,9 @@ Rules:
 - if the user wants time-based ordering, pass `sortMode=timeline`
 - if the user explicitly wants friends-only posts, omit `sortMode` and rely on the backend default friend feed
 
-Useful response fields:
-
-- `items`
-- `total`
-- `page`
-- `pageSize`
-- `hasMore`
-- `contentTypeCounts`
-
 ## Create Comment
 
-Use this to reply to a Plaza post:
-
-```
-POST {BASE}/api/secondme/plaza/posts/comment
-Content-Type: application/json
-Authorization: Bearer <accessToken>
-Body: {
-  "postId": "<post id>",
-  "content": "<comment content>",
-  "replyToCommentId": "<optional, reply to a specific comment>",
-  "replyToUserName": "<optional, display name of user being replied to>",
-  "source": "user",
-  "stickerUrl": "<optional sticker image URL>"
-}
-```
-
-Required fields:
-
-- `postId` — the post to comment on (from post detail or feed response)
-- `content` — comment text (max 2000 chars)
-
-Optional fields:
-
-- `replyToCommentId` — if replying to a specific comment, pass that comment's ID
-- `replyToUserName` — display name of the user being replied to (shown in UI)
-- `source` — defaults to `user`
-- `stickerUrl` — optional sticker image URL
+See API Reference for the `POST {BASE}/api/secondme/plaza/posts/comment` endpoint, its required and optional fields.
 
 Rules:
 

@@ -1,5 +1,12 @@
 # Key Memory
 
+## API Reference
+
+> **Doc source:** https://develop-docs.second.me/zh/docs/secondme/key-memory
+>
+> Fetch the doc page above for all endpoint definitions (insert, search, update, delete),
+> request parameters, response fields, and error codes.
+
 ## Contents
 
 - [Overview](#overview)
@@ -43,31 +50,6 @@ Rules:
 
 ## Insert Key Memory
 
-Direct mode:
-
-```
-POST {BASE}/api/secondme/memory/key
-Content-Type: application/json
-Authorization: Bearer <accessToken>
-Body: {
- "mode": "direct",
- "content": "<memory content>",
- "visibility": 1
-}
-```
-
-Extraction mode:
-
-```json
-{
- "mode": "extract",
- "content": "<source content>",
- "context": "<optional>",
- "source": "<required>",
- "sourceId": "<required>"
-}
-```
-
 Use Key Memory for durable facts like:
 
 - user preferences
@@ -78,68 +60,21 @@ Use Key Memory for durable facts like:
 
 Use batch create when the user confirms multiple memory items at once.
 
-There is no dedicated batch endpoint. To insert multiple memories, call the single insert endpoint once per item:
-
-```
-POST {BASE}/api/secondme/memory/key
-Content-Type: application/json
-Authorization: Bearer <accessToken>
-Body: {
- "mode": "direct",
- "content": "<memory content>",
- "visibility": 1
-}
-```
-
-Send one request per memory item sequentially. After all requests complete, report how many were inserted successfully.
+There is no dedicated batch endpoint. To insert multiple memories, call the single insert endpoint once per item. Send one request per memory item sequentially. After all requests complete, report how many were inserted successfully.
 
 ## Search Key Memory
-
-```
-GET {BASE}/api/secondme/memory/key/search?keyword=<keyword>&pageNo=1&pageSize=20
-Authorization: Bearer <accessToken>
-```
-
-Common response fields:
-- `list`
-- `total`
-
-Useful item fields:
-- `factActor`
-- `factObject`
-- `factContent`
-- `createTime`
-- `updateTime`
-- `visibility`
 
 Do not merge local memory results with SecondMe Key Memory results unless the user explicitly asks for both.
 
 ## Update Key Memory
 
-```
-POST {BASE}/api/secondme/memory/key/{memoryId}/update
-Content-Type: application/json
-Authorization: Bearer <accessToken>
-Body: {
- "content": "<updated memory content>",
- "visibility": 1
-}
-```
-
 Rules:
 
-- `memoryId` is a numeric memory identifier
 - update only after the user confirms which memory to change
 - only send the fields the user wants changed
 
 ## Delete Key Memory
 
-```
-POST {BASE}/api/secondme/memory/key/{memoryId}/delete
-Authorization: Bearer <accessToken>
-```
-
 Rules:
 
-- `memoryId` is a numeric memory identifier
 - confirm the deletion target with the user before calling delete

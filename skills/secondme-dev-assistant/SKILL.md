@@ -86,6 +86,18 @@ If `TEL_PROMPTED` is `yes`, skip this section entirely and proceed with the user
 
 ---
 
+## Documentation Source
+
+API endpoint specifications (paths, parameters, response fields, error codes) are maintained on the documentation site:
+
+- Doc index: https://develop-docs.second.me/llms.txt
+- Full reference: https://develop-docs.second.me/llms-full.txt
+- Per-feature pages: https://develop-docs.second.me/zh/docs/secondme/{feature}
+
+Reference files in this skill contain behavioral rules (UX flows, implementation guidance, confirmation logic). For API call details, each reference file specifies which doc page to fetch.
+
+---
+
 This is the single entry skill for SecondMe developer work.
 
 Use it for the full lifecycle:

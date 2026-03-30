@@ -1,5 +1,12 @@
 # Third-Party Skills
 
+## API Reference
+
+> **Doc source:** https://develop-docs.second.me/zh/docs/secondme/skills
+>
+> Fetch the doc page above for all endpoint definitions (app catalog, skill detail,
+> execution RPC), request parameters, response fields, and error codes.
+
 ## Contents
 
 - [Overview](#overview)
@@ -40,16 +47,9 @@ This section is not responsible for:
 
 ## Discover Available Apps
 
-Fetch the paginated third-party app catalog:
-
-```
-GET {BASE}/api/secondme/extensions/apps?pageNo=1&pageSize=20
-Authorization: Bearer <accessToken>
-```
-
 Rules:
 
-- stop and report failure if this request does not succeed
+- stop and report failure if the request does not succeed
 - use the returned app list as the source of truth for what can be installed
 - the server already sorts apps as: apps with skills first, featured apps second, other apps last
 - only treat apps with non-empty `skills` as installable or usable
@@ -62,25 +62,9 @@ Rules:
 
 ## Fetch Skill Detail And Bundle
 
-When the user chooses a `skillKey`, fetch the install payload:
-
-```
-GET {BASE}/api/secondme/extensions/detail/{skillKey}
-Authorization: Bearer <accessToken>
-```
+When the user chooses a `skillKey`, fetch the install payload.
 
 Verify the response includes the install metadata and `generatedSkillFiles`.
-
-Expected detail fields include:
-
-- `skillKey`
-- `integrationKey`
-- `displayName`
-- `description`
-- `version`
-- `actions`
-- `toolAllow`
-- `generatedSkillFiles`
 
 Only fetch detail for a `skillKey` that came from the current approved app catalog response.
 
@@ -109,17 +93,11 @@ If the current runtime exposes a higher-level local skill installation action, i
 
 ## Execution Boundary
 
-Installed skills may later execute through:
-
-```
-POST {BASE}/api/secondme/extensions/mcp/{integrationKey}/rpc
-```
-
 Rules:
 
-- do not call this RPC endpoint during installation
+- do not call the RPC endpoint during installation
 - do not use `toolAllow` as a substitute for installation or execution
-- only the installed runtime skill should decide when to call this RPC path later
+- only the installed runtime skill should decide when to call the RPC path later
 
 ## OAuth Authorization Error Handling
 

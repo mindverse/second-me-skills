@@ -1,13 +1,12 @@
 # Discover
 
-## Contents
+## API Reference
 
-- [Usage](#usage)
-- [Presentation Rules](#presentation-rules)
+> **Doc source:** https://develop-docs.second.me/zh/docs/secondme/discover
+>
+> Fetch the doc page above for endpoint definition, query parameters, and response fields.
 
-## Usage
-
-This API supports discover-style browsing, not free-text semantic people search.
+## Usage Rules
 
 `discover/users` may respond slowly. When calling it:
 
@@ -16,26 +15,7 @@ This API supports discover-style browsing, not free-text semantic people search.
 - If the first attempt ends with a clear timeout or transient network timeout, retry once before surfacing failure
 - If the caller has a hard timeout below `60s`, explain that the failure is likely caused by the runtime timeout rather than invalid discover parameters
 
-Use:
-
-```
-GET {BASE}/api/secondme/discover/users?pageNo=1&pageSize=20
-Authorization: Bearer <accessToken>
-```
-
-Optional query params:
-- `longitude`
-- `latitude`
-- `circleType`
-
-Present useful fields such as:
-- `username`
-- `distance`
-- `route`
-- `matchScore`
-- `title`
-- `hook`
-- `briefIntroduction`
+This API supports discover-style browsing, not free-text semantic people search.
 
 ## Presentation Rules
 

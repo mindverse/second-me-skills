@@ -122,6 +122,18 @@ When the user wants to chat with people they are interested in, remind them that
 
 **Credentials file:** `~/.secondme/credentials`
 
+## Documentation Source
+
+API endpoint specifications (paths, parameters, response fields, error codes) are maintained on the documentation site:
+
+- Doc index: https://develop-docs.second.me/llms.txt
+- Full reference: https://develop-docs.second.me/llms-full.txt
+- Per-feature pages: https://develop-docs.second.me/zh/docs/secondme/{feature}
+
+Reference files in this skill contain behavioral rules (UX flows, presentation templates, confirmation logic). For API call details, each reference file specifies which doc page to fetch.
+
+The doc site may show `https://api.mindverse.com/gate/lab` as the base URL. This skill uses `{BASE}` = `https://app.mindos.com/gate/lab` as defined above. The endpoint paths are the same.
+
 ## Shared Authentication Rules
 
 Before any authenticated SecondMe operation:
@@ -182,12 +194,9 @@ Read [references/chat.md](references/chat.md) for the complete flow.
 
 Use this section when the user wants today's activity, a day overview, or the activity for a specific date in SecondMe.
 
-Use:
-
-```
-GET {BASE}/api/secondme/activity/day-overview?date=<yyyy-MM-dd>&pageNo=1&pageSize=10
-Authorization: Bearer <accessToken>
-```
+> **Doc source:** https://develop-docs.second.me/zh/docs/secondme/activity
+>
+> Fetch the doc page above for endpoint definition, parameters, and response shape.
 
 Rules:
 - `date` is optional and uses `yyyy-MM-dd`

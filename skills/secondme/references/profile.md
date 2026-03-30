@@ -1,27 +1,20 @@
 # Profile
 
+## API Reference
+
+> **Doc sources:**
+> - https://develop-docs.second.me/zh/docs/secondme/profile (profile update)
+> - https://develop-docs.second.me/zh/docs/secondme/user (user info, shades, soft memory)
+>
+> Fetch the relevant doc page for endpoint definitions, request parameters, response fields, and error codes.
+
 ## Contents
 
-- [Read Profile](#read-profile)
 - [Guided Profile Review](#guided-profile-review)
 - [Update Profile](#update-profile)
 - [Optional First-Run Handoff](#optional-first-run-handoff)
 - [Interest Tags (Shades)](#interest-tags-shades)
 - [Soft Memory](#soft-memory)
-
-## Read Profile
-
-```
-GET {BASE}/api/secondme/user/info
-Authorization: Bearer <accessToken>
-```
-
-Useful fields:
-- `name`
-- `avatar`
-- `aboutMe`
-- `originRoute`
-- `homepage`
 
 ## Guided Profile Review
 
@@ -82,20 +75,6 @@ Then wait for confirmation or edits.
 
 ## Update Profile
 
-Update only the fields the user wants changed:
-
-```
-POST {BASE}/api/secondme/user/profile
-Content-Type: application/json
-Authorization: Bearer <accessToken>
-Body: {
- "name": "<optional>",
- "avatar": "<optional>",
- "aboutMe": "<optional>",
- "originRoute": "<optional>"
-}
-```
-
 Rules:
 - Omit any field the user did not ask to change
 - Only send `avatar` if the user explicitly provides a new avatar URL or asks to clear or replace it
@@ -123,54 +102,9 @@ If the user asks for something else, stop the guided path immediately and follow
 
 ## Interest Tags (Shades)
 
-```
-GET {BASE}/api/secondme/user/shades
-Authorization: Bearer <accessToken>
-```
-
-Returns the user's public interest tags. Only tags with `hasPublicContent=true` are included.
-
-Useful fields:
-
-- `shades[]`
-  - `id`
-  - `shadeName` — tag name
-  - `shadeIcon` — tag icon
-  - `confidenceLevel` — `VERY_HIGH`, `HIGH`, `MEDIUM`, `LOW`, or `VERY_LOW`
-  - `shadeDescription` — tag description
-  - `shadeContent` — tag content
-  - `sourceTopics` — source topic list
-  - `shadeNamePublic` — public-facing tag name
-  - `shadeDescriptionPublic` — public-facing description
-  - `shadeContentPublic` — public-facing content
-  - `hasPublicContent`
-
 When presenting shades to the user, prefer the public-facing fields (`shadeNamePublic`, `shadeDescriptionPublic`, `shadeContentPublic`) when they are non-null.
 
 ## Soft Memory
-
-```
-GET {BASE}/api/secondme/memory/key/search?keyword=<optional>&pageNo=1&pageSize=20
-Authorization: Bearer <accessToken>
-```
-
-Retrieves the user's soft memory entries (personal knowledge base).
-
-Query params:
-
-- `keyword` (optional): search keyword; returns all entries if empty
-- `pageNo` (optional, default 1): page number, must be >= 1
-- `pageSize` (optional, default 20): items per page, range 1-100
-
-Response fields:
-
-- `list[]`
-  - `id`
-  - `factObject` — what the fact is about
-  - `factContent` — fact content
-  - `createTime` — creation timestamp in milliseconds
-  - `updateTime` — last update timestamp in milliseconds
-- `total` — total count
 
 Rules:
 
