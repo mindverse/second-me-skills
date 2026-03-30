@@ -1,6 +1,6 @@
 ---
 name: secondme-dev-assistant
-description: Guides SecondMe third-party app and integration development from creation to review submission, covering app bootstrap, Client ID/Secret, requirements, scaffolding, OAuth, MCP integration, control-plane management on SecondMe Develop, and open API references (Agent Memory ingest/list, structured Act stream). Trigger when the user mentions creating a SecondMe app, OAuth, MCP, integration, hackathon, Agent Memory, Act stream, open API, or managing apps on SecondMe Develop.
+description: "Use when user wants to develop on the SecondMe platform (second.me, develop.second.me). Triggers: building SecondMe third-party apps (第三方应用/外部应用), SecondMe OAuth login integration (Client ID/Secret, token exchange), MCP integration for SecondMe, Agent Memory API, Act stream API, app scaffolding, review submission, or hackathon/黑客松 projects targeting SecondMe. Covers the full developer lifecycle from app creation and credentials to release. NOT for casual SecondMe usage like browsing profiles, adding friends, or social features — only for building and integrating with SecondMe as a developer platform."
 license: MIT
 compatibility: Requires network access to SecondMe API (app.mindos.com, api.mindverse.com)
 metadata:
@@ -10,11 +10,12 @@ metadata:
 
 # SecondMe Dev Assistant
 
-## Pre-flight Update Check
+## Pre-flight Check
 
-On first activation per conversation, silently run this update check before proceeding with the user's request:
+On first activation per conversation, silently run this check before proceeding with the user's request:
 
 ```bash
+# --- Update Check ---
 CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/secondme-skills"
 STAMP="$CACHE_DIR/last-check"
 mkdir -p "$CACHE_DIR"
@@ -26,6 +27,45 @@ if [ $((NOW - LAST)) -ge 86400 ]; then
   fi
   echo "$NOW" > "$STAMP"
 fi
+
+# --- Feedback/Telemetry Preamble ---
+SM_DIR="$HOME/.secondme"
+SM_CONFIG="$SM_DIR/config"
+SM_ANALYTICS="$SM_DIR/analytics"
+SM_VERSION="2.1.0"
+SM_OS=$(uname -s 2>/dev/null || echo "unknown")
+SM_ARCH=$(uname -m 2>/dev/null || echo "unknown")
+SM_TEL_START=$NOW
+SM_SESSION_ID="$$-$NOW"
+
+SM_TEL="off"
+if [ -f "$SM_CONFIG" ]; then
+  SM_TEL=$(python3 -c "
+import json
+try: d=json.load(open('$SM_CONFIG')); print(d.get('telemetry','off'))
+except: print('off')
+" 2>/dev/null || echo "off")
+fi
+
+SM_TEL_PROMPTED="no"
+[ -f "$SM_DIR/.feedback-prompted" ] && SM_TEL_PROMPTED="yes"
+
+echo "TELEMETRY: $SM_TEL"
+echo "TEL_PROMPTED: $SM_TEL_PROMPTED"
+
+# Log usage event (if telemetry not off)
+if [ "$SM_TEL" != "off" ]; then
+  mkdir -p "$SM_ANALYTICS"
+  SM_DEVICE_ID=""
+  [ "$SM_TEL" = "community" ] && [ -f "$SM_DIR/.device-id" ] && SM_DEVICE_ID=$(cat "$SM_DIR/.device-id" 2>/dev/null)
+  python3 -c "
+import json
+e={'skill':'secondme-dev-assistant','ts':'$(date -u +%Y-%m-%dT%H:%M:%SZ)','session':'$SM_SESSION_ID','version':'$SM_VERSION','os':'$SM_OS','arch':'$SM_ARCH'}
+d='$SM_DEVICE_ID'
+if d: e['device_id']=d
+print(json.dumps(e))
+" >> "$SM_ANALYTICS/usage.jsonl" 2>/dev/null || true
+fi
 ```
 
 Rules:
@@ -33,6 +73,16 @@ Rules:
 - If the update finds changes, briefly inform the user that the skill was updated
 - If nothing changed or the check is throttled, proceed silently — do not mention the check to the user
 - Never let the update check block or delay the user's actual request
+
+---
+
+## Feedback Preference
+
+If `TEL_PROMPTED` is `no`, read and follow the feedback prompt flow before continuing:
+
+Read [references/feedback-prompt.md](references/feedback-prompt.md)
+
+If `TEL_PROMPTED` is `yes`, skip this section entirely and proceed with the user's request.
 
 ---
 
@@ -201,4 +251,45 @@ Never repeat raw secret values back to the user.
 - if this assistant created or regenerated a `Client Secret`, explicitly remind the user that it has already been saved to `~/.secondme/client_secret`
 - if the saved secret later fails, tell the user to replace it rather than pretending it still works
 - when the user asks for a SecondMe app or integration from scratch, treat this skill as the unified entry point rather than routing to separate setup, PRD, scaffold, or reference skills
- 
+
+## Session Telemetry (run last)
+
+After the skill workflow completes, log a completion event if telemetry is not off.
+
+Determine the outcome and error fields according to the Completion Status protocol above.
+
+```bash
+SM_DIR="$HOME/.secondme"
+SM_ANALYTICS="$SM_DIR/analytics"
+if [ "${SM_TEL:-off}" != "off" ]; then
+  SM_TEL_END=$(date +%s)
+  SM_TEL_DUR=$(( SM_TEL_END - ${SM_TEL_START:-$SM_TEL_END} ))
+  SM_DEVICE_ID=""
+  [ "$SM_TEL" = "community" ] && [ -f "$SM_DIR/.device-id" ] && SM_DEVICE_ID=$(cat "$SM_DIR/.device-id" 2>/dev/null)
+  python3 -c "
+import json
+e={
+  'skill':'secondme-dev-assistant',
+  'ts':'$(date -u +%Y-%m-%dT%H:%M:%SZ)',
+  'event':'completion',
+  'session':'${SM_SESSION_ID:-unknown}',
+  'version':'${SM_VERSION:-unknown}',
+  'os':'${SM_OS:-unknown}',
+  'arch':'${SM_ARCH:-unknown}',
+  'duration_s':${SM_TEL_DUR:-0},
+  'outcome':'OUTCOME',
+  'error_class':ERROR_CLASS,
+  'error_message':ERROR_MESSAGE
+}
+d='$SM_DEVICE_ID'
+if d: e['device_id']=d
+print(json.dumps(e,ensure_ascii=False))
+" >> "$SM_ANALYTICS/usage.jsonl" 2>/dev/null || true
+fi
+```
+
+Replace the placeholders:
+- `OUTCOME`: `success`, `error`, or `abort` (use `unknown` if unclear)
+- `ERROR_CLASS`: `None` if success, otherwise one of `'auth_failure'`, `'api_error'`, `'network'`, `'validation'`, `'permission'`, `'unknown'`
+- `ERROR_MESSAGE`: `None` if success, otherwise a string with the first 200 chars of the error (e.g., `'Token expired at ...'`)
+

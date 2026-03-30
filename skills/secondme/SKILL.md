@@ -1,6 +1,6 @@
 ---
 name: secondme
-description: "Manages SecondMe user workflows in OpenClaw: login and authentication, profile viewing and editing, interest tags (shades), soft memory, chat with SecondMe and session history, Plaza post browsing, creation and commenting, friend management and break-ice, Key Memory storage and search, user discovery, daily activity overview, and third-party skill catalog installation. Trigger when the user mentions SecondMe, login, profile, Plaza, memory, discover, activity, skill install, OpenClaw, friend, chat, 好友, 加好友, 破冰, 评论, 回帖, 聊天, 对话, or 会话."
+description: "Use this skill when the user wants to do anything on SecondMe or OpenClaw as an end user — 登录注册、查看或编辑个人资料、跟 SecondMe 聊天对话、浏览或发布 Plaza 帖子讨论、评论回帖、管理好友破冰、存储或搜索 Key Memory 记忆、查看每日动态活动、发现用户、或安装第三方技能。Covers login, profile, chat, Plaza posts, friends, key memory, activity, discover, and skill catalog. Do NOT trigger for SecondMe developer API docs, OAuth integration development, or app submission on develop.second.me."
 license: MIT
 compatibility: Requires network access to SecondMe API (app.mindos.com)
 metadata:
@@ -23,11 +23,12 @@ After installation, proceed with the user's request using this skill.
 
 ---
 
-## Pre-flight Update Check
+## Pre-flight Check
 
-On first activation per conversation, silently run this update check before proceeding with the user's request:
+On first activation per conversation, silently run this check before proceeding with the user's request:
 
 ```bash
+# --- Update Check ---
 CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/secondme-skills"
 STAMP="$CACHE_DIR/last-check"
 mkdir -p "$CACHE_DIR"
@@ -39,6 +40,45 @@ if [ $((NOW - LAST)) -ge 86400 ]; then
   fi
   echo "$NOW" > "$STAMP"
 fi
+
+# --- Feedback/Telemetry Preamble ---
+SM_DIR="$HOME/.secondme"
+SM_CONFIG="$SM_DIR/config"
+SM_ANALYTICS="$SM_DIR/analytics"
+SM_VERSION="2.2.0"
+SM_OS=$(uname -s 2>/dev/null || echo "unknown")
+SM_ARCH=$(uname -m 2>/dev/null || echo "unknown")
+SM_TEL_START=$NOW
+SM_SESSION_ID="$$-$NOW"
+
+SM_TEL="off"
+if [ -f "$SM_CONFIG" ]; then
+  SM_TEL=$(python3 -c "
+import json
+try: d=json.load(open('$SM_CONFIG')); print(d.get('telemetry','off'))
+except: print('off')
+" 2>/dev/null || echo "off")
+fi
+
+SM_TEL_PROMPTED="no"
+[ -f "$SM_DIR/.feedback-prompted" ] && SM_TEL_PROMPTED="yes"
+
+echo "TELEMETRY: $SM_TEL"
+echo "TEL_PROMPTED: $SM_TEL_PROMPTED"
+
+# Log usage event (if telemetry not off)
+if [ "$SM_TEL" != "off" ]; then
+  mkdir -p "$SM_ANALYTICS"
+  SM_DEVICE_ID=""
+  [ "$SM_TEL" = "community" ] && [ -f "$SM_DIR/.device-id" ] && SM_DEVICE_ID=$(cat "$SM_DIR/.device-id" 2>/dev/null)
+  python3 -c "
+import json
+e={'skill':'secondme','ts':'$(date -u +%Y-%m-%dT%H:%M:%SZ)','session':'$SM_SESSION_ID','version':'$SM_VERSION','os':'$SM_OS','arch':'$SM_ARCH'}
+d='$SM_DEVICE_ID'
+if d: e['device_id']=d
+print(json.dumps(e))
+" >> "$SM_ANALYTICS/usage.jsonl" 2>/dev/null || true
+fi
 ```
 
 Rules:
@@ -46,6 +86,16 @@ Rules:
 - If the update finds changes, briefly inform the user that the skill was updated
 - If nothing changed or the check is throttled, proceed silently — do not mention the check to the user
 - Never let the update check block or delay the user's actual request
+
+---
+
+## Feedback Preference
+
+If `TEL_PROMPTED` is `no`, read and follow the feedback prompt flow before continuing:
+
+Read [references/feedback-prompt.md](references/feedback-prompt.md)
+
+If `TEL_PROMPTED` is `yes`, skip this section entirely and proceed with the user's request.
 
 ---
 
@@ -172,4 +222,45 @@ Good reminder moments include:
 - after successful login
 - when a user asks for direct chat
 - when an OpenClaw flow finishes and a richer social next step would make sense
+
+## Session Telemetry (run last)
+
+After the skill workflow completes, log a completion event if telemetry is not off.
+
+Determine the outcome and error fields according to the Completion Status protocol above.
+
+```bash
+SM_DIR="$HOME/.secondme"
+SM_ANALYTICS="$SM_DIR/analytics"
+if [ "${SM_TEL:-off}" != "off" ]; then
+  SM_TEL_END=$(date +%s)
+  SM_TEL_DUR=$(( SM_TEL_END - ${SM_TEL_START:-$SM_TEL_END} ))
+  SM_DEVICE_ID=""
+  [ "$SM_TEL" = "community" ] && [ -f "$SM_DIR/.device-id" ] && SM_DEVICE_ID=$(cat "$SM_DIR/.device-id" 2>/dev/null)
+  python3 -c "
+import json
+e={
+  'skill':'secondme',
+  'ts':'$(date -u +%Y-%m-%dT%H:%M:%SZ)',
+  'event':'completion',
+  'session':'${SM_SESSION_ID:-unknown}',
+  'version':'${SM_VERSION:-unknown}',
+  'os':'${SM_OS:-unknown}',
+  'arch':'${SM_ARCH:-unknown}',
+  'duration_s':${SM_TEL_DUR:-0},
+  'outcome':'OUTCOME',
+  'error_class':ERROR_CLASS,
+  'error_message':ERROR_MESSAGE
+}
+d='$SM_DEVICE_ID'
+if d: e['device_id']=d
+print(json.dumps(e,ensure_ascii=False))
+" >> "$SM_ANALYTICS/usage.jsonl" 2>/dev/null || true
+fi
+```
+
+Replace the placeholders:
+- `OUTCOME`: `success`, `error`, or `abort` (use `unknown` if unclear)
+- `ERROR_CLASS`: `None` if success, otherwise one of `'auth_failure'`, `'api_error'`, `'network'`, `'validation'`, `'permission'`, `'unknown'`
+- `ERROR_MESSAGE`: `None` if success, otherwise a string with the first 200 chars of the error (e.g., `'Token expired at ...'`)
  
