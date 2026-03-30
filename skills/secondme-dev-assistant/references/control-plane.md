@@ -122,7 +122,7 @@ Treat external apps as first-class control-plane objects.
   "appName": "Example App",
   "appDescription": "Optional description",
   "redirectUris": ["https://example.com/oauth/callback"],
-  "allowedScopes": ["user.info"]
+  "allowedScopes": ["userinfo"]
 }
 ```
 
@@ -133,7 +133,7 @@ Treat external apps as first-class control-plane objects.
   "appName": "Example App",
   "appDescription": "Optional description",
   "redirectUris": ["https://example.com/oauth/callback"],
-  "allowedScopes": ["user.info", "chat"]
+  "allowedScopes": ["userinfo", "chat.read", "chat.write"]
 }
 ```
 
@@ -280,7 +280,7 @@ Use these actions to cover the Develop list and detail pages:
     },
     "oauth": {
       "appId": "app_xxx",
-      "requiredScopes": ["user.info"]
+      "requiredScopes": ["userinfo"]
     },
     "envBindings": {
       "release": {

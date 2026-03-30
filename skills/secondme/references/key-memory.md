@@ -2,10 +2,224 @@
 
 ## API Reference
 
-> **Doc source:** https://develop-docs.second.me/zh/docs/secondme/key-memory
->
-> Fetch the doc page above for all endpoint definitions (insert, search, update, delete),
-> request parameters, response fields, and error codes.
+### 插入 Key Memory
+
+创建一条 Key Memory。
+
+```
+POST {BASE}/api/secondme/memory/key
+```
+
+#### 请求参数
+
+| 参数 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| content | string | 是 | 记忆内容（最长 5000 字符） |
+| visibility | int | 否 | 可见性，`1` 为可见（默认: 1） |
+| mode | string | 否 | 固定值 `direct`（默认: "direct"） |
+
+#### 请求示例
+
+```bash
+curl -X POST "{BASE}/api/secondme/memory/key" \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "mode": "direct",
+    "content": "喜欢在周末阅读科幻小说",
+    "visibility": 1
+  }'
+```
+
+#### 响应
+
+**成功 (200)**
+
+```json
+{
+  "code": 0,
+  "data": {}
+}
+```
+
+返回空对象表示创建成功。
+
+#### 错误码
+
+| 错误码 | 说明 |
+|-------|------|
+| auth.token.invalid | Token 无效或已过期 |
+| memory.content.required | 缺少 content 字段 |
+
+---
+
+### 搜索 Key Memory
+
+按关键词搜索 Key Memory，支持分页。
+
+```
+GET {BASE}/api/secondme/memory/key/search
+```
+
+#### 查询参数
+
+| 参数 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| keyword | string | 否 | 搜索关键词 |
+| pageNo | integer | 否 | 页码（默认: 1） |
+| pageSize | integer | 否 | 每页大小（默认: 20） |
+
+#### 请求示例
+
+```bash
+curl -X GET "{BASE}/api/secondme/memory/key/search?keyword=阅读&pageNo=1&pageSize=20" \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
+#### 响应
+
+**成功 (200)**
+
+```json
+{
+  "code": 0,
+  "data": {
+    "list": [
+      {
+        "id": 12345,
+        "factActor": "用户",
+        "factObject": "兴趣爱好",
+        "factContent": "喜欢在周末阅读科幻小说",
+        "createTime": 1705315800000,
+        "updateTime": 1705315800000,
+        "visibility": 1
+      }
+    ],
+    "total": 1
+  }
+}
+```
+
+#### 响应字段
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| list | array | Key Memory 列表 |
+| list[].id | number | 记忆 ID |
+| list[].factActor | string | 事实主体 |
+| list[].factObject | string | 事实对象/分类 |
+| list[].factContent | string | 事实内容 |
+| list[].createTime | number | 创建时间（毫秒时间戳） |
+| list[].updateTime | number | 更新时间（毫秒时间戳） |
+| list[].visibility | number | 可见性 |
+| list[].userId | number | 用户 ID |
+| list[].dataType | string | 数据类型 |
+| list[].memoryKind | string | 记忆分类 |
+| list[].readStatus | string | 已读状态 |
+| list[].memoryState | string | 记忆状态 |
+| total | number | 总数 |
+
+#### 错误码
+
+| 错误码 | 说明 |
+|-------|------|
+| auth.token.invalid | Token 无效或已过期 |
+
+---
+
+### 更新 Key Memory
+
+更新指定的 Key Memory 内容。
+
+```
+POST {BASE}/api/secondme/memory/key/{memory_id}/update
+```
+
+#### 路径参数
+
+| 参数 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| memory_id | number | 是 | Key Memory ID |
+
+#### 请求参数
+
+| 参数 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| content | string | 否 | 更新后的记忆内容 |
+| visibility | number | 否 | 可见性，`1` 为可见 |
+
+#### 请求示例
+
+```bash
+curl -X POST "{BASE}/api/secondme/memory/key/12345/update" \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "content": "喜欢在周末阅读科幻小说和技术书籍",
+    "visibility": 1
+  }'
+```
+
+#### 响应
+
+**成功 (200)**
+
+```json
+{
+  "code": 0,
+  "data": null
+}
+```
+
+#### 错误码
+
+| 错误码 | 说明 |
+|-------|------|
+| auth.token.invalid | Token 无效或已过期 |
+| memory.not_found | 指定的 Key Memory 不存在 |
+
+---
+
+### 删除 Key Memory
+
+删除指定的 Key Memory。
+
+```
+POST {BASE}/api/secondme/memory/key/{memory_id}/delete
+```
+
+#### 路径参数
+
+| 参数 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| memory_id | number | 是 | Key Memory ID |
+
+#### 请求示例
+
+```bash
+curl -X POST "{BASE}/api/secondme/memory/key/12345/delete" \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
+#### 响应
+
+**成功 (200)**
+
+```json
+{
+  "code": 0,
+  "data": null
+}
+```
+
+#### 错误码
+
+| 错误码 | 说明 |
+|-------|------|
+| auth.token.invalid | Token 无效或已过期 |
+| memory.not_found | 指定的 Key Memory 不存在 |
+
+---
 
 ## Contents
 

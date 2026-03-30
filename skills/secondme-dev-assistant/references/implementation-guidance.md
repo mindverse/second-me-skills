@@ -90,7 +90,7 @@ Response shape:
     "refreshToken": "lba_rt_xxx",
     "tokenType": "Bearer",
     "expiresIn": 7200,
-    "scope": ["user.info", "chat"]
+    "scope": ["userinfo", "chat.read", "chat.write"]
   }
 }
 ```
@@ -143,7 +143,7 @@ Do not consume the raw top-level JSON as if it were the actual array or object.
 
 ## API Endpoint Discovery Rule
 
-Do not guess or infer API paths from scope names. API paths do not follow an obvious naming convention (e.g. `user.info` scope does not map to `/api/user/info` — the actual path is `/api/secondme/user/info`).
+Do not guess or infer API paths from scope names. API paths do not follow an obvious naming convention (e.g. `userinfo` scope does not map to `/api/userinfo` — the actual path is `/api/secondme/user/info`).
 
 Remote source of truth:
 
@@ -179,7 +179,7 @@ Freshness check rule:
 
 Use when relevant:
 
-- `chat`: normal conversational output
-- `act`: structured JSON decision output over streaming
-- `note.add`: note or memory creation
+- `chat.read` / `chat.write`: normal conversational output
+- `chat.write` (act): structured JSON decision output over streaming
+- `note.write`: note or memory creation
 - `agent_memory/ingest`: reporting external user actions into Agent Memory

@@ -78,7 +78,7 @@ Suggested state structure:
   "config": {
     "clientId": "xxx",
     "redirectUris": ["http://localhost:3000/api/auth/callback"],
-    "allowedScopes": ["user.info", "chat"]
+    "allowedScopes": ["userinfo", "chat.read", "chat.write"]
   },
   "api": {
     "baseUrl": "https://api.mindverse.com/gate/lab",

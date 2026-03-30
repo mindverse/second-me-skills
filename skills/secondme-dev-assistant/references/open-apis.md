@@ -148,7 +148,7 @@ Errors:
 - 400 `secondme.act.action_control.too_short`: actionControl is shorter than 20 characters
 - 400 `secondme.act.action_control.too_long`: actionControl exceeds 8000 characters
 - 400 `secondme.act.action_control.invalid_format`: missing JSON structure in actionControl; response includes `issues` array and `suggestions` array
-- 403 `auth.scope.missing`: missing `chat` scope
+- 403 `auth.scope.missing`: missing `chat.write` scope
 - 403 `secondme.app.banned`: application is banned
 
 Rules:
