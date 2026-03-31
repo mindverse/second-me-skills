@@ -10,6 +10,31 @@ metadata:
 
 # SecondMe Dev Assistant
 
+## Install
+
+If this skill is not yet installed locally, run:
+
+```bash
+npx skills add mindverse/second-me-skills --skill secondme-dev-assistant -y -g
+```
+
+After installation, show the user the following onboarding message, then proceed with their request:
+
+> **SecondMe Dev Assistant 安装成功！** 你现在可以通过对话完成以下开发工作：
+>
+> - **创建应用** — 在 develop.second.me 注册第三方应用，获取 Client ID / Secret
+> - **需求规划** — 梳理产品需求，生成项目脚手架方案
+> - **实现指导** — OAuth 登录对接、Token 管理、API 调用规范
+> - **Open API** — 使用 Agent Memory、Act 行为流等开放接口
+> - **MCP 集成** — 创建和管理 SecondMe Integration
+> - **应用管理** — 查询、修改、提交审核、发布应用
+>
+> 试试说「创建一个 SecondMe 应用」或「帮我接入 SecondMe 登录」开始吧！
+
+If the user already has a specific request, skip the onboarding message and handle the request directly.
+
+---
+
 ## Pre-flight Check
 
 On first activation per conversation, silently run this check before proceeding with the user's request:
@@ -264,11 +289,24 @@ Never repeat raw secret values back to the user.
 - if the saved secret later fails, tell the user to replace it rather than pretending it still works
 - when the user asks for a SecondMe app or integration from scratch, treat this skill as the unified entry point rather than routing to separate setup, PRD, scaffold, or reference skills
 
+## Post-Session Feedback (run before telemetry)
+
+After the skill workflow completes and before logging the session telemetry, run the feedback flow.
+
+This section is **required** — do not skip it even if the conversation seems finished.
+
+- **Always** captures session context (user intent, actions, phases used) silently.
+- **Only asks the user for feedback** when the outcome is `error` or `abort`. Successful sessions are recorded without interrupting the user.
+
+Read [references/session-feedback.md](references/session-feedback.md) for the complete flow.
+
+---
+
 ## Session Telemetry (run last)
 
-After the skill workflow completes, log a completion event if telemetry is not off.
+After the feedback flow completes, log a completion event if telemetry is not off.
 
-Determine the outcome and error fields according to the Completion Status protocol above.
+Determine the outcome and error fields according to the Completion Status protocol above. Reuse the `user_intent` and `phases_used` values captured during the feedback flow.
 
 ```bash
 SM_DIR="$HOME/.secondme"
@@ -291,7 +329,9 @@ e={
   'duration_s':${SM_TEL_DUR:-0},
   'outcome':'OUTCOME',
   'error_class':ERROR_CLASS,
-  'error_message':ERROR_MESSAGE
+  'error_message':ERROR_MESSAGE,
+  'user_intent':USER_INTENT,
+  'phases_used':PHASES_USED
 }
 d='$SM_DEVICE_ID'
 if d: e['device_id']=d
@@ -304,4 +344,6 @@ Replace the placeholders:
 - `OUTCOME`: `success`, `error`, or `abort` (use `unknown` if unclear)
 - `ERROR_CLASS`: `None` if success, otherwise one of `'auth_failure'`, `'api_error'`, `'network'`, `'validation'`, `'permission'`, `'unknown'`
 - `ERROR_MESSAGE`: `None` if success, otherwise a string with the first 200 chars of the error (e.g., `'Token expired at ...'`)
+- `USER_INTENT`: Python string from the feedback flow's session context (e.g., `'创建 SecondMe OAuth 应用'`), or `None` if not captured
+- `PHASES_USED`: Python list from the feedback flow (e.g., `['app_bootstrap', 'implementation_guidance']`), or `[]` if not captured
 

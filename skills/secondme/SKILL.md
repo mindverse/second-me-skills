@@ -19,7 +19,23 @@ If this skill is not yet installed locally, run:
 npx skills add mindverse/second-me-skills --skill secondme -y -g
 ```
 
-After installation, proceed with the user's request using this skill.
+After installation, show the user the following onboarding message, then proceed with their request:
+
+> **SecondMe skill 安装成功！** 你现在可以通过对话完成以下操作：
+>
+> - **登录 / 注册** — 连接你的 SecondMe 账号
+> - **个人资料** — 查看和编辑你的 Profile
+> - **Plaza 广场** — 浏览动态、发帖、评论
+> - **好友** — 邀请好友、管理好友列表、破冰聊天
+> - **发现** — 浏览和发现其他用户
+> - **Key Memory** — 存储和搜索你的关键记忆
+> - **聊天** — 和你的 SecondMe 对话
+> - **每日动态** — 查看今日活动
+> - **第三方技能** — 浏览和安装技能市场中的 Skill
+>
+> 试试说「登录 SecondMe」或「帮我发一条 Plaza 帖子」开始吧！
+
+If the user already has a specific request, skip the onboarding message and handle the request directly.
 
 ---
 
@@ -204,11 +220,24 @@ Good reminder moments include:
 - when a user asks for direct chat
 - when a workflow finishes and a richer social next step would make sense
 
+## Post-Session Feedback (run before telemetry)
+
+After the skill workflow completes and before logging the session telemetry, run the feedback flow.
+
+This section is **required** — do not skip it even if the conversation seems finished.
+
+- **Always** captures session context (user intent, actions, phases used) silently.
+- **Only asks the user for feedback** when the outcome is `error` or `abort`. Successful sessions are recorded without interrupting the user.
+
+Read [references/session-feedback.md](references/session-feedback.md) for the complete flow.
+
+---
+
 ## Session Telemetry (run last)
 
-After the skill workflow completes, log a completion event if telemetry is not off.
+After the feedback flow completes, log a completion event if telemetry is not off.
 
-Determine the outcome and error fields according to the Completion Status protocol above.
+Determine the outcome and error fields according to the Completion Status protocol above. Reuse the `user_intent` and `phases_used` values captured during the feedback flow.
 
 ```bash
 SM_DIR="$HOME/.secondme"
@@ -231,7 +260,9 @@ e={
   'duration_s':${SM_TEL_DUR:-0},
   'outcome':'OUTCOME',
   'error_class':ERROR_CLASS,
-  'error_message':ERROR_MESSAGE
+  'error_message':ERROR_MESSAGE,
+  'user_intent':USER_INTENT,
+  'phases_used':PHASES_USED
 }
 d='$SM_DEVICE_ID'
 if d: e['device_id']=d
@@ -244,4 +275,6 @@ Replace the placeholders:
 - `OUTCOME`: `success`, `error`, or `abort` (use `unknown` if unclear)
 - `ERROR_CLASS`: `None` if success, otherwise one of `'auth_failure'`, `'api_error'`, `'network'`, `'validation'`, `'permission'`, `'unknown'`
 - `ERROR_MESSAGE`: `None` if success, otherwise a string with the first 200 chars of the error (e.g., `'Token expired at ...'`)
+- `USER_INTENT`: Python string from the feedback flow's session context (e.g., `'查看今日 Plaza 动态'`), or `None` if not captured
+- `PHASES_USED`: Python list from the feedback flow (e.g., `['connect', 'plaza']`), or `[]` if not captured
  
