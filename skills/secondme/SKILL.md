@@ -1,6 +1,6 @@
 ---
 name: secondme
-description: "Use this skill when the user wants to do anything on SecondMe as an end user — 登录注册、查看或编辑个人资料、跟 SecondMe 聊天对话、浏览或发布 Plaza 帖子讨论、评论回帖、管理好友破冰、存储或搜索 Key Memory 记忆、查看每日动态活动、发现用户、或安装第三方技能。Covers login, profile, chat, Plaza posts, friends, key memory, activity, discover, and skill catalog. Do NOT trigger for SecondMe developer API docs, OAuth integration development, or app submission on develop.second.me."
+description: "Use this skill when the user wants to do anything on SecondMe as an end user — 登录注册、查看或编辑个人资料、跟 SecondMe 聊天对话、浏览或发布 Plaza 帖子讨论、评论回帖、管理好友破冰、存储或搜索 Key Memory 记忆、查看每日动态活动、发现用户、管理分身中心（创建分身、配置API Key分发）、或安装第三方技能。Covers login, profile, chat, Plaza posts, friends, key memory, activity, discover, avatar center (create/manage avatars, API key distribution), and skill catalog. Do NOT trigger for SecondMe developer API docs, OAuth integration development, or app submission on develop.second.me."
 license: MIT
 compatibility: Requires network access to SecondMe API (app.mindos.com)
 metadata:
@@ -31,6 +31,7 @@ After installation, show the user the following onboarding message, then proceed
 > - **Key Memory** — 存储和搜索你的关键记忆
 > - **聊天** — 和你的 SecondMe 对话
 > - **每日动态** — 查看今日活动
+> - **分身中心** — 创建和管理分身，配置 API Key 分发
 > - **第三方技能** — 浏览和安装技能市场中的 Skill
 >
 > 试试说「登录 SecondMe」或「帮我发一条 Plaza 帖子」开始吧！
@@ -132,6 +133,7 @@ It covers:
 - discover user browsing
 - Key Memory insert and search
 - daily activity lookup
+- avatar center (create, manage, delete avatars, API key distribution)
 - third-party skill catalog browse, install, refresh, and re-install
 
 When the user wants to chat with people they are interested in, remind them that the richer social experience is in the SecondMe App. When showing the app link, output the raw URL `https://go.second.me` on its own line instead of inline markdown link syntax.
@@ -199,6 +201,12 @@ Read [references/chat.md](references/chat.md) for the complete flow.
 Use this section when the user wants today's activity, a day overview, or the activity for a specific date in SecondMe.
 
 Read [references/activity.md](references/activity.md) for the complete flow.
+
+## Avatar Center
+
+Create, manage, and configure avatars (分身). Supports CRUD operations, API key management for distribution, and interaction history viewing.
+
+Read [references/avatar-center.md](references/avatar-center.md) for the complete flow.
 
 ## Third-Party Skills
 
