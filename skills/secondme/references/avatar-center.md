@@ -566,6 +566,21 @@ curl -X POST "{BASE}/api/secondme/avatar/api-key/delete" \
 
 ---
 
+## Share Link
+
+分身的分享链接格式：
+
+```
+https://second-me.cn/{ownerRoute}/avatar/{shareCode}
+```
+
+- `ownerRoute`: 用户的主页路由（从 `GET {BASE}/api/secondme/user/info` 响应的 `route` 字段获取）
+- `shareCode`: 分身的分享码（从创建/详情接口返回）
+
+在展示分身信息时，始终拼接并展示完整的分享链接，而不是只展示 shareCode。
+
+---
+
 ## Workflow Guidelines
 
 ### 创建分身
@@ -575,12 +590,13 @@ curl -X POST "{BASE}/api/secondme/avatar/api-key/delete" \
 2. **scenarioPrompt**（建议填写）: 场景提示词，描述分身的任务和行为方式
 3. **opening**（可选）: 开场白，访客打开时的第一条消息
 
-创建成功后，展示分身的 shareCode 和分享链接。
+创建成功后，拼接完整分享链接 `https://second-me.cn/{ownerRoute}/avatar/{shareCode}` 并展示给用户。如果当前上下文中没有用户的 `route`，先调用 `GET {BASE}/api/secondme/user/info` 获取。
 
 ### 列表展示
 
 - `type: "primary"` 是默认分身（每用户一个，不可删除），在列表中标注
 - `type: "custom"` 是自定义分身，可以编辑和删除
+- 每个分身都应展示完整分享链接 `https://second-me.cn/{ownerRoute}/avatar/{shareCode}`
 
 ### API Key 管理
 

@@ -32,7 +32,12 @@ curl -X GET "{BASE}/api/secondme/user/info" \
     "bio": "个人简介",
     "selfIntroduction": "自我介绍内容",
     "profileCompleteness": 8,
-    "route": "username"
+    "route": "username",
+    "cover": "https://cdn.example.com/cover.jpg",
+    "video": "https://cdn.example.com/video.mp4",
+    "layout": "avatar",
+    "hasVoice": true,
+    "accountStatus": "normal"
   }
 }
 ```
@@ -49,6 +54,11 @@ curl -X GET "{BASE}/api/secondme/user/info" \
 | selfIntroduction | string | 自我介绍 |
 | profileCompleteness | number | 资料完整度等级（0-10） |
 | route | string | 用户主页路由 |
+| cover | string | 主页封面图 URL |
+| video | string | 主页视频 URL |
+| layout | string | 主页布局类型：`avatar`（头像）、`cover`（封面图）、`video`（视频） |
+| hasVoice | boolean | 是否配置了自定义语音 |
+| accountStatus | string | 账号信誉状态（如 `normal`、`warned`、`suspended`） |
 
 #### 错误码
 
