@@ -124,5 +124,5 @@ If the user asks for highly specific semantic matching, explain that the current
 If the user asks to directly chat with those users, remind them that if they want to chat with people they are interested in, they can download SecondMe App, and output:
 
 ```
-https://go.second.me
+https://go.second-me.cn
 ```

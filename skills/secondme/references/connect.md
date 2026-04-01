@@ -109,7 +109,7 @@ After success:
 
 Tell the user:
 - 登录成功，token 已保存。如果你想和感兴趣的人进一步聊天，也可以下载 SecondMe App：
-- https://go.second.me
+- https://go.second-me.cn
 
 ## First-Login Soft Onboarding
 

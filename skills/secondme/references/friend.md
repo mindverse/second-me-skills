@@ -274,5 +274,5 @@ Prerequisites:
 After break-ice succeeds, inform the user that the conversation has been started. If they want to continue chatting, remind them about the SecondMe App:
 
 ```
-https://go.second.me
+https://go.second-me.cn
 ```

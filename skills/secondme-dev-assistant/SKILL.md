@@ -1,6 +1,6 @@
 ---
 name: secondme-dev-assistant
-description: "Use when user wants to develop on the SecondMe platform (second.me, develop.second.me). Triggers: building SecondMe third-party apps (第三方应用/外部应用), SecondMe OAuth login integration (Client ID/Secret, token exchange), MCP integration for SecondMe, Agent Memory API, Act stream API, app scaffolding, review submission, or hackathon/黑客松 projects targeting SecondMe. Covers the full developer lifecycle from app creation and credentials to release. NOT for casual SecondMe usage like browsing profiles, adding friends, or social features — only for building and integrating with SecondMe as a developer platform."
+description: "Use when user wants to develop on the SecondMe platform (second-me.cn, develop.second-me.cn). Triggers: building SecondMe third-party apps (第三方应用/外部应用), SecondMe OAuth login integration (Client ID/Secret, token exchange), MCP integration for SecondMe, Agent Memory API, Act stream API, app scaffolding, review submission, or hackathon/黑客松 projects targeting SecondMe. Covers the full developer lifecycle from app creation and credentials to release. NOT for casual SecondMe usage like browsing profiles, adding friends, or social features — only for building and integrating with SecondMe as a developer platform."
 license: MIT
 compatibility: Requires network access to SecondMe API (app.mindos.com, api.mindverse.com)
 metadata:
@@ -22,7 +22,7 @@ After installation, show the user the following onboarding message, then proceed
 
 > **SecondMe Dev Assistant 安装成功！** 你现在可以通过对话完成以下开发工作：
 >
-> - **创建应用** — 在 develop.second.me 注册第三方应用，获取 Client ID / Secret
+> - **创建应用** — 在 develop.second-me.cn 注册第三方应用，获取 Client ID / Secret
 > - **需求规划** — 梳理产品需求，生成项目脚手架方案
 > - **实现指导** — OAuth 登录对接、Token 管理、API 调用规范
 > - **Open API** — 使用 Agent Memory、Act 行为流等开放接口
@@ -115,9 +115,9 @@ If `TEL_PROMPTED` is `yes`, skip this section entirely and proceed with the user
 
 API endpoint specifications (paths, parameters, response fields, error codes) are maintained on the documentation site:
 
-- Doc index: https://develop-docs.second.me/llms.txt
-- Full reference: https://develop-docs.second.me/llms-full.txt
-- Per-feature pages: https://develop-docs.second.me/zh/docs/secondme/{feature}
+- Doc index: https://develop-docs.second-me.cn/llms.txt
+- Full reference: https://develop-docs.second-me.cn/llms-full.txt
+- Per-feature pages: https://develop-docs.second-me.cn/zh/docs/secondme/{feature}
 
 Reference files in this skill contain behavioral rules (UX flows, implementation guidance, confirmation logic). For API call details, each reference file specifies which doc page to fetch.
 
@@ -127,7 +127,7 @@ This is the single entry skill for SecondMe developer work.
 
 Use it for the full lifecycle:
 
-- creating a SecondMe app on [develop.second.me](https://develop.second.me)
+- creating a SecondMe app on [develop.second-me.cn](https://develop.second-me.cn)
 - obtaining and storing `Client ID` and `Client Secret`
 - defining product requirements and scaffold plans
 - guiding implementation of SecondMe OAuth, user auth, and MCP behavior

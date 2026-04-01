@@ -94,7 +94,7 @@ jobs:
             skills/secondme-dev-assistant/ \
             skill/secondme-dev-assistant/
 
-      # --- Well-known endpoint (for npx skills add https://second.me) ---
+      # --- Well-known endpoint (for npx skills add https://second-me.cn) ---
 
       - name: Generate index.json
         run: |
@@ -151,7 +151,7 @@ jobs:
             .well-known/skills/index.json \
             .well-known/skills/index.json
 
-      # --- Develop well-known endpoint (for npx skills add https://develop.second.me) ---
+      # --- Develop well-known endpoint (for npx skills add https://develop.second-me.cn) ---
 
       - name: Generate develop index.json (dev-assistant only)
         run: |
@@ -313,15 +313,15 @@ jobs:
       - name: Print uploaded targets
         run: |
           echo "=== Uploaded Files ==="
-          echo "Index:      https://second.me/.well-known/skills/index.json"
+          echo "Index:      https://second-me.cn/.well-known/skills/index.json"
           for skill_dir in skills/*/; do
             [ -f "$skill_dir/SKILL.md" ] || continue
             name=$(basename "$skill_dir")
-            echo "Skill:      https://second.me/.well-known/skills/$name/SKILL.md"
+            echo "Skill:      https://second-me.cn/.well-known/skills/$name/SKILL.md"
             echo "COS dir:    https://mindverseglobal-cos-1309544882.cos.ap-shanghai.myqcloud.com/skill/$name/"
             echo "CDN dir:    https://mindverseglobal-cos-cdn.mindverse.com/skill/$name/"
           done
           echo ""
           echo "=== Develop Well-Known ==="
-          echo "Index:      https://develop.second.me/.well-known/skills/index.json"
-          echo "Skill:      https://develop.second.me/.well-known/skills/secondme-dev-assistant/SKILL.md"
+          echo "Index:      https://develop.second-me.cn/.well-known/skills/index.json"
+          echo "Skill:      https://develop.second-me.cn/.well-known/skills/secondme-dev-assistant/SKILL.md"

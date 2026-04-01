@@ -40,7 +40,7 @@ SECONDME_CLIENT_ID=...
 SECONDME_CLIENT_SECRET=...
 SECONDME_REDIRECT_URI=...
 SECONDME_API_BASE_URL=https://api.mindverse.com/gate/lab
-SECONDME_OAUTH_URL=https://go.second.me/oauth/
+SECONDME_OAUTH_URL=https://go.second-me.cn/oauth/
 SECONDME_TOKEN_ENDPOINT=https://api.mindverse.com/gate/lab/api/oauth/token/code
 SECONDME_REFRESH_ENDPOINT=https://api.mindverse.com/gate/lab/api/oauth/token/refresh
 DATABASE_URL=...
@@ -54,7 +54,7 @@ Base URL:
 
 OAuth URL:
 
-- `https://go.second.me/oauth/`
+- `https://go.second-me.cn/oauth/`
 
 Important OAuth rule:
 
@@ -147,7 +147,7 @@ Do not guess or infer API paths from scope names. API paths do not follow an obv
 
 Remote source of truth:
 
-- `https://develop-docs.second.me/zh/docs/api-reference/secondme`
+- `https://develop-docs.second-me.cn/zh/docs/api-reference/secondme`
 
 Local cache:
 

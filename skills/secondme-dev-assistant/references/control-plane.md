@@ -37,7 +37,7 @@ CODE_VERIFIER=$(python3 -c "import secrets; print(secrets.token_urlsafe(32))")
 CODE_CHALLENGE=$(printf '%s' "$CODE_VERIFIER" | openssl dgst -sha256 -binary | openssl base64 -A | tr '+/' '-_' | tr -d '=')
 ```
 
-2. direct the user to open `https://develop.second.me/auth/skills?challenge=<CODE_CHALLENGE>` in their browser
+2. direct the user to open `https://develop.second-me.cn/auth/skills?challenge=<CODE_CHALLENGE>` in their browser
 3. the user logs in (if not already) and the page automatically generates a one-time authorization code (`lba_ac_xxx`)
 4. the user copies the code back to the terminal
 5. exchange the code for a token (include `codeVerifier` from step 1):

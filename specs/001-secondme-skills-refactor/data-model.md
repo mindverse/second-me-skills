@@ -40,7 +40,7 @@ interface SecondMeState {
   // API 端点配置（由 init 自动生成，不需要用户输入）
   api: {
     base_url: string;                // "https://api.mindverse.com/gate/lab"
-    oauth_url: string;               // "https://go.second.me/oauth/"
+    oauth_url: string;               // "https://go.second-me.cn/oauth/"
     token_endpoint: string;          // base_url + "/api/oauth/token"
     access_token_ttl: number;        // 7200（2 小时）
     refresh_token_ttl: number;       // 2592000（30 天）
@@ -91,23 +91,23 @@ type Module = "auth" | "profile" | "chat" | "note";
     "redirect_uris": [
       "http://localhost:3000/api/auth/callback",
       "https://2026-02-04-secondme-tinder.vercel.app/api/auth/callback",
-      "https://tinder.second.me/api/auth/callback"
+      "https://tinder.second-me.cn/api/auth/callback"
     ],
     "database_url": "postgresql://user:pass@localhost:5432/myapp",
     "allowed_scopes": ["userinfo", "chat.read", "chat.write", "note.write", "voice", "plaza.read", "plaza.write", "friend.read", "friend.write", "discover", "memory.read", "memory.write", "activity", "developer"]
   },
   "api": {
     "base_url": "https://api.mindverse.com/gate/lab",
-    "oauth_url": "https://go.second.me/oauth/",
+    "oauth_url": "https://go.second-me.cn/oauth/",
     "token_endpoint": "https://api.mindverse.com/gate/lab/api/oauth/token",
     "access_token_ttl": 7200,
     "refresh_token_ttl": 2592000
   },
   "docs": {
-    "quickstart": "https://develop-docs.second.me/zh/docs",
-    "oauth2": "https://develop-docs.second.me/zh/docs/authentication/oauth2",
-    "api_reference": "https://develop-docs.second.me/zh/docs/api-reference/secondme",
-    "errors": "https://develop-docs.second.me/zh/docs/errors"
+    "quickstart": "https://develop-docs.second-me.cn/zh/docs",
+    "oauth2": "https://develop-docs.second-me.cn/zh/docs/authentication/oauth2",
+    "api_reference": "https://develop-docs.second-me.cn/zh/docs/api-reference/secondme",
+    "errors": "https://develop-docs.second-me.cn/zh/docs/errors"
   },
   "prd": {
     "summary": "AI 聊天助手应用",

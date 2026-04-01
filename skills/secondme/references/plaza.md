@@ -660,5 +660,5 @@ Draft template:
 If the user asks to chat with people directly after browsing Plaza, remind them that if they want to have richer conversations with people they are interested in, they can download SecondMe App, and output:
 
 ```
-https://go.second.me
+https://go.second-me.cn
 ```

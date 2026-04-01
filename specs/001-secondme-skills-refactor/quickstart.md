@@ -155,7 +155,7 @@ npm run dev
 
 ### Q: 如何查看 API 参考？
 
-查看项目根目录的 `CLAUDE.md` 文件，或直接访问 [SecondMe 官方文档](https://develop-docs.second.me/zh/docs)。
+查看项目根目录的 `CLAUDE.md` 文件，或直接访问 [SecondMe 官方文档](https://develop-docs.second-me.cn/zh/docs)。
 
 ### Q: 项目生成后如何添加新功能？
 
@@ -173,6 +173,6 @@ npm run dev
 
 ## 下一步
 
-- 阅读 [SecondMe API 文档](https://develop-docs.second.me/zh/docs)
+- 阅读 [SecondMe API 文档](https://develop-docs.second-me.cn/zh/docs)
 - 使用 `/frontend-design` 优化界面设计
 - 部署到生产环境

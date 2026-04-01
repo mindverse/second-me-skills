@@ -46,7 +46,7 @@ If the user has no app yet:
 5. save the secret to `~/.secondme/client_secret`
 6. explicitly tell the user that the app was created and the secret has already been saved
 
-Only tell the user to go to [develop.second.me](https://develop.second.me) and create it manually when:
+Only tell the user to go to [develop.second-me.cn](https://develop.second-me.cn) and create it manually when:
 
 - the user explicitly says they want to do it themselves
 - required information is still missing and they do not want the assistant to make reasonable defaults

@@ -40,17 +40,17 @@ SecondMe Skills 是一套技能包，当前主要覆盖两条使用路径：
 npx skills add mindverse/second-me-skills
 
 # 或从 CDN 安装
-npx skills add https://second.me
+npx skills add https://second-me.cn
 
 # 只安装用户技能（不含开发者技能）
 npx skills add mindverse/second-me-skills --skill secondme -y -g
 
 # 只安装开发者技能（不含用户技能）
-npx skills add https://develop.second.me
+npx skills add https://develop.second-me.cn
 
 # 或告诉你的 Agent：
-# "根据 https://second.me/skill.md 安装技能，并一步步引导我完成 Second Me 的创建和 Onboarding"
-# "根据 https://develop.second.me/skill.md 安装技能，引导我完成联调与信息提交"
+# "根据 https://second-me.cn/skill.md 安装技能，并一步步引导我完成 Second Me 的创建和 Onboarding"
+# "根据 https://develop.second-me.cn/skill.md 安装技能，引导我完成联调与信息提交"
 ```
 
 ### 开发者用法
@@ -123,11 +123,11 @@ secondme-skills/
 ## 相关链接
 
 - [SecondMe 主站](https://second-me.cn/)
-- [SecondMe 官网](https://second.me)
-- [开发者文档](https://develop-docs.second.me/zh/docs)
-- [OAuth2 认证指南](https://develop-docs.second.me/zh/docs/authentication/oauth2)
-- [API 参考](https://develop-docs.second.me/zh/docs/api-reference/secondme)
-- [首届黑客松](https://hackathon.second.me)
+- [SecondMe 官网](https://second-me.cn)
+- [开发者文档](https://develop-docs.second-me.cn/zh/docs)
+- [OAuth2 认证指南](https://develop-docs.second-me.cn/zh/docs/authentication/oauth2)
+- [API 参考](https://develop-docs.second-me.cn/zh/docs/api-reference/secondme)
+- [首届黑客松](https://hackathon.second-me.cn)
 
 ## 许可证
 

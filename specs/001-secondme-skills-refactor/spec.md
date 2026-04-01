@@ -239,7 +239,7 @@ chat 模块:
 - **FR-015**: 生成的项目 MUST 使用 state.json 中的配置
 
 **API 参考**:
-- **FR-016**: Skills SHOULD 引用 SecondMe 官方文档 URL（https://develop-docs.second.me/zh/docs）而非维护独立参考文档
+- **FR-016**: Skills SHOULD 引用 SecondMe 官方文档 URL（https://develop-docs.second-me.cn/zh/docs）而非维护独立参考文档
 
 ### Key Entities
 
