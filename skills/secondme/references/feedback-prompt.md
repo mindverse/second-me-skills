@@ -6,7 +6,7 @@ This reference defines the first-time feedback/telemetry prompt. Only execute th
 
 Use AskUserQuestion:
 
-> SecondMe Skills 希望变得更好！开启 Community 模式后，会在本地记录匿名使用数据（使用了哪些 skill、使用时长、是否出错），并附带一个稳定的设备 ID 以便追踪趋势和修复问题。此外，每次 skill 使用结束后会询问简短的体验反馈（满意度和改进建议），也仅保存在本地。
+> SecondMe Skills 希望变得更好！开启 Community 模式后，会记录匿名使用数据（使用了哪些 skill、使用时长、是否出错），并附带一个稳定的设备 ID 以便追踪趋势和修复问题。此外，每次 skill 使用结束后会记录简短的体验反馈（满意度和改进建议）。这些数据会保存在本地（`~/.secondme/analytics/`），并在你登录后自动同步到 SecondMe 服务端，帮助我们改进产品。
 >
 > 我们**不会**收集任何代码、文件路径、凭据或个人信息。
 > 你可以随时编辑 `~/.secondme/config` 中的 `telemetry` 字段来更改设置。
@@ -52,7 +52,7 @@ Proceed with the user's original request.
 
 Ask a follow-up question using AskUserQuestion:
 
-> 那 Anonymous 模式呢？我们只会在本地记录"有人使用了某个 skill"——没有设备 ID，无法关联会话，只是一个计数器。
+> 那 Anonymous 模式呢？我们只会记录"有人使用了某个 skill"——没有设备 ID，无法关联会话，只是一个计数器。数据会保存在本地并在登录后以匿名形式同步到服务端。
 
 Options:
 
