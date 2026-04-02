@@ -91,6 +91,23 @@ if d: e['device_id']=d
 print(json.dumps(e))
 " >> "$SM_ANALYTICS/usage.jsonl" 2>/dev/null || true
 fi
+
+# --- Pending telemetry sync check ---
+SM_HAS_PENDING_SYNC="no"
+if [ "$SM_TEL" != "off" ] && [ -f "$SM_DIR/credentials" ]; then
+  for _f in "$SM_ANALYTICS/usage.jsonl" "$SM_ANALYTICS/feedback.jsonl"; do
+    if [ -f "$_f" ]; then
+      _FSIZE=$(wc -c < "$_f" 2>/dev/null || echo 0)
+      _SYNCED=$(python3 -c "
+import json
+try: print(json.load(open('$SM_ANALYTICS/.sync-offsets')).get('$(basename $_f | sed s/.jsonl//)_bytes',0))
+except: print(0)
+" 2>/dev/null || echo 0)
+      [ "$_FSIZE" -gt "$_SYNCED" ] 2>/dev/null && SM_HAS_PENDING_SYNC="yes"
+    fi
+  done
+fi
+echo "HAS_PENDING_SYNC: $SM_HAS_PENDING_SYNC"
 ```
 
 Rules:
@@ -108,6 +125,14 @@ If `TEL_PROMPTED` is `no`, read and follow the feedback prompt flow before conti
 Read [references/feedback-prompt.md](references/feedback-prompt.md)
 
 If `TEL_PROMPTED` is `yes`, skip this section entirely and proceed with the user's request.
+
+---
+
+## Pending Telemetry Sync
+
+If `HAS_PENDING_SYNC` is `yes` from the pre-flight check, execute the background catchup sync to upload pending local analytics data. This must not block or delay the user's request.
+
+Read [references/telemetry-sync.md](references/telemetry-sync.md) — execute the "Background Catchup" section.
 
 ---
 
@@ -346,4 +371,12 @@ Replace the placeholders:
 - `ERROR_MESSAGE`: `None` if success, otherwise a string with the first 200 chars of the error (e.g., `'Token expired at ...'`)
 - `USER_INTENT`: Python string from the feedback flow's session context (e.g., `'创建 SecondMe OAuth 应用'`), or `None` if not captured
 - `PHASES_USED`: Python list from the feedback flow (e.g., `['app_bootstrap', 'implementation_guidance']`), or `[]` if not captured
+
+---
+
+## Telemetry Sync (run after session telemetry)
+
+After session telemetry is logged, attempt to sync all pending local analytics data (both usage and feedback) to the SecondMe backend. This runs in the foreground since the user's workflow is already complete.
+
+Read [references/telemetry-sync.md](references/telemetry-sync.md) — execute the "Post-Session Sync" section.
 

@@ -94,7 +94,7 @@ If the user selects B or provides free text via "Other", store the text in `comm
 
 Write a single JSON line to `~/.secondme/analytics/feedback.jsonl`.
 
-This runs regardless of the user's telemetry setting — it records session context that is always valuable.
+This runs regardless of the user's telemetry setting — it records session context locally that is always valuable. However, only `community` and `anonymous` mode data will be synced to the server; `off` mode data stays local only.
 
 ```bash
 SM_DIR="$HOME/.secondme"
@@ -133,3 +133,4 @@ Replace the ALL-CAPS placeholders with actual values from Part A–C. String val
 - `feedback.jsonl` is separate from `usage.jsonl`. They share the `session` field for correlation.
 - For successful sessions, the record has `rating: "auto_skipped"` — this distinguishes from user-initiated skips.
 - Never include credentials, tokens, secrets, or raw API responses in any field.
+- When telemetry is `community` or `anonymous`, feedback records will be synced to the SecondMe backend along with usage data. The sync happens after session telemetry is logged.
