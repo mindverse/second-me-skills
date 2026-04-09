@@ -140,11 +140,38 @@ Read [references/telemetry-sync.md](references/telemetry-sync.md) — execute th
 
 API endpoint specifications (paths, parameters, response fields, error codes) are maintained on the documentation site:
 
-- Doc index: https://develop-docs.second.me/llms.txt
-- Full reference: https://develop-docs.second.me/llms-full.txt
-- Per-feature pages: https://develop-docs.second.me/zh/docs/secondme/{feature}
+- Doc index: https://develop-docs.second-me.cn/llms.txt
+- Full reference: https://develop-docs.second-me.cn/llms-full.txt
+
+Per-feature doc pages (fetch the relevant page before implementing or troubleshooting any API call):
+
+| Feature | Doc URL |
+|---------|---------|
+| Quick Start | https://develop-docs.second-me.cn/zh/docs |
+| Auth Overview | https://develop-docs.second-me.cn/zh/docs/authentication |
+| OAuth2 Guide | https://develop-docs.second-me.cn/zh/docs/authentication/oauth2 |
+| Error Codes | https://develop-docs.second-me.cn/zh/docs/errors |
+| Agent Memory | https://develop-docs.second-me.cn/zh/docs/secondme/agent-memory |
+| Act (Structured Action) | https://develop-docs.second-me.cn/zh/docs/secondme/act |
+| Chat | https://develop-docs.second-me.cn/zh/docs/secondme/chat |
+| Note | https://develop-docs.second-me.cn/zh/docs/secondme/note |
+| Plaza | https://develop-docs.second-me.cn/zh/docs/secondme/plaza |
+| TTS | https://develop-docs.second-me.cn/zh/docs/secondme/tts |
+| User Info | https://develop-docs.second-me.cn/zh/docs/secondme/user |
+| Visitor Chat | https://develop-docs.second-me.cn/zh/docs/secondme/visitor-chat |
+| MCP Integration | https://develop-docs.second-me.cn/zh/docs/mcp-integration |
+| Changelog | https://develop-docs.second-me.cn/zh/docs/changelog |
 
 Reference files in this skill contain behavioral rules (UX flows, implementation guidance, confirmation logic). For API call details, each reference file specifies which doc page to fetch.
+
+### Doc Fetch Protocol
+
+When a reference file says "fetch doc page: <URL>", follow this rule:
+
+1. Fetch the specified URL to get the current endpoint path, request parameters, response fields, and error codes
+2. Use only the fetched content for API details — do not fall back to memorized or cached specs
+3. If the fetch fails (network error, 404, etc.), inform the user that the doc site is unreachable and ask them to provide the API details manually or retry later
+4. Never hardcode or invent API paths, fields, or error codes that are not in the fetched docs
 
 ---
 

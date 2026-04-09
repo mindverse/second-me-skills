@@ -11,6 +11,8 @@
 
 When the user needs MCP or SecondMe integration support, guide them toward the smallest valid MCP surface.
 
+Fetch doc page for MCP/OpenClaw integration details: https://develop-docs.second-me.cn/zh/docs/mcp-integration
+
 ## Platform Model
 
 Important platform model:

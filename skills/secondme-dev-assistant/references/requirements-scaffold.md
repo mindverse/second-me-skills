@@ -87,10 +87,10 @@ Suggested state structure:
     "refreshEndpoint": "https://api.mindverse.com/gate/lab/api/oauth/token/refresh"
   },
   "docs": {
-    "quickstart": "https://develop-docs.second.me/zh/docs",
-    "oauth2": "https://develop-docs.second.me/zh/docs/authentication/oauth2",
-    "apiReference": "https://develop-docs.second.me/zh/docs/api-reference/secondme",
-    "errors": "https://develop-docs.second.me/zh/docs/errors"
+    "quickstart": "https://develop-docs.second-me.cn/zh/docs",
+    "oauth2": "https://develop-docs.second-me.cn/zh/docs/authentication/oauth2",
+    "apiReference": "https://develop-docs.second-me.cn/llms-full.txt",
+    "errors": "https://develop-docs.second-me.cn/zh/docs/errors"
   },
   "prd": {
     "summary": "",

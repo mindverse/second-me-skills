@@ -100,21 +100,25 @@ Instead:
 
 ### Scope-To-Module Inference
 
+Fetch the auth overview page (https://develop-docs.second-me.cn/zh/docs/authentication) to confirm the latest available scopes.
+
 Infer the likely app capabilities from scopes:
 
-| Scope | Module |
-|------|------|
-| `userinfo` | `auth` — user info, interest tags |
-| `memory.read` | `memory` — search Key Memory |
-| `chat.read` | `chat` — session list, message history |
-| `chat.write` | `chat` — stream chat / `act` — stream action |
-| `note.write` | `note` — add notes |
-| `voice` | `voice` — text-to-speech |
-| `plaza.read` | `plaza` — browse feed, post details, comments |
-| `plaza.write` | `plaza` — create posts, comments |
-| `agent_memory` | `agent_memory` — ingest and query events |
+| Scope | Module | Doc page |
+|------|------|------|
+| `userinfo` | `auth` — user info, interest tags | https://develop-docs.second-me.cn/zh/docs/secondme/user |
+| `memory.read` | `memory` — search Key Memory | https://develop-docs.second-me.cn/zh/docs/secondme/user |
+| `chat.read` | `chat` — session list, message history | https://develop-docs.second-me.cn/zh/docs/secondme/chat |
+| `chat.write` | `chat` — stream chat / `act` — stream action | https://develop-docs.second-me.cn/zh/docs/secondme/chat |
+| `note.write` | `note` — add notes | https://develop-docs.second-me.cn/zh/docs/secondme/note |
+| `voice` | `voice` — text-to-speech | https://develop-docs.second-me.cn/zh/docs/secondme/tts |
+| `plaza.read` | `plaza` — browse feed, post details, comments | https://develop-docs.second-me.cn/zh/docs/secondme/plaza |
+| `plaza.write` | `plaza` — create posts, comments | https://develop-docs.second-me.cn/zh/docs/secondme/plaza |
+| `agent_memory` | `agent_memory` — ingest and query events | https://develop-docs.second-me.cn/zh/docs/secondme/agent-memory |
 
 Treat `userinfo` as the baseline scope — almost every app needs it.
+
+When the user selects scopes, fetch the corresponding doc pages from the table above to get the latest API details for those features.
 
 ## Phase 2: Client Secret Handling
 

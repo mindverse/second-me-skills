@@ -5,8 +5,6 @@
 - [Recommended Project Shape](#recommended-project-shape)
 - [Required Environment Variables](#required-environment-variables)
 - [OAuth2 Rules](#oauth2-rules)
-- [Token Exchange](#token-exchange)
-- [Token Refresh](#token-refresh)
 - [Recommended User Table Fields](#recommended-user-table-fields)
 - [WebView OAuth Note](#webview-oauth-note)
 - [API Response Handling](#api-response-handling)
@@ -35,81 +33,44 @@ Suggested responsibilities:
 
 ## Required Environment Variables
 
+Fetch the OAuth2 doc page (https://develop-docs.second-me.cn/zh/docs/authentication/oauth2) to confirm the current base URL, OAuth URL, and token endpoints before populating these variables.
+
 ```env
 SECONDME_CLIENT_ID=...
 SECONDME_CLIENT_SECRET=...
 SECONDME_REDIRECT_URI=...
-SECONDME_API_BASE_URL=https://api.mindverse.com/gate/lab
-SECONDME_OAUTH_URL=https://go.second.me/oauth/
-SECONDME_TOKEN_ENDPOINT=https://api.mindverse.com/gate/lab/api/oauth/token/code
-SECONDME_REFRESH_ENDPOINT=https://api.mindverse.com/gate/lab/api/oauth/token/refresh
+SECONDME_API_BASE_URL=...          # from doc: base URL
+SECONDME_OAUTH_URL=...             # from doc: authorization page URL
+SECONDME_TOKEN_ENDPOINT=...        # from doc: token exchange endpoint
+SECONDME_REFRESH_ENDPOINT=...      # from doc: token refresh endpoint
 DATABASE_URL=...
 ```
 
 ## OAuth2 Rules
 
-Base URL:
+Fetch doc page for full OAuth2 flow details: https://develop-docs.second-me.cn/zh/docs/authentication/oauth2
 
-- `https://api.mindverse.com/gate/lab`
+Before implementing OAuth2, fetch the doc page above to get the current:
 
-OAuth URL:
+- authorization URL and query parameters
+- token exchange endpoint, request format, and response shape
+- token refresh endpoint and response shape
+- token types, prefixes, and validity periods
+- available scopes
 
-- `https://go.second.me/oauth/`
+Behavioral rules (apply regardless of API shape):
 
-Important OAuth rule:
-
-- `oauthUrl` already contains the full path
-- append `?` and query parameters directly
-- do not append `/authorize`
+- OAuth URL already contains the full path; append `?` and query parameters directly; do not append `/authorize`
+- token exchange uses `application/x-www-form-urlencoded`, not JSON
+- always check `result.code`; actual payload is under `result.data`
+- response fields use camelCase
+- `redirect_uri` in token exchange must exactly match the one used in the authorization request
 
 Example:
 
 ```typescript
 const authUrl = `${process.env.SECONDME_OAUTH_URL}?${params.toString()}`;
 ```
-
-## Token Exchange
-
-Endpoint:
-
-- `POST {baseUrl}/api/oauth/token/code`
-
-Request type:
-
-- `application/x-www-form-urlencoded`
-
-Do not send JSON.
-
-Response shape:
-
-```json
-{
-  "code": 0,
-  "data": {
-    "accessToken": "lba_at_xxx",
-    "refreshToken": "lba_rt_xxx",
-    "tokenType": "Bearer",
-    "expiresIn": 7200,
-    "scope": ["userinfo", "chat.read", "chat.write"]
-  }
-}
-```
-
-Rules:
-
-- always check `result.code`
-- actual payload is under `result.data`
-- fields use camelCase
-
-## Token Refresh
-
-Endpoint:
-
-- `POST {baseUrl}/api/oauth/token/refresh`
-
-Request type:
-
-- `application/x-www-form-urlencoded`
 
 ## Recommended User Table Fields
 
@@ -145,41 +106,38 @@ Do not consume the raw top-level JSON as if it were the actual array or object.
 
 Do not guess or infer API paths from scope names. API paths do not follow an obvious naming convention (e.g. `userinfo` scope does not map to `/api/userinfo` — the actual path is `/api/secondme/user/info`).
 
-Remote source of truth:
+Remote source of truth — always fetch the relevant doc page before writing code that calls any SecondMe API:
 
-- `https://develop-docs.second.me/zh/docs/api-reference/secondme`
+| Feature | Doc URL |
+|---------|---------|
+| Agent Memory | https://develop-docs.second-me.cn/zh/docs/secondme/agent-memory |
+| Act | https://develop-docs.second-me.cn/zh/docs/secondme/act |
+| Chat | https://develop-docs.second-me.cn/zh/docs/secondme/chat |
+| Note | https://develop-docs.second-me.cn/zh/docs/secondme/note |
+| Plaza | https://develop-docs.second-me.cn/zh/docs/secondme/plaza |
+| TTS | https://develop-docs.second-me.cn/zh/docs/secondme/tts |
+| User Info | https://develop-docs.second-me.cn/zh/docs/secondme/user |
+| Visitor Chat | https://develop-docs.second-me.cn/zh/docs/secondme/visitor-chat |
+| OAuth2 | https://develop-docs.second-me.cn/zh/docs/authentication/oauth2 |
+| Error Codes | https://develop-docs.second-me.cn/zh/docs/errors |
+| Changelog | https://develop-docs.second-me.cn/zh/docs/changelog |
 
-Local cache:
+Rules:
 
-- path: `references/api-reference.md` (relative to this skill's base directory)
-- this file is NOT distributed with the skill — it is created and maintained locally by the agent
-
-Bootstrap rule (first use):
-
-1. Before writing any code that calls SecondMe data APIs, check if `references/api-reference.md` exists
-2. If it does not exist, create the `references/` directory and fetch the remote docs
-3. Extract all endpoint paths, methods, request/response shapes, and required scopes
-4. Save to `references/api-reference.md` with a `fetched_at` field in the frontmatter set to today's date
-5. Then use the local file for implementation
-
-Subsequent use rule:
-
-1. Read `references/api-reference.md` to get endpoint paths, parameters, and response shapes
-2. Use only the paths from that reference — never invent or infer paths
-
-Freshness check rule:
-
-- If `fetched_at` in the reference file is older than 7 days, fetch the remote docs before writing code
-- After fetching, compare with the local reference
-- If there are differences (new endpoints, changed paths, changed parameters), update the local reference file and set `fetched_at` to today
-- If no differences, only update `fetched_at` to today
-- If the remote fetch fails (network error, 404, etc.), fall back to the local reference but warn the user that it may be stale
+1. Before writing any code that calls SecondMe APIs, fetch the relevant doc page(s) from the table above
+2. Use only the endpoint paths, parameters, and response shapes from the fetched docs — never invent or infer paths
+3. If the fetch fails, inform the user that the doc site is unreachable and ask them to provide the API details or retry later
+4. When debugging an API call failure, fetch both the relevant feature doc page and the error codes page
 
 ## Optional Capability References
 
-Use when relevant:
+Fetch the relevant doc page from the table above when the user needs any of these:
 
-- `chat.read` / `chat.write`: normal conversational output
-- `chat.write` (act): structured JSON decision output over streaming
-- `note.write`: note or memory creation
-- `agent_memory/ingest`: reporting external user actions into Agent Memory
+- `chat.read` / `chat.write`: streaming chat — fetch Chat doc page
+- `chat.write` (act): structured JSON decision output — fetch Act doc page
+- `note.write`: note creation — fetch Note doc page
+- `agent_memory`: ingest and query events — fetch Agent Memory doc page
+- `voice`: text-to-speech — fetch TTS doc page
+- `plaza.read` / `plaza.write`: social feed — fetch Plaza doc page
+- `userinfo` / `memory.read`: user profile and Key Memory — fetch User Info doc page
+- visitor chat: anonymous or authenticated avatar dialog — fetch Visitor Chat doc page
