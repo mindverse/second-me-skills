@@ -24,9 +24,19 @@ Use the gateway base:
 
 - `https://app.mindos.com/gate/lab`
 
+Use the API base for control-plane and auth routes:
+
+- `https://app.mindos.com/gate/lab/api`
+
+Route composition rule:
+
+- routes in this document are relative to the API base unless a section explicitly says otherwise
+- for example, `POST /auth/skills/token` resolves to `https://app.mindos.com/gate/lab/api/auth/skills/token`
+- do not compose app-management routes against `https://app.mindos.com/gate/lab` directly, or you will get `404`
+
 Routes:
 
-- `POST /api/auth/skills/token` — exchange auth code for access token (public, no auth required)
+- `POST /auth/skills/token` — exchange auth code for access token (public, no auth required)
 
 Process:
 
@@ -43,7 +53,7 @@ CODE_CHALLENGE=$(printf '%s' "$CODE_VERIFIER" | openssl dgst -sha256 -binary | o
 5. exchange the code for a token (include `codeVerifier` from step 1):
 
 ```
-POST {BASE}/api/auth/skills/token
+POST {API_BASE}/auth/skills/token
 Content-Type: application/json
 Body: { "code": "lba_ac_xxx", "codeVerifier": "<CODE_VERIFIER>" }
 ```
@@ -102,6 +112,8 @@ Treat external apps as first-class control-plane objects.
 
 ### Developer Routes
 
+These routes are relative to `https://app.mindos.com/gate/lab/api`:
+
 - `GET /applications/external/list`
 - `GET /applications/external/{appId}`
 - `POST /applications/external/create`
@@ -112,6 +124,8 @@ Treat external apps as first-class control-plane objects.
 - `POST /applications/external/{appId}/apply-listing`
 
 ### Public Routes
+
+These routes are also relative to `https://app.mindos.com/gate/lab/api`:
 
 - `GET /applications/external/public/list`
 - `GET /applications/external/{appId}/public`
