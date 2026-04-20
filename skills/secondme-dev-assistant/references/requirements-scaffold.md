@@ -47,6 +47,8 @@ Defaults:
 - local dev port: `3000`
 - backend style: Next.js route handlers as proxy or app API layer
 
+Do not silently skip revoke-handling discussion in quick start mode; if it is not decided yet, record that it is deferred and continue.
+
 ## Output Of This Phase
 
 Do not jump straight into code generation. Produce a concrete build brief that the user's coding tool can execute.
@@ -60,6 +62,7 @@ The brief should include:
 - database tables
 - environment variables
 - OAuth flow steps
+- the chosen revocation-handling stance: implement now, defer, or intentionally not handle yet
 - webhook receiver route and revoke handling behavior when OAuth login is in scope
 - MCP or integration requirements if relevant
 - test checklist
@@ -103,7 +106,7 @@ Suggested state structure:
     "features": [],
     "targetUsers": "",
     "designPreference": "",
-    "revokeHandling": true
+    "revokeHandling": "enabled_now"
   },
   "auth": {
     "persistAppScopedUserId": true,

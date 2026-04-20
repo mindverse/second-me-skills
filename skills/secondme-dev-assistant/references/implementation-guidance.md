@@ -96,7 +96,7 @@ Any implementation that persists user auth should retain at least:
 
 Fetch doc page for webhook event details: https://develop-docs.second-me.cn/zh/docs/authentication/oauth2
 
-When the user's app relies on OAuth login or app-bound access, recommend implementing the authorization revocation webhook unless they explicitly do not want automatic local cleanup.
+Reuse the user's earlier revoke-handling decision when it exists; only re-open the topic here if the choice has not been discussed yet or a missing implementation detail is blocking the handoff.
 
 Behavioral rules:
 

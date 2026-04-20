@@ -334,6 +334,8 @@ Never repeat raw secret values back to the user.
 
 - always list records before assuming create is required
 - always prefer the smallest necessary set of API calls
+- for a `third-party OAuth app`, raise the "what should happen after the user revokes authorization in SecondMe" question early, explain the product impact first, and note that automatic handling usually requires an `authorization.revoked` webhook
+- once the user has expressed a revoke-handling preference, carry it forward and avoid repeating the same question in later phases unless a missing technical detail is needed
 - if the user only asked to query, stop after reporting the requested data
 - if the user only asked to save or update, stop after reporting saved state
 - do not release automatically after save
