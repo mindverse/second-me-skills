@@ -28,6 +28,7 @@ When the user needs a SecondMe app, default to creating it for them through the 
 - user has `Client ID`
 - user has `Client Secret`
 - user knows the redirect URIs and allowed scopes
+- if the app needs revoke handling, user knows whether authorization revocation webhook is enabled and where its receiver URL points
 
 ### Bootstrap Decision
 
@@ -74,6 +75,8 @@ Extract:
 - `clientSecret`
 - `redirectUris`
 - `allowedScopes`
+- `authorizationRevokedWebhookUrl` when present
+- `authorizationRevokedWebhookEnabled` when present
 
 If both local and production callback URLs are present, prefer the local development callback as the default working callback and keep the full list for future configuration.
 
@@ -85,6 +88,8 @@ If App Info is unavailable, collect:
 - `App Description` when available
 - `Redirect URIs`
 - `Allowed Scopes`
+- whether the app wants `authorization.revoked` webhook handling now or later
+- webhook URL if revoke handling should be enabled now
 
 Then create the app on the user's behalf unless they explicitly want to operate manually.
 
@@ -97,6 +102,13 @@ Instead:
 - draft the final structure yourself
 - ask for confirmation on the drafted result
 - then execute the platform action
+
+Webhook bootstrap rules:
+
+- when the user is building an OAuth login app, ask whether they want to configure the authorization revocation webhook during app setup
+- if yes, draft `authorizationRevokedWebhookUrl` and `authorizationRevokedWebhookEnabled` into the create or update payload
+- if the webhook is enabled and the platform returns `authorizationRevokedWebhookSecret` in the create or update response, tell the user it was returned only once and must be stored securely by their backend team
+- do not confuse the webhook secret with the OAuth `clientSecret`
 
 ### Scope-To-Module Inference
 

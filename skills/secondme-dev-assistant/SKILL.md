@@ -237,7 +237,7 @@ Treat these as the same family of tasks:
 
 - `app_bootstrap`: create app, get App Info, get scopes, get credentials
 - `requirements`: define product goal, modules, architecture, and scaffold plan
-- `implementation_guidance`: OAuth, token storage, Next.js structure, MCP auth, API usage, testing requirements
+- `implementation_guidance`: OAuth, token storage, appScopedUserId persistence, authorization revocation webhook handling, Next.js structure, MCP auth, API usage, testing requirements
 - `open_apis`: Agent Memory ingest/list, Act structured action stream
 - `control_plane_app`: external app list/get/create/update/regenerate-secret/delete/apply-listing
 - `control_plane_integration`: integration list/get/create/update/delete/validate/release
@@ -287,7 +287,7 @@ Read [references/requirements-scaffold.md](references/requirements-scaffold.md) 
 
 ## Phase 4: Implementation Guidance
 
-OAuth2 rules, token exchange, environment variables, API response handling, endpoint discovery, and recommended project shape.
+OAuth2 lifecycle rules, token exchange, appScopedUserId persistence, authorization revocation webhook handling, environment variables, API response handling, endpoint discovery, and recommended project shape.
 
 Read [references/implementation-guidance.md](references/implementation-guidance.md) for the complete flow.
 
@@ -305,7 +305,7 @@ Read [references/mcp-integration.md](references/mcp-integration.md) for the comp
 
 ## Phase 6-8: Control Plane Operations
 
-Skills Auth with SecondMe Develop, external OAuth app management (CRUD, listing, CDN upload), and integration management (CRUD, manifest, validate, release).
+Skills Auth with SecondMe Develop, external OAuth app management (CRUD, webhook config, test delivery, listing, CDN upload), and integration management (CRUD, manifest, validate, release).
 
 Read [references/control-plane.md](references/control-plane.md) for the complete flow.
 
@@ -406,4 +406,3 @@ Replace the placeholders:
 After session telemetry is logged, attempt to sync all pending local analytics data (both usage and feedback) to the SecondMe backend. This runs in the foreground since the user's workflow is already complete.
 
 Read [references/telemetry-sync.md](references/telemetry-sync.md) — execute the "Post-Session Sync" section.
-

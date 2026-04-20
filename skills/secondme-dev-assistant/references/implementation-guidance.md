@@ -6,6 +6,7 @@
 - [Required Environment Variables](#required-environment-variables)
 - [OAuth2 Rules](#oauth2-rules)
 - [Recommended User Table Fields](#recommended-user-table-fields)
+- [Authorization Revocation Webhook](#authorization-revocation-webhook)
 - [WebView OAuth Note](#webview-oauth-note)
 - [API Response Handling](#api-response-handling)
 - [API Endpoint Discovery Rule](#api-endpoint-discovery-rule)
@@ -29,6 +30,7 @@ Suggested responsibilities:
 - local auth/session layer
 - proxy or server API routes for upstream SecondMe APIs
 - persistence for user tokens and app data
+- webhook receiver route with raw-body signature verification if OAuth revocation handling is enabled
 - MCP-facing or integration-facing API layer if needed
 
 ## Required Environment Variables
@@ -43,6 +45,8 @@ SECONDME_API_BASE_URL=...          # from doc: base URL
 SECONDME_OAUTH_URL=...             # from doc: authorization page URL
 SECONDME_TOKEN_ENDPOINT=...        # from doc: token exchange endpoint
 SECONDME_REFRESH_ENDPOINT=...      # from doc: token refresh endpoint
+SECONDME_AUTH_ME_ENDPOINT=...      # from doc: auth-me endpoint
+SECONDME_AUTH_REVOKE_WEBHOOK_SECRET=...   # required when revocation webhook is enabled
 DATABASE_URL=...
 ```
 
@@ -54,7 +58,9 @@ Before implementing OAuth2, fetch the doc page above to get the current:
 
 - authorization URL and query parameters
 - token exchange endpoint, request format, and response shape
+- auth-me endpoint and response shape
 - token refresh endpoint and response shape
+- authorization revocation webhook event fields, signature headers, and retry behavior
 - token types, prefixes, and validity periods
 - available scopes
 
@@ -62,9 +68,11 @@ Behavioral rules (apply regardless of API shape):
 
 - OAuth URL already contains the full path; append `?` and query parameters directly; do not append `/authorize`
 - token exchange uses `application/x-www-form-urlencoded`, not JSON
+- after token exchange, call the auth-me endpoint and persist `appScopedUserId` for the local account binding
 - always check `result.code`; actual payload is under `result.data`
 - response fields use camelCase
 - `redirect_uri` in token exchange must exactly match the one used in the authorization request
+- `appScopedUserId` is stable only within the current app; do not treat it as a cross-app or global user id
 
 Example:
 
@@ -77,11 +85,39 @@ const authUrl = `${process.env.SECONDME_OAUTH_URL}?${params.toString()}`;
 Any implementation that persists user auth should retain at least:
 
 - local `id`
-- stable upstream user id such as `secondmeUserId` or `oauthId`
+- stable app-scoped auth identifier `appScopedUserId`
+- upstream user id such as `secondmeUserId` or `oauthId` when the product also needs a platform-level identity reference
 - `accessToken`
 - `refreshToken`
 - `tokenExpiresAt`
 - timestamps
+
+## Authorization Revocation Webhook
+
+Fetch doc page for webhook event details: https://develop-docs.second-me.cn/zh/docs/authentication/oauth2
+
+When the user's app relies on OAuth login or app-bound access, recommend implementing the authorization revocation webhook unless they explicitly do not want automatic local cleanup.
+
+Behavioral rules:
+
+- the event type is `authorization.revoked`
+- persist `appScopedUserId` during login so the webhook can locate the local auth binding later
+- verify the signature from the raw request body string; do not reconstruct JSON before signing
+- verify `X-SecondMe-Timestamp` with a 5-minute tolerance window before processing
+- use `eventId` as the idempotency key
+- use `appScopedUserId` to locate the local binding, then revoke local sessions, account links, or access grants
+- `reason = test_delivery` is a connectivity test and should not revoke a real user binding
+- ordinary `4xx` responses are not retried by default; timeouts, connection failures, `408`, `429`, and `5xx` are retried
+- return `2xx` only after signature checks and local processing are complete or the event has already been handled idempotently
+
+Recommended server-side tests:
+
+- valid signature and fresh timestamp are accepted
+- invalid signature is rejected
+- expired timestamp is rejected
+- duplicate `eventId` is handled idempotently
+- `reason = test_delivery` does not remove real auth state
+- `reason = user_revoked` removes the expected local session or account binding
 
 ## WebView OAuth Note
 
