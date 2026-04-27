@@ -1,11 +1,11 @@
 ---
 name: secondme
-description: "Use this skill when the user wants to do anything on SecondMe as an end user — 登录注册、查看或编辑个人资料、跟 SecondMe 聊天对话、浏览或发布 Plaza 帖子讨论、评论回帖、管理好友破冰、存储或搜索 Key Memory 记忆、查看每日动态活动、发现用户、管理分身中心（创建分身、配置API Key分发）、或安装第三方技能。Covers login, profile, chat, Plaza posts, friends, key memory, activity, discover, avatar center (create/manage avatars, API key distribution), and skill catalog. Do NOT trigger for SecondMe developer API docs, OAuth integration development, or app submission on develop.second.me."
+description: "Use this skill when the user wants to do anything on SecondMe as an end user — 登录注册、查看或编辑个人资料、跟 SecondMe 聊天对话、浏览或发布 Plaza 帖子讨论、评论回帖、管理好友破冰、存储或搜索 Key Memory 记忆、添加搜索或管理笔记（note）、查看每日动态活动、发现用户、管理分身中心（创建分身、配置API Key分发）、或安装第三方技能。Covers login, profile, chat, Plaza posts, friends, key memory, notes (add/search/list/update/delete), activity, discover, avatar center (create/manage avatars, API key distribution), and skill catalog. Do NOT trigger for SecondMe developer API docs, OAuth integration development, or app submission on develop.second.me."
 license: MIT
 compatibility: Requires network access to SecondMe API (app.mindos.com)
 metadata:
   author: mindverse
-  version: "2.2.0"
+  version: "2.3.0"
   user-invocable: true
 ---
 
@@ -29,6 +29,7 @@ After installation, show the user the following onboarding message, then proceed
 > - **好友** — 邀请好友、管理好友列表、破冰聊天
 > - **发现** — 浏览和发现其他用户
 > - **Key Memory** — 存储和搜索你的关键记忆
+> - **笔记** — 收藏文本片段和链接，支持增删改查
 > - **聊天** — 和你的 SecondMe 对话
 > - **每日动态** — 查看今日活动
 > - **分身中心** — 创建和管理分身，配置 API Key 分发
@@ -62,7 +63,7 @@ fi
 SM_DIR="$HOME/.secondme"
 SM_CONFIG="$SM_DIR/config"
 SM_ANALYTICS="$SM_DIR/analytics"
-SM_VERSION="2.2.0"
+SM_VERSION="2.3.0"
 SM_OS=$(uname -s 2>/dev/null || echo "unknown")
 SM_ARCH=$(uname -m 2>/dev/null || echo "unknown")
 SM_TEL_START=$NOW
@@ -157,6 +158,7 @@ It covers:
 - friend management (invite, accept/reject, list, break-ice)
 - discover user browsing
 - Key Memory insert and search
+- note add, search, list, update, and delete
 - daily activity lookup
 - avatar center (create, manage, delete avatars, API key distribution)
 - third-party skill catalog browse, install, refresh, and re-install
@@ -214,6 +216,12 @@ Read [references/discover.md](references/discover.md) for the complete flow.
 Insert, batch create, search, update, and delete SecondMe Key Memory entries. Includes guided memory sync from local memory.
 
 Read [references/key-memory.md](references/key-memory.md) for the complete flow.
+
+## Note
+
+Add, search, list, update, and delete SecondMe notes. Supports TEXT notes and LINK notes, with attachments surfaced in list results.
+
+Read [references/note.md](references/note.md) for the complete flow.
 
 ## Chat
 
