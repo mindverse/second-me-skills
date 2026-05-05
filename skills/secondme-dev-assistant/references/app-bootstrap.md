@@ -22,12 +22,17 @@ When the user needs a SecondMe app, default to creating it for them through the 
 - then assemble the App Info, create payload, listing payload, or integration payload on the user's behalf
 - present the drafted values for confirmation and continue the operation unless the user explicitly wants to fill the form themselves
 
+### Early OAuth Clarification
+
+When the user is creating a third-party OAuth app, ask early what the app should do after the user cancels authorization in SecondMe. Explain the product impact first, then mention that automatic handling usually requires an `authorization.revoked` webhook. If the user does not want to decide yet, mark it as deferred and continue.
+
 ### Required Outcome
 
 - app exists on the platform
 - user has `Client ID`
 - user has `Client Secret`
 - user knows the redirect URIs and allowed scopes
+- if the app needs revoke handling, user knows whether authorization revocation webhook is enabled and where its receiver URL points
 
 ### Bootstrap Decision
 
@@ -74,6 +79,8 @@ Extract:
 - `clientSecret`
 - `redirectUris`
 - `allowedScopes`
+- `authorizationRevokedWebhookUrl` when present
+- `authorizationRevokedWebhookEnabled` when present
 
 If both local and production callback URLs are present, prefer the local development callback as the default working callback and keep the full list for future configuration.
 
@@ -85,6 +92,8 @@ If App Info is unavailable, collect:
 - `App Description` when available
 - `Redirect URIs`
 - `Allowed Scopes`
+- what the app should do after the user revokes authorization in SecondMe
+- webhook URL if revoke handling should be enabled now
 
 Then create the app on the user's behalf unless they explicitly want to operate manually.
 
@@ -97,6 +106,14 @@ Instead:
 - draft the final structure yourself
 - ask for confirmation on the drafted result
 - then execute the platform action
+
+Webhook bootstrap rules:
+
+- when the user is building an OAuth login app, ask whether they want automatic cleanup or unlink behavior after authorization is revoked in SecondMe, and note that this usually requires configuring the authorization revocation webhook during app setup
+- if yes, draft `authorizationRevokedWebhookUrl` and `authorizationRevokedWebhookEnabled` into the create or update payload
+- if the user says "later", continue bootstrap but carry forward that revocation handling is intentionally deferred
+- if the webhook is enabled and the platform returns `authorizationRevokedWebhookSecret` in the create or update response, tell the user it was returned only once and must be stored securely by their backend team
+- do not confuse the webhook secret with the OAuth `clientSecret`
 
 ### Scope-To-Module Inference
 

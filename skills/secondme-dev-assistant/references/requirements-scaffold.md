@@ -17,6 +17,7 @@ Collect:
 - key user flows
 - preferred UI tone
 - storage needs
+- whether local auth/session state must be revoked when the user disconnects the app in SecondMe
 - whether they want a quick start or a fuller requirements pass
 
 ## Standard Planning Mode
@@ -30,6 +31,7 @@ Clarify:
 - what the minimum useful feature set is
 - which SecondMe capabilities are actually needed
 - what local persistence is required
+- whether the app should handle `authorization.revoked` webhook events from SecondMe
 - what kind of review submission they eventually want
 
 ## Quick Start Mode
@@ -45,6 +47,8 @@ Defaults:
 - local dev port: `3000`
 - backend style: Next.js route handlers as proxy or app API layer
 
+Do not silently skip revoke-handling discussion in quick start mode; if it is not decided yet, record that it is deferred and continue.
+
 ## Output Of This Phase
 
 Do not jump straight into code generation. Produce a concrete build brief that the user's coding tool can execute.
@@ -58,6 +62,8 @@ The brief should include:
 - database tables
 - environment variables
 - OAuth flow steps
+- the chosen revocation-handling stance: implement now, defer, or intentionally not handle yet
+- webhook receiver route and revoke handling behavior when OAuth login is in scope
 - MCP or integration requirements if relevant
 - test checklist
 
@@ -78,13 +84,16 @@ Suggested state structure:
   "config": {
     "clientId": "xxx",
     "redirectUris": ["http://localhost:3000/api/auth/callback"],
-    "allowedScopes": ["userinfo", "chat.read", "chat.write"]
+    "allowedScopes": ["userinfo", "chat.read", "chat.write"],
+    "authorizationRevokedWebhookUrl": "https://example.com/api/webhooks/secondme/revoked",
+    "authorizationRevokedWebhookEnabled": true
   },
   "api": {
     "baseUrl": "https://api.mindverse.com/gate/lab",
     "oauthUrl": "https://go.second.me/oauth/",
     "tokenEndpoint": "https://api.mindverse.com/gate/lab/api/oauth/token/code",
-    "refreshEndpoint": "https://api.mindverse.com/gate/lab/api/oauth/token/refresh"
+    "refreshEndpoint": "https://api.mindverse.com/gate/lab/api/oauth/token/refresh",
+    "authMeEndpoint": "https://api.mindverse.com/gate/lab/api/auth/me"
   },
   "docs": {
     "quickstart": "https://develop-docs.second-me.cn/zh/docs",
@@ -96,7 +105,12 @@ Suggested state structure:
     "summary": "",
     "features": [],
     "targetUsers": "",
-    "designPreference": ""
+    "designPreference": "",
+    "revokeHandling": "enabled_now"
+  },
+  "auth": {
+    "persistAppScopedUserId": true,
+    "webhookSecretStored": false
   }
 }
 ```

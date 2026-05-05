@@ -24,9 +24,19 @@ Use the gateway base:
 
 - `https://app.mindos.com/gate/lab`
 
+Use the API base for control-plane and auth routes:
+
+- `https://app.mindos.com/gate/lab/api`
+
+Route composition rule:
+
+- routes in this document are relative to the API base unless a section explicitly says otherwise
+- for example, `POST /auth/skills/token` resolves to `https://app.mindos.com/gate/lab/api/auth/skills/token`
+- do not compose app-management routes against `https://app.mindos.com/gate/lab` directly, or you will get `404`
+
 Routes:
 
-- `POST /api/auth/skills/token` — exchange auth code for access token (public, no auth required)
+- `POST /auth/skills/token` — exchange auth code for access token (public, no auth required)
 
 Process:
 
@@ -43,7 +53,7 @@ CODE_CHALLENGE=$(printf '%s' "$CODE_VERIFIER" | openssl dgst -sha256 -binary | o
 5. exchange the code for a token (include `codeVerifier` from step 1):
 
 ```
-POST {BASE}/api/auth/skills/token
+POST {API_BASE}/auth/skills/token
 Content-Type: application/json
 Body: { "code": "lba_ac_xxx", "codeVerifier": "<CODE_VERIFIER>" }
 ```
@@ -102,15 +112,20 @@ Treat external apps as first-class control-plane objects.
 
 ### Developer Routes
 
+These routes are relative to `https://app.mindos.com/gate/lab/api`:
+
 - `GET /applications/external/list`
 - `GET /applications/external/{appId}`
 - `POST /applications/external/create`
 - `POST /applications/external/{appId}/update`
+- `POST /applications/external/{appId}/test-revocation-webhook`
 - `POST /applications/external/{appId}/regenerate-secret`
 - `POST /applications/external/{appId}/delete`
 - `POST /applications/external/{appId}/apply-listing`
 
 ### Public Routes
+
+These routes are also relative to `https://app.mindos.com/gate/lab/api`:
 
 - `GET /applications/external/public/list`
 - `GET /applications/external/{appId}/public`
@@ -122,7 +137,10 @@ Treat external apps as first-class control-plane objects.
   "appName": "Example App",
   "appDescription": "Optional description",
   "redirectUris": ["https://example.com/oauth/callback"],
-  "allowedScopes": ["userinfo"]
+  "allowedScopes": ["userinfo"],
+  "authorizationRevokedWebhookUrl": "https://example.com/webhooks/authorization-revoked",
+  "authorizationRevokedWebhookEnabled": true,
+  "authorizationRevokedWebhookSecret": "whs_xxx"
 }
 ```
 
@@ -133,7 +151,48 @@ Treat external apps as first-class control-plane objects.
   "appName": "Example App",
   "appDescription": "Optional description",
   "redirectUris": ["https://example.com/oauth/callback"],
-  "allowedScopes": ["userinfo", "chat.read", "chat.write"]
+  "allowedScopes": ["userinfo", "chat.read", "chat.write"],
+  "authorizationRevokedWebhookUrl": "https://example.com/webhooks/authorization-revoked",
+  "authorizationRevokedWebhookEnabled": true,
+  "authorizationRevokedWebhookSecret": "whs_xxx"
+}
+```
+
+### Webhook Test Route
+
+Use this route to validate the authorization revocation receiver without affecting a real authorization relationship:
+
+- `POST /applications/external/{appId}/test-revocation-webhook`
+
+Test request shape:
+
+```json
+{
+  "webhookUrl": "https://example.com/webhooks/authorization-revoked",
+  "webhookSecret": "whs_xxx"
+}
+```
+
+Test response shape:
+
+```json
+{
+  "eventId": "evt_test_xxx",
+  "eventType": "authorization.revoked",
+  "occurredAt": "2026-04-17T10:00:00Z",
+  "webhookUrl": "https://example.com/webhooks/authorization-revoked",
+  "success": true,
+  "statusCode": 200,
+  "responseBody": "ok",
+  "errorMessage": null,
+  "payload": {
+    "eventId": "evt_test_xxx",
+    "eventType": "authorization.revoked",
+    "occurredAt": "2026-04-17T10:00:00Z",
+    "appId": "xxx",
+    "appScopedUserId": "asu_test_delivery",
+    "reason": "test_delivery"
+  }
 }
 ```
 
@@ -148,6 +207,17 @@ Treat external apps as first-class control-plane objects.
 - when app info or listing info is incomplete, ask targeted follow-up questions and draft the form values yourself instead of asking the user to fill the full form manually
 - `clientSecret` is returned only on create or regenerate, so capture it immediately
 - `GET /applications/external/{appId}` does not return the raw secret
+- webhook config fields live directly on the external app object: `authorizationRevokedWebhookUrl`, `authorizationRevokedWebhookEnabled`, `authorizationRevokedWebhookSecret`
+- `GET /applications/external/{appId}` returns webhook URL, enabled state, and recent delivery status fields, but not the raw webhook secret
+- `authorizationRevokedWebhookSecret` is returned in plaintext only on create or update when it is newly set or auto-generated; after that, detail does not reveal it again
+- `POST /applications/external/{appId}/regenerate-secret` rotates the OAuth `clientSecret`, not the webhook secret
+- if webhook is enabled and the caller does not provide a secret, the platform may auto-generate one and return it once in the create or update response
+- updating only the webhook URL may omit the webhook secret and keep the stored secret unchanged
+- updating only the webhook secret is allowed, but if webhook is enabled and no URL is available, treat that as invalid and ask for or preserve a URL
+- when create or update returns a webhook secret, explicitly tell the user it was only shown once and must be stored securely by their backend team
+- the test route accepts temporary `webhookUrl` or `webhookSecret` values in the request and falls back to saved config when either field is omitted
+- a successful test delivery proves connectivity and signature configuration; it does not change real user authorization state
+- webhook config does not gate normal external app save, OAuth usage, listing submission, or app-store review flow
 
 ### Listing Media URL Handling
 
