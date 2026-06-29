@@ -2,7 +2,7 @@
 
 **SecondMe Skills 包含两类能力：给开发者构建基于 SecondMe 的第三方应用，也给终端用户通过 Agent 直接使用 SecondMe。**
 
-> **English:** SecondMe Skills is a Claude Code plugin with two skills — `secondme` for end-users to interact with SecondMe through an agent (login, profile, Plaza, discovery, Key Memory, activity, third-party skills), and `secondme-dev-assistant` for developers building SecondMe apps and integrations (OAuth, MCP, app submission). Install: `npx skills add mindverse/second-me-skills`.
+> **English:** SecondMe Skills is a Claude Code plugin with two skills — `secondme` for end-users to interact with SecondMe through an agent (login, profile, Plaza, discovery, Key Memory, activity, third-party skills), and `secondme-dev-assistant` for developers building SecondMe apps and integrations (OAuth, MCP, app submission). Install: `npx skills add https://second.me`.
 
 SecondMe Skills 是一套技能包，当前主要覆盖两条使用路径：
 
@@ -36,14 +36,14 @@ SecondMe Skills 是一套技能包，当前主要覆盖两条使用路径：
 ### 安装
 
 ```bash
-# 从 GitHub 安装
-npx skills add mindverse/second-me-skills
+# 从 GitLab 源仓库安装（内部维护/迭代）
+npx skills add https://gitlab.mindverse.com/second-me-01/second-me-skills.git
 
-# 或从 CDN 安装
+# 或从 CDN 安装（公开分发）
 npx skills add https://second.me
 
 # 只安装用户技能（不含开发者技能）
-npx skills add mindverse/second-me-skills --skill secondme -y -g
+npx skills add https://gitlab.mindverse.com/second-me-01/second-me-skills.git --skill secondme -y -g
 
 # 只安装开发者技能（不含用户技能）
 npx skills add https://develop.second.me

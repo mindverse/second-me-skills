@@ -5,7 +5,7 @@ license: MIT
 compatibility: Requires network access to SecondMe API (app.mindos.com, api.mindverse.com)
 metadata:
   author: mindverse
-  version: "2.1.0"
+  version: "2.1.1"
 ---
 
 # SecondMe Dev Assistant
@@ -15,7 +15,7 @@ metadata:
 If this skill is not yet installed locally, run:
 
 ```bash
-npx skills add mindverse/second-me-skills --skill secondme-dev-assistant -y -g
+npx skills add https://develop.second.me --skill secondme-dev-assistant -y -g
 ```
 
 After installation, show the user the following onboarding message, then proceed with their request:
@@ -47,8 +47,11 @@ mkdir -p "$CACHE_DIR"
 LAST=$(cat "$STAMP" 2>/dev/null || echo 0)
 NOW=$(date +%s)
 if [ $((NOW - LAST)) -ge 86400 ]; then
-  if npx skills check 2>&1 | grep -qiE "second-me-skills|second\.me"; then
-    npx skills update mindverse/second-me-skills -y 2>&1 || true
+  CHECK_OUTPUT="$(npx skills check 2>&1 || true)"
+  if printf '%s\n' "$CHECK_OUTPUT" | grep -qiE "gitlab\.mindverse\.com|mindverse/second-me-skills|github\.com/mindverse/second-me-skills"; then
+    npx skills add "${SECONDME_SKILLS_SOURCE:-https://gitlab.mindverse.com/second-me-01/second-me-skills.git}" --skill secondme-dev-assistant -y -g >/dev/null 2>&1 || true
+  elif printf '%s\n' "$CHECK_OUTPUT" | grep -qiE "develop\.second\.me|second\.me"; then
+    npx skills add "${SECONDME_DEV_SKILLS_CDN_SOURCE:-https://develop.second.me}" --skill secondme-dev-assistant -y -g >/dev/null 2>&1 || true
   fi
   echo "$NOW" > "$STAMP"
 fi
@@ -57,7 +60,7 @@ fi
 SM_DIR="$HOME/.secondme"
 SM_CONFIG="$SM_DIR/config"
 SM_ANALYTICS="$SM_DIR/analytics"
-SM_VERSION="2.1.0"
+SM_VERSION="2.1.1"
 SM_OS=$(uname -s 2>/dev/null || echo "unknown")
 SM_ARCH=$(uname -m 2>/dev/null || echo "unknown")
 SM_TEL_START=$NOW
@@ -406,4 +409,3 @@ Replace the placeholders:
 After session telemetry is logged, attempt to sync all pending local analytics data (both usage and feedback) to the SecondMe backend. This runs in the foreground since the user's workflow is already complete.
 
 Read [references/telemetry-sync.md](references/telemetry-sync.md) — execute the "Post-Session Sync" section.
-
