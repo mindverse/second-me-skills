@@ -1,11 +1,15 @@
 # Avatar Center（分身中心）
 
-管理分身（Avatar）、查看交互记录、配置 API Key 分发。
+管理分身（Avatar）、启用官方/自定义技能、查看交互记录、配置 API Key 分发。
 
 ## Table of Contents
 
 - [获取分身列表](#获取分身列表)
 - [获取分身详情](#获取分身详情)
+- [查看可用官方技能](#查看可用官方技能)
+- [查看自定义技能列表](#查看自定义技能列表)
+- [创建 Markdown 自定义技能](#创建-markdown-自定义技能)
+- [创建带技能的分身](#创建带技能的分身)
 - [创建分身](#创建分身)
 - [更新分身](#更新分身)
 - [删除分身](#删除分身)
@@ -17,6 +21,14 @@
 - [更新 API Key](#更新-api-key)
 - [删除 API Key](#删除-api-key)
 - [Workflow Guidelines](#workflow-guidelines)
+
+---
+
+## Authentication Boundary
+
+所有分身中心操作都走 SecondMe skill 鉴权：读取 `~/.secondme/credentials` 中的 `accessToken`，请求 `{BASE}/api/secondme/avatar/...`，并带上 `Authorization: Bearer ...`。
+
+Agent 不要直接调用 Java 内部 `/rest/out/avatar/...`，也不要绕过 skill 登录态使用旧的 App 内部接口。
 
 ---
 
@@ -148,9 +160,244 @@ curl -X GET "{BASE}/api/secondme/avatar/detail?avatarId=2" \
 
 ---
 
+### 查看可用官方技能
+
+获取 Avatar 场景下可启用的官方技能和兼容工具。创建分身前，优先调用这个接口让用户选择要启用的能力。
+
+```
+GET {BASE}/api/secondme/avatar/skills/available
+```
+
+#### 查询参数
+
+| 参数 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| sceneMode | string | 否 | 默认 `avatar_chat` |
+
+#### 请求示例
+
+```bash
+curl -X GET "{BASE}/api/secondme/avatar/skills/available?sceneMode=avatar_chat" \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
+#### 响应
+
+```json
+{
+  "code": 0,
+  "data": {
+    "skills": [
+      {
+        "skillKey": "web",
+        "displayName": "Web access",
+        "description": "Search the web and fetch web pages when this avatar needs current or external information.",
+        "enabled": true
+      }
+    ]
+  }
+}
+```
+
+使用 `skillKey` 写入创建或更新分身的 `skillKeys`，或写入组合创建接口的 `skills.officialSkillKeys`。
+
+---
+
+### 查看自定义技能列表
+
+获取当前用户已创建的 Avatar 自定义技能。自定义技能可与官方技能一起绑定到分身。
+
+```
+GET {BASE}/api/secondme/avatar/custom-skills/list
+```
+
+#### 查询参数
+
+| 参数 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| sceneMode | string | 否 | 默认 `avatar_chat` |
+
+#### 请求示例
+
+```bash
+curl -X GET "{BASE}/api/secondme/avatar/custom-skills/list?sceneMode=avatar_chat" \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
+#### 响应
+
+```json
+{
+  "code": 0,
+  "data": [
+    {
+      "id": "9007199254740993",
+      "skillKey": "avatar_custom_hiring_faq",
+      "title": "Hiring FAQ",
+      "description": "Answer hiring process questions.",
+      "sceneMode": "avatar_chat",
+      "sourceType": "md_text",
+      "status": "valid"
+    }
+  ]
+}
+```
+
+绑定已有自定义技能时，使用返回的 `skillKey`。
+
+---
+
+### 创建 Markdown 自定义技能
+
+创建 Avatar 自定义技能。当前 skill-facing 流程只支持 Markdown 文本上传，不支持 Markdown URL 上传。
+
+```
+POST {BASE}/api/secondme/avatar/custom-skills/create
+```
+
+#### 请求参数
+
+| 参数 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| title | string | 否 | 技能标题；标准 `SKILL.md` frontmatter 中的 `name` 优先 |
+| description | string | 否 | 技能描述；标准 `SKILL.md` frontmatter 中的 `description` 优先 |
+| whenToUse | string | 否 | 触发建议 |
+| version | string | 否 | 默认 `1.0.0` |
+| sceneMode | string | 否 | 默认 `avatar_chat` |
+| sceneModes | string[] | 否 | 多场景绑定；通常只传 `["avatar_chat"]` |
+| sourceType | string | 是 | 固定传 `md_text` |
+| contentMarkdown | string | 是 | Markdown 文本。建议使用标准 `SKILL.md` frontmatter |
+
+不要传 `sourceUrl`，也不要传 `sourceType: "md_url"`。
+
+#### 请求示例
+
+```bash
+curl -X POST "{BASE}/api/secondme/avatar/custom-skills/create" \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Local Memory FAQ",
+    "description": "Answers from local agent memory.",
+    "sceneMode": "avatar_chat",
+    "sourceType": "md_text",
+    "contentMarkdown": "---\nname: local-memory-faq\ndescription: Answers from local agent memory.\n---\n# Local Memory FAQ\n\n- 用户偏好：直接、具体、先给结论。"
+  }'
+```
+
+#### 响应
+
+```json
+{
+  "code": 0,
+  "data": {
+    "id": "9007199254740993",
+    "skillKey": "avatar_custom_local_memory_faq",
+    "title": "Local Memory FAQ",
+    "description": "Answers from local agent memory.",
+    "sceneMode": "avatar_chat",
+    "sourceType": "md_text",
+    "status": "valid"
+  }
+}
+```
+
+---
+
+### 创建带技能的分身
+
+一次请求内创建 Markdown 自定义技能、绑定官方技能/已有自定义技能，并创建分身。Agent 要帮用户“完整创建一个分身”时优先使用这个接口。
+
+```
+POST {BASE}/api/secondme/avatar/skill-create
+```
+
+#### 请求参数
+
+该接口包含普通创建分身字段，并新增 `skills`：
+
+| 参数 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| title | string | 是 | 分身名称 |
+| scenarioPrompt | string | 否 | 场景提示词 |
+| opening | string | 否 | 开场白 |
+| material | object | 否 | 分身材料 |
+| modes | object | 否 | 交互模式 |
+| distribution | object | 否 | 分发配置 |
+| relatedNoteIds | number[] | 否 | 分身专属召回笔记 |
+| skills.officialSkillKeys | string[] | 否 | 从可用官方技能接口返回的 `skillKey` |
+| skills.existingCustomSkillKeys | string[] | 否 | 从自定义技能列表返回的 `skillKey` |
+| skills.customMarkdownSkills | object[] | 否 | 要先创建再绑定的 Markdown 自定义技能 |
+
+`skills.customMarkdownSkills[]` 字段：
+
+| 参数 | 类型 | 必需 | 说明 |
+|------|------|------|------|
+| title | string | 否 | 自定义技能标题 |
+| description | string | 否 | 自定义技能描述 |
+| whenToUse | string | 否 | 触发建议 |
+| version | string | 否 | 默认 `1.0.0` |
+| sceneMode | string | 否 | 默认 `avatar_chat` |
+| sceneModes | string[] | 否 | 多场景绑定 |
+| contentMarkdown | string | 是 | Markdown 文本；不支持 URL |
+
+#### 请求示例
+
+```bash
+curl -X POST "{BASE}/api/secondme/avatar/skill-create" \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "我的工作分身",
+    "scenarioPrompt": "你是基于我的工作习惯、项目背景和本地 agent 记忆创建的分身，回答要直接、具体，并在信息不足时提问。",
+    "opening": "你好，我是你的工作分身。你可以问我项目背景、协作偏好或常见决策。",
+    "modes": { "textChat": true, "voiceCall": false },
+    "distribution": { "apiEnabled": true, "wxappEnabled": false },
+    "skills": {
+      "officialSkillKeys": ["web"],
+      "existingCustomSkillKeys": ["avatar_custom_hiring_faq"],
+      "customMarkdownSkills": [
+        {
+          "title": "Local Agent Memory",
+          "description": "Use summarized local agent memory to answer personal workflow questions.",
+          "sceneMode": "avatar_chat",
+          "contentMarkdown": "---\nname: local-agent-memory\ndescription: Use summarized local agent memory to answer personal workflow questions.\n---\n# Local Agent Memory\n\n## Preferences\n- 回答先给结论，再给必要细节。"
+        }
+      ]
+    }
+  }'
+```
+
+#### 响应
+
+```json
+{
+  "code": 0,
+  "data": {
+    "avatar": {
+      "avatarId": 3,
+      "type": "custom",
+      "title": "我的工作分身",
+      "skillKeys": ["web", "avatar_custom_hiring_faq", "avatar_custom_local_agent_memory"],
+      "shareCode": "ghi789"
+    },
+    "createdCustomSkills": [
+      {
+        "skillKey": "avatar_custom_local_agent_memory",
+        "title": "Local Agent Memory",
+        "sourceType": "md_text"
+      }
+    ],
+    "enabledSkillKeys": ["web", "avatar_custom_hiring_faq", "avatar_custom_local_agent_memory"]
+  }
+}
+```
+
+---
+
 ### 创建分身
 
-创建一个新的自定义分身。
+创建一个新的自定义分身。只需要普通分身配置时使用；需要同时创建/绑定技能时优先使用 [创建带技能的分身](#创建带技能的分身)。
 
 ```
 POST {BASE}/api/secondme/avatar/create
@@ -165,6 +412,7 @@ POST {BASE}/api/secondme/avatar/create
 | opening | string | 否 | 开场白（访客打开时的第一条消息） |
 | modes | object | 否 | 交互模式：`{ "textChat": bool, "voiceCall": bool }` |
 | distribution | object | 否 | 分发配置：`{ "apiEnabled": bool, "wxappEnabled": bool }` |
+| skillKeys | string[] | 否 | 要启用的官方技能和自定义技能 `skillKey` |
 
 #### 请求示例
 
@@ -223,6 +471,7 @@ POST {BASE}/api/secondme/avatar/update
 | opening | string | 否 | 开场白 |
 | modes | object | 否 | 交互模式配置 |
 | distribution | object | 否 | 分发渠道配置 |
+| skillKeys | string[] | 否 | 覆盖启用的官方技能和自定义技能 `skillKey` |
 
 #### 请求示例
 
@@ -560,6 +809,9 @@ curl -X POST "{BASE}/api/secondme/avatar/api-key/delete" \
 | auth.scope.missing | 缺少必需的权限（需要 avatar.read 或 avatar.write） |
 | avatar.fetch.failed | 获取分身信息失败 |
 | avatar.create.failed | 创建分身失败 |
+| avatar.custom.skill.definition.invalid | 自定义技能 Markdown 不是标准 skill 定义，或缺少 name/description |
+| avatar.custom.skill.content.required | 自定义技能缺少 Markdown 内容 |
+| avatar.custom.skill.source.unsupported | 自定义技能 sourceType 不支持；skill-facing 流程只传 `md_text` |
 | avatar.update.failed | 更新分身失败 |
 | avatar.delete.failed | 删除分身失败 |
 | avatar.apikey.failed | API Key 操作失败 |
@@ -589,6 +841,14 @@ https://second-me.cn/{ownerRoute}/avatar/{shareCode}
 1. **title**（必填）: 分身名称，如「产品咨询助手」「新员工培训」
 2. **scenarioPrompt**（建议填写）: 场景提示词，描述分身的任务和行为方式
 3. **opening**（可选）: 开场白，访客打开时的第一条消息
+4. **skills**（可选）: 先调用可用官方技能和自定义技能列表，让用户选择要启用的能力
+
+当用户要求 agent 帮他创建“完整分身”时：
+
+- 可以参考本地 agent 记忆、当前对话、用户提供的资料来生成 `scenarioPrompt`、`opening` 和自定义技能 Markdown
+- 提交前展示即将写入 SecondMe 的摘要，让用户确认
+- 自定义技能只用 Markdown 文本：`sourceType` 固定为 `md_text`，不要上传或引用 Markdown URL
+- 如果要同时新建 Markdown 自定义技能并绑定到分身，优先调用 `POST {BASE}/api/secondme/avatar/skill-create`
 
 创建成功后，拼接完整分享链接 `https://second-me.cn/{ownerRoute}/avatar/{shareCode}` 并展示给用户。如果当前上下文中没有用户的 `route`，先调用 `GET {BASE}/api/secondme/user/info` 获取。
 

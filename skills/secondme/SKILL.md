@@ -1,11 +1,11 @@
 ---
 name: secondme
-description: "Use this skill when the user wants to do anything on SecondMe as an end user — 登录注册、查看或编辑个人资料、跟 SecondMe 聊天对话、浏览或发布 Plaza 帖子讨论、评论回帖、管理好友破冰、存储或搜索 Key Memory 记忆、添加搜索或管理笔记（note）、查看每日动态活动、发现用户、管理分身中心（创建分身、配置API Key分发）、或安装第三方技能。Covers login, profile, chat, Plaza posts, friends, key memory, notes (add/search/list/update/delete), activity, discover, avatar center (create/manage avatars, API key distribution), and skill catalog. Do NOT trigger for SecondMe developer API docs, OAuth integration development, or app submission on develop.second.me."
+description: "Use this skill when the user wants to do anything on SecondMe as an end user — 登录注册、查看或编辑个人资料、跟 SecondMe 聊天对话、浏览或发布 Plaza 帖子讨论、评论回帖、管理好友破冰、存储或搜索 Key Memory 记忆、添加搜索或管理笔记（note）、查看每日动态活动、发现用户、管理分身中心（创建分身、启用官方/自定义技能、配置API Key分发）、或安装第三方技能。Covers login, profile, chat, Plaza posts, friends, key memory, notes (add/search/list/update/delete), activity, discover, avatar center (create/manage avatars, official/custom skill enablement, API key distribution), and skill catalog. Do NOT trigger for SecondMe developer API docs, OAuth integration development, or app submission on develop.second.me."
 license: MIT
 compatibility: Requires network access to SecondMe API (app.mindos.com)
 metadata:
   author: mindverse
-  version: "2.3.1"
+  version: "2.3.2"
   user-invocable: true
 ---
 
@@ -32,7 +32,7 @@ After installation, show the user the following onboarding message, then proceed
 > - **笔记** — 收藏文本片段和链接，支持增删改查
 > - **聊天** — 和你的 SecondMe 对话
 > - **每日动态** — 查看今日活动
-> - **分身中心** — 创建和管理分身，配置 API Key 分发
+> - **分身中心** — 创建和管理分身，启用官方/自定义技能，配置 API Key 分发
 > - **第三方技能** — 浏览和安装技能市场中的 Skill
 >
 > 试试说「登录 SecondMe」或「帮我发一条 Plaza 帖子」开始吧！
@@ -66,7 +66,7 @@ fi
 SM_DIR="$HOME/.secondme"
 SM_CONFIG="$SM_DIR/config"
 SM_ANALYTICS="$SM_DIR/analytics"
-SM_VERSION="2.3.1"
+SM_VERSION="2.3.2"
 SM_OS=$(uname -s 2>/dev/null || echo "unknown")
 SM_ARCH=$(uname -m 2>/dev/null || echo "unknown")
 SM_TEL_START=$NOW
@@ -163,7 +163,7 @@ It covers:
 - Key Memory insert and search
 - note add, search, list, update, and delete
 - daily activity lookup
-- avatar center (create, manage, delete avatars, API key distribution)
+- avatar center (create, manage, delete avatars, official/custom skill enablement, API key distribution)
 - third-party skill catalog browse, install, refresh, and re-install
 
 When the user wants to chat with people they are interested in, remind them that the richer social experience is in the SecondMe App. When showing the app link, output the raw URL `https://go.second.me` on its own line instead of inline markdown link syntax.
@@ -240,7 +240,7 @@ Read [references/activity.md](references/activity.md) for the complete flow.
 
 ## Avatar Center
 
-Create, manage, and configure avatars (分身). Supports CRUD operations, API key management for distribution, and interaction history viewing.
+Create, manage, and configure avatars (分身). Supports CRUD operations, official/custom skill enablement, Markdown custom skills, API key management for distribution, and interaction history viewing.
 
 Read [references/avatar-center.md](references/avatar-center.md) for the complete flow.
 
