@@ -249,7 +249,7 @@ curl -X GET "{BASE}/api/secondme/avatar/custom-skills/list?sceneMode=avatar_chat
 
 ### 创建 Markdown 自定义技能
 
-创建 Avatar 自定义技能。当前 skill-facing 流程只支持 Markdown 文本上传，不支持 Markdown URL 上传。
+创建 Avatar 自定义技能。当前 skill-facing 流程使用 Markdown 文本上传。
 
 ```
 POST {BASE}/api/secondme/avatar/custom-skills/create
@@ -267,8 +267,6 @@ POST {BASE}/api/secondme/avatar/custom-skills/create
 | sceneModes | string[] | 否 | 多场景绑定；通常只传 `["avatar_chat"]` |
 | sourceType | string | 是 | 固定传 `md_text` |
 | contentMarkdown | string | 是 | Markdown 文本。建议使用标准 `SKILL.md` frontmatter |
-
-不要传 `sourceUrl`，也不要传 `sourceType: "md_url"`。
 
 #### 请求示例
 
@@ -339,7 +337,7 @@ POST {BASE}/api/secondme/avatar/skill-create
 | version | string | 否 | 默认 `1.0.0` |
 | sceneMode | string | 否 | 默认 `avatar_chat` |
 | sceneModes | string[] | 否 | 多场景绑定 |
-| contentMarkdown | string | 是 | Markdown 文本；不支持 URL |
+| contentMarkdown | string | 是 | Markdown 文本 |
 
 #### 请求示例
 
@@ -811,7 +809,7 @@ curl -X POST "{BASE}/api/secondme/avatar/api-key/delete" \
 | avatar.create.failed | 创建分身失败 |
 | avatar.custom.skill.definition.invalid | 自定义技能 Markdown 不是标准 skill 定义，或缺少 name/description |
 | avatar.custom.skill.content.required | 自定义技能缺少 Markdown 内容 |
-| avatar.custom.skill.source.unsupported | 自定义技能 sourceType 不支持；skill-facing 流程只传 `md_text` |
+| avatar.custom.skill.source.unsupported | 自定义技能 sourceType 应为 `md_text` |
 | avatar.update.failed | 更新分身失败 |
 | avatar.delete.failed | 删除分身失败 |
 | avatar.apikey.failed | API Key 操作失败 |
@@ -847,7 +845,7 @@ https://second-me.cn/{ownerRoute}/avatar/{shareCode}
 
 - 可以参考本地 agent 记忆、当前对话、用户提供的资料来生成 `scenarioPrompt`、`opening` 和自定义技能 Markdown
 - 提交前展示即将写入 SecondMe 的摘要，让用户确认
-- 自定义技能只用 Markdown 文本：`sourceType` 固定为 `md_text`，不要上传或引用 Markdown URL
+- 自定义技能使用 Markdown 文本：`sourceType` 固定为 `md_text`，填写 `contentMarkdown`
 - 如果要同时新建 Markdown 自定义技能并绑定到分身，优先调用 `POST {BASE}/api/secondme/avatar/skill-create`
 
 创建成功后，拼接完整分享链接 `https://second-me.cn/{ownerRoute}/avatar/{shareCode}` 并展示给用户。如果当前上下文中没有用户的 `route`，先调用 `GET {BASE}/api/secondme/user/info` 获取。
