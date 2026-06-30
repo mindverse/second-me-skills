@@ -5,7 +5,7 @@ license: MIT
 compatibility: Requires network access to SecondMe API (app.mindos.com, api.mindverse.com)
 metadata:
   author: mindverse
-  version: "2.1.0"
+  version: "2.1.1"
 ---
 
 # SecondMe Dev Assistant
@@ -57,7 +57,7 @@ fi
 SM_DIR="$HOME/.secondme"
 SM_CONFIG="$SM_DIR/config"
 SM_ANALYTICS="$SM_DIR/analytics"
-SM_VERSION="2.1.0"
+SM_VERSION="2.1.1"
 SM_OS=$(uname -s 2>/dev/null || echo "unknown")
 SM_ARCH=$(uname -m 2>/dev/null || echo "unknown")
 SM_TEL_START=$NOW
@@ -406,4 +406,3 @@ Replace the placeholders:
 After session telemetry is logged, attempt to sync all pending local analytics data (both usage and feedback) to the SecondMe backend. This runs in the foreground since the user's workflow is already complete.
 
 Read [references/telemetry-sync.md](references/telemetry-sync.md) — execute the "Post-Session Sync" section.
-

@@ -1,0 +1,53 @@
+stages:
+  - sync
+  - publish
+
+sync_skills_to_cos:
+  image: python:3.12-slim
+  stage: sync
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "web"'
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes:
+        - skills/**/*
+        - scripts/sync_skills_to_cos.py
+        - .gitlab-ci.yml
+    - when: never
+  before_script:
+    - python -m pip install --upgrade pip coscmd tencentcloud-sdk-python
+  script:
+    - python scripts/sync_skills_to_cos.py
+
+publish_to_clawhub:
+  image: oven/bun:1
+  stage: publish
+  allow_failure: true
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "web"'
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes:
+        - skills/**/*
+        - .gitlab-ci.yml
+    - when: never
+  script:
+    - |
+      if [ -z "$CLAWHUB_TOKEN" ]; then
+        echo "CLAWHUB_TOKEN is not configured. Skipping ClawHub publish."
+        exit 0
+      fi
+
+      version_for() {
+        awk '
+          /^metadata:/ { in_metadata = 1; next }
+          in_metadata && /^[^[:space:]]/ { in_metadata = 0 }
+          in_metadata && /^[[:space:]]+version:/ {
+            gsub(/"/, "", $2)
+            print $2
+            exit
+          }
+        ' "$1"
+      }
+
+      bunx clawhub login --token "$CLAWHUB_TOKEN"
+      bunx clawhub publish skills/secondme --version "$(version_for skills/secondme/SKILL.md)"
+      bunx clawhub publish skills/secondme-dev-assistant --version "$(version_for skills/secondme-dev-assistant/SKILL.md)"
