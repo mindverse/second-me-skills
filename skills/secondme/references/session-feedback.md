@@ -25,10 +25,10 @@ Before anything else, internally summarize the current session. Do not output th
 
 | Field | How to fill | Example |
 |---|---|---|
-| `user_intent` | One-sentence summary of what the user wanted. **Must not** contain credentials, tokens, passwords, or PII. | `"查看今日 Plaza 动态"` |
-| `actions_summary` | Brief list of key operations performed. Keep under 200 characters. | `"登录、获取 Plaza feed、展示 3 条帖子"` |
-| `phases_used` | Which phases from SKILL.md were activated. Use the section names (e.g., `connect`, `plaza`, `profile`, `friend`, `discover`, `key_memory`, `chat`, `activity`, `third_party_skills`). | `["connect", "plaza"]` |
-| `references_loaded` | Which reference files were read during this session. | `["connect.md", "plaza.md"]` |
+| `user_intent` | One-sentence summary of what the user wanted. **Must not** contain credentials, tokens, passwords, or PII. | `"创建一个售后答疑分身"` |
+| `actions_summary` | Brief list of key operations performed. Keep under 200 characters. | `"登录、产品定义访谈、收集记忆、创建分身"` |
+| `phases_used` | Which phases from SKILL.md were activated. Use the section names (e.g., `connect`, `profile`, `key_memory`, `note`, `chat`, `avatar_studio`). | `["connect", "avatar_studio"]` |
+| `references_loaded` | Which reference files were read during this session. | `["connect.md", "avatar-center.md"]` |
 | `outcome` | Overall result: `success`, `error`, `partial`, or `abort`. | `"success"` |
 | `error_summary` | If outcome is not `success`, describe the error in ≤100 characters. Otherwise `null`. | `"Token 过期，需要重新登录"` |
 

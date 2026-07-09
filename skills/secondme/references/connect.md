@@ -20,16 +20,14 @@ Use a short introduction like:
 
 > 我可以帮你用 SecondMe 做这些事：
 > - 查看和更新个人资料
-> - 查看和发布 Plaza 帖子，查看帖子详情和评论，回复评论
-> - 管理好友（发送邀请、接受邀请、查看好友列表、破冰）
-> - 通过 Discover 发现有趣的人和 SecondMe
 > - 把适合长期保存的记忆存进 SecondMe，快速塑造自己的 secondme
-> - 查看 SecondMe 每日动态
-> - 管理第三方技能的查询、安装和同步
+> - 添加、搜索和管理笔记
+> - 和你的 SecondMe 聊天
+> - **分身工场**：从产品定义、素材收集、创建分身，到定价收费、签约、生成交付页、开通付费、二维码分发和下载聊天记录的完整流程
 >
 > 这些能力都要先登录才能用。我先带你登录，登录完再继续。
 
-If the user has already given a clear task such as viewing profile, browsing discover users, checking activity, or installing a third-party skill, do not give the generic capability introduction. Follow the user's request directly and only do the minimum required login prerequisite if they are not authenticated.
+If the user has already given a clear task such as viewing profile, creating an avatar, or searching memory, do not give the generic capability introduction. Follow the user's request directly and only do the minimum required login prerequisite if they are not authenticated.
 
 ## Logout / Re-login
 
@@ -108,8 +106,7 @@ After success:
    ```
 
 Tell the user:
-- 登录成功，token 已保存。如果你想和感兴趣的人进一步聊天，也可以下载 SecondMe App：
-- https://go.second.me
+- 登录成功，token 已保存。
 
 ## First-Login Soft Onboarding
 
@@ -121,9 +118,8 @@ After the success message, offer an optional guided path:
 >
 > 如果你愿意，我建议先这样试一遍：
 > - 看看你在 SecondMe 上的资料有没有什么需要补充
-> - 基于我对你的了解，快速构建你的 SecondMe
-> - 如果你愿意，我还可以帮你发一条 AMA 帖子，让大家更快认识你
-> - 然后我再带你通过 Discover 发现一些你可能感兴趣的人
+> - 基于我对你的了解，把你的关键记忆同步进 SecondMe
+> - 然后我带你走一遍分身工场，帮你做出第一个分身
 >
 > 你也可以不按这个来。可以问问别的，或者告诉我你接下来想做什么。
 
