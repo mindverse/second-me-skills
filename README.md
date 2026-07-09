@@ -2,12 +2,12 @@
 
 **SecondMe Skills 包含两类能力：给开发者构建基于 SecondMe 的第三方应用，也给终端用户通过 Agent 直接使用 SecondMe。**
 
-> **English:** SecondMe Skills is a Claude Code plugin with two skills — `secondme` for end-users to interact with SecondMe through an agent (login, profile, Plaza, discovery, Key Memory, activity, third-party skills), and `secondme-dev-assistant` for developers building SecondMe apps and integrations (OAuth, MCP, app submission). Install: `npx skills add mindverse/second-me-skills`.
+> **English:** SecondMe Skills is a Claude Code plugin with two skills — `secondme` for end-users to run their SecondMe through an agent (login, profile, Key Memory, notes, chat, and the full avatar-studio lifecycle: product definition, avatar creation, pricing, contract signing, HTML delivery, payment, distribution), and `secondme-dev-assistant` for developers building SecondMe apps and integrations (OAuth, MCP, app submission). Install: `npx skills add mindverse/second-me-skills`.
 
 SecondMe Skills 是一套技能包，当前主要覆盖两条使用路径：
 
 - **开发者技能**：面向想基于 SecondMe API 开发第三方应用的开发者，帮助完成应用创建、凭据管理、需求定义、实现指导、MCP 集成和应用发布
-- **Agent 使用技能**：面向想通过 OpenClaw / Agent 直接登录和使用 SecondMe 的用户，覆盖登录、资料、Plaza、Discover、Key Memory、Activity 和第三方技能目录等场景
+- **Agent 使用技能**：面向想通过 OpenClaw / Agent 直接登录和使用 SecondMe 的用户，覆盖登录、资料、Key Memory、笔记、聊天，以及分身工场（从产品定义到定价、签约、交付、付费、分发的完整流程）
 
 ## 你能用它做什么？
 
@@ -24,12 +24,10 @@ SecondMe Skills 是一套技能包，当前主要覆盖两条使用路径：
 
 - 登录 SecondMe，完成授权码登录流程
 - 查看和更新个人资料
-- 激活 Plaza，查看帖子详情和评论
-- 浏览推荐用户，并直接拿到个人主页链接
-- 查询当天 SecondMe 动态
-- 把长期记忆存进 SecondMe Key Memory
-- 浏览 SecondMe 远端外部技能目录，并把服务端返回的 skill bundle 安装或同步到本地 OpenClaw
-- 如需聊天、发帖等更丰富社交能力，可转到 SecondMe App 体验
+- 把长期记忆存进 SecondMe Key Memory，管理笔记
+- 和自己的 SecondMe 聊天
+- **分身工场**：从产品定义讨论、记忆素材收集、创建分身，到定价收费、付费分身签约、生成交付页（HTML）、开通付费、二维码分发和下载聊天记录的完整流程
+- 想预览分身实际运行效果或分享给访客时，可转到 SecondMe App / Web 体验
 
 ## 快速开始
 
@@ -76,16 +74,16 @@ npx skills add https://develop.second.me
 
 - `登录 SecondMe`
 - `帮我看看资料`
-- `看看今天都有哪些动态`
-- `看看推荐用户`
+- `帮我做一个分身`
+- `给我的分身定个价`
+- `把分身分享链接做成二维码`
 - `帮我查一下 Key Memory`
-- `看看有哪些外部技能可以装`
 
 ## 包含的 Skills
 
 | Skill | 说明 |
 |-------|------|
-| `secondme` | 登录、资料、Plaza、Discover、Key Memory、Activity 和第三方技能管理的统一 OpenClaw 技能 |
+| `secondme` | 登录、资料、Key Memory、笔记、聊天和分身工场（创建 → 定价 → 签约 → 交付 → 付费 → 分发）的统一 OpenClaw 技能 |
 | `secondme-dev-assistant` | SecondMe 第三方应用和集成的全生命周期开发助手 |
 
 ## 项目结构
@@ -103,10 +101,10 @@ secondme-skills/
 │   │   └── references/
 │   │       ├── connect.md
 │   │       ├── profile.md
-│   │       ├── plaza.md
-│   │       ├── discover.md
+│   │       ├── avatar-center.md
+│   │       ├── chat.md
 │   │       ├── key-memory.md
-│   │       └── third-party-skills.md
+│   │       └── note.md
 │   └── secondme-dev-assistant/
 │       ├── SKILL.md
 │       └── references/

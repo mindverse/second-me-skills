@@ -324,8 +324,10 @@ POST {BASE}/api/secondme/avatar/create
 | title | string | 是 | 分身名称（最长 100 字符） |
 | scenarioPrompt | string | 否 | 场景提示词（描述分身的任务和行为） |
 | opening | string | 否 | 开场白（访客打开时的第一条消息） |
+| welcomeNote | string | 否 | 公开介绍文案（展示在分身公开页） |
 | modes | object | 否 | 交互模式：`{ "textChat": bool, "voiceCall": bool }` |
 | distribution | object | 否 | 分发配置：`{ "apiEnabled": bool, "wxappEnabled": bool }` |
+| monetization | object | 否 | 收费配置（见 [定价与收费](#定价与收费monetization)） |
 
 #### 请求示例
 
@@ -382,8 +384,10 @@ POST {BASE}/api/secondme/avatar/update
 | title | string | 否 | 分身名称 |
 | scenarioPrompt | string | 否 | 场景提示词 |
 | opening | string | 否 | 开场白 |
+| welcomeNote | string | 否 | 公开介绍文案 |
 | modes | object | 否 | 交互模式配置 |
 | distribution | object | 否 | 分发渠道配置 |
+| monetization | object | 否 | 收费配置（见 [定价与收费](#定价与收费monetization)） |
 
 #### 请求示例
 

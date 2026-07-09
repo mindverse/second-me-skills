@@ -1,6 +1,6 @@
 {
   "name": "secondme-skills",
-  "description": "SecondMe 技能包 — 通过 Agent 使用 SecondMe（登录、资料、Plaza、Discover、Key Memory）并辅助开发第三方应用和集成",
+  "description": "SecondMe 技能包 — 通过 Agent 使用 SecondMe（登录、资料、Key Memory、笔记、聊天、分身工场）并辅助开发第三方应用和集成",
   "author": {
     "name": "mindverse",
     "email": "dev@mindverse.com"
