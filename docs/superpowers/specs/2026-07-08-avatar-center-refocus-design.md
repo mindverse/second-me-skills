@@ -39,7 +39,7 @@
 |------|------|
 | `references/plaza.md`、`friend.md`、`discover.md`、`activity.md`、`third-party-skills.md` | 整文件删除，SKILL.md 对应路由 section 同步移除 |
 | 邀请码准入 `POST /api/invitation/redeem` | Plaza 专属准入流程，随 Plaza 一起删除（仅删 skill 侧调用） |
-| App Reminder Policy（下载 App 聊天提醒） | 主要服务社交场景，整段删除 |
+| App Reminder Policy（下载 App 聊天提醒） | 改写而非删除：保留 App 入口，话术从社交改为分身体验（详见 §3.1） |
 | SKILL.md description / onboarding 文案 | 改写：去掉社交与技能市场关键词，防止已删功能误触发 |
 | connect.md 登录引导文案 | 改写：能力介绍只保留资料 / 聊天 / 记忆 / 笔记 / 分身中心 |
 
@@ -52,6 +52,15 @@
 - **avatar-center.md 重构**：保留现有 CRUD、自定义技能、API Key 分发、公开链接等 API 参考；新增四段式旅程编排
 - **访谈映射真实字段**：用途场景 → `scenarioPrompt`，开场白 → `opening`，公开介绍 → `welcomeNote`，技能选择 → `skills`（官方 / 已有自定义 / 新建 Markdown），分发 → `distribution`，收费 → `monetization`。访谈完成后走 `POST /api/secondme/avatar/skill-create` 一次成型
 - **访谈记录复用**：引导创建收集的意图描述直接作为测评的 `expectation` 输入
+
+### 3.1 App 入口改写（非社交）
+
+原 App Reminder Policy 及散落文案全部围绕「和感兴趣的人聊天」的社交场景，与收敛方向冲突。改造方案是保留 `https://go.second.me` 入口，但把话术和触发时机换成分身体验：
+
+- **话术**：从「下载 App 和感兴趣的人聊天」改为「去 App 看你的分身实际跑起来的样子 / 把分身分享出去」
+- **触发时机**（对齐分身旅程，替换原社交时机）：分身创建成功后、测评报告出来后、用户想预览分身实际效果或分发时
+- **格式约定保留**：裸 URL 单独一行，不使用 markdown 链接语法
+- **落点**：SKILL.md 的 `App Reminder Policy` 段改写为「分身体验入口」；SKILL.md 第 166 行内嵌社交提醒删除；connect.md 登录成功文案去掉社交话术（登录后不再默认追加 App 链接，App 入口移到分身旅程节点触发）
 
 ## 4. 后端仿真测评模块（evaluation）
 
