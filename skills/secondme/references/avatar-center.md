@@ -84,7 +84,7 @@ POST {BASE}/api/secondme/avatar/create
 - **SPONSORED 我赞助**：创作者用自己的回复额度为访客买单（额度来自账户充值）。
 - **PAID 向我订阅**：访客付费才能聊。需要先开通付费能力（阶段 5 签约）。
 
-PAID / SPONSORED 的具体套餐通过分身的 `monetization` 字段配置（体验次数 `freeChatCount`、半小时回复配额 `halfHourReplyQuota`、年卡 `yearReplyQuota`、`freeChatUnlimited` 等），在 create/update 时传入。详见 [定价与收费](#定价与收费monetization)。
+收费模式和套餐都通过 `monetization` 对象在 create/update 时传入：`accessType` 决定模式（`FREE` / `SPONSORED` / `PAID`）；PAID 需至少配置一档套餐（体验卡 / 月卡 / 年卡，各含价格和回复配额）。访谈式收集：先问模式，PAID 再逐档问定价。字段明细见 [定价与收费](#定价与收费monetization)。
 
 ### 阶段 5 · 签约（付费分身必须）
 
@@ -133,16 +133,39 @@ https://go.second.me
 
 ### 定价与收费（monetization）
 
-`monetization` 是 create/update 请求里的对象字段，透传给后端。常见键：
+`monetization` 是 create/update 请求里的对象字段，透传给后端。**收费模式本身也在这个对象里设置**（`accessType`），不是独立参数。
+
+通用键：
 
 | 键 | 说明 |
 |----|------|
-| `freeChatCount` | 免费体验次数 |
-| `freeChatUnlimited` | 是否无限免费 |
-| `halfHourReplyQuota` | 半小时回复配额 |
-| `yearReplyQuota` | 年卡回复配额 |
+| `accessType` | 收费模式：`FREE` / `SPONSORED` / `PAID` |
+| `saleStatus` | 上架状态，通常传 `ON_SALE` |
+| `currency` | 币种，中文环境传 `CNY` |
 
-配合分身的 access 模式（FREE / SPONSORED / PAID）使用。PAID 需先完成签约开通付费能力，否则保存付费套餐会被拒绝——此时转到签约流程。
+按模式的 payload 形态：
+
+- **FREE**（编辑时显式下发，避免残留旧配置）：
+  ```json
+  { "accessType": "FREE", "saleStatus": "ON_SALE", "currency": "CNY", "freeChatUnlimited": false }
+  ```
+- **SPONSORED 我赞助**（无价格套餐，owner 额度买单）：
+  ```json
+  { "accessType": "SPONSORED", "accessScope": "PUBLIC", "saleStatus": "ON_SALE", "currency": "CNY" }
+  ```
+- **PAID 向我订阅**（至少配一档套餐，价格单位为最小货币单位「分」）：
+
+  | 键 | 说明 |
+  |----|------|
+  | `threeDayPriceUnitAmount` / `threeDayReplyQuota` | 体验卡（3 天）价格 / 回复配额 |
+  | `thirtyDayPriceUnitAmount` / `thirtyDayReplyQuota` | 月卡（30 天）价格 / 回复配额 |
+  | `yearPriceUnitAmount` / `yearReplyQuota` | 年卡价格 / 回复配额 |
+  | `freeChatCount` | 免费试聊次数（付费分身专属，非负整数） |
+  | `agreementAccepted` | 保存付费套餐时传 `true` |
+
+  校验规则：至少一档套餐完整（价格 + 配额成对）；价格有平台上下限；配额为正整数且受价格档位上限约束——被拒时把后端错误信息如实转告用户调整。
+
+PAID 需先完成签约开通付费能力，否则保存付费套餐会被拒绝——此时转到签约流程。
 
 ### 签约与付费（浏览器流程）
 
