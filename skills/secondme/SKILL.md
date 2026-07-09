@@ -204,7 +204,7 @@ Read [references/chat.md](references/chat.md) for the complete flow.
 
 The core of this skill. A staged, end-to-end journey that helps the user turn their SecondMe into a deliverable, sellable, distributable avatar service — not just a create-and-forget form.
 
-Stages: product definition (who it's for, what service) → gather material from Key Memory / notes → create avatar → pricing & monetization → paid-avatar contract signing → evaluation → HTML delivery page → payment → distribution (QR code + chat-history export). Also covers avatar CRUD, custom skills, API key distribution, public share link, and interaction history.
+Stages: product definition (who it's for, what service) → gather material from Key Memory / notes → create avatar → pricing & monetization → paid-avatar contract signing → evaluation → HTML delivery page → payment → distribution (QR code + chat-history export). Also covers avatar CRUD, official/custom skill enablement (incl. Markdown custom skills), API key distribution, public share link, and interaction history.
 
 Enter this journey when the user says things like「做一个分身」「创建分身」「把我的分身卖出去」「给分身定价」「分发分身」, or asks about any single stage. Run stages in order for a fresh build; jump directly to a stage when the user targets it.
 
