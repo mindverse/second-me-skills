@@ -196,7 +196,7 @@ Read [references/note.md](references/note.md) for the complete flow.
 
 ## Chat
 
-Two chat targets: (1) the user's own SecondMe — the default, via streaming chat with session list and message history, supporting multi-modal images and web search; (2) someone's avatar — resolved from an avatar share link or shareCode, with per-avatar session find-or-create and synchronous replies.
+Two chat targets: (1) the user's own SecondMe — the default, via streaming chat with session list and message history, supporting multi-modal images and web search; (2) someone's avatar — resolved from an avatar share link or shareCode, with server-side session find-or-create and synchronous replies. Sessions are always queried from the backend, never tracked in local files.
 
 Read [references/chat.md](references/chat.md) for the complete flow.
 

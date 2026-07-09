@@ -2,10 +2,12 @@
 
 聊天有**两个目标**，先判断用户想和谁聊，再选链路：
 
-| 目标 | 判断依据 | 链路 |
-|------|----------|------|
-| **自己的 SecondMe（默认）** | 用户说「和我的 SecondMe 聊」「问问我的分身」，或没有指明对象 | 流式聊天 `/chat/stream`（下方 API Reference） |
-| **某人的分身** | 用户给出分身链接（`https://second-me.cn/{route}/avatar/{shareCode}`）或 shareCode，或点名要和某个分身聊 | 分身会话聊天（见 [和某人的分身聊天](#和某人的分身聊天)） |
+| 目标 | 判断依据 | session 获取方式 | 链路 |
+|------|----------|------------------|------|
+| **自己的 SecondMe（默认）** | 用户说「和我的 SecondMe 聊」「问问我的分身」，或没有指明对象 | 查后端 `GET /chat/session/list` | 流式聊天 `/chat/stream`（下方 API Reference） |
+| **某人的分身** | 用户给出分身链接（`https://second-me.cn/{route}/avatar/{shareCode}`）或 shareCode，或点名要和某个分身聊 | 后端按 userId+mindId 自动查找或新建（服务端 find-or-create） | 分身会话聊天（见 [和某人的分身聊天](#和某人的分身聊天)） |
+
+Session 一律**查后端接口**，不在本地文件里维护会话映射——后端是会话的唯一权威源。
 
 ---
 
@@ -17,8 +19,7 @@
 
 1. **解析 shareCode**：分身链接取路径末段（`https://second-me.cn/daihaochen/avatar/1cf5e7728beb` → `1cf5e7728beb`）；用户直接给 shareCode 就直接用。
 2. **确认目标分身**：`GET {BASE}/api/secondme/avatar/public/{shareCode}` 取公开信息（name、ownerUsername 等），向用户确认「要和 {ownerUsername} 的分身『{name}』聊，对吗」——首次聊某个分身时确认一次即可，同一会话内不重复确认。
-3. **查询已有会话**：读本地会话映射文件 `~/.secondme/avatar-sessions.json`（结构：`{ "<shareCode>": { "sessionId": "...", "mindId": "...", "name": "..." } }`）。命中则复用其中的 `sessionId` 和 `mindId`。
-4. **发消息（同步拿回复）**：
+3. **发消息（session 由后端查找或新建）**：
 
    ```
    POST {BASE}/api/secondme/ws-chat/send
@@ -28,7 +29,9 @@
    |------|------|------|------|
    | mindId | string | 是 | 分身的 mind ID |
    | message | string | 是 | 消息文本 |
-   | sessionId | string | 否 | 会话 ID；不传则后端新建会话 |
+   | sessionId | string | 否 | 会话 ID；**首轮不传**——后端会先按 userId+mindId 查询已有会话并复用，没有才新建 |
+
+   **不要在本地维护会话映射**：不传 `sessionId` 时，后端的 find-or-create 就是「查询自己和这个分身的 session，没有就新建」的权威实现（内部走 os-main `general/message/query_v2` 查最近会话）。
 
    响应（同步返回完整回复，无需处理流）：
 
@@ -36,17 +39,15 @@
    { "code": 0, "data": { "replyText": "…", "replyTexts": ["…"], "sessionId": "…", "messageId": "…" } }
    ```
 
-   - `replyTexts` 是分身把一轮回复拆成多条时的有序列表，展示时逐条呈现。
-   - 首次发送后，把返回的 `sessionId` 连同 `mindId`、分身名写回 `~/.secondme/avatar-sessions.json`——这就是「没有 session 就新建一个」的落点，之后同一分身续聊都带这个 `sessionId`。
-5. **续聊**：后续每轮都带保存的 `sessionId` 调 `ws-chat/send`，会话上下文由后端维持。
+   `replyTexts` 是分身把一轮回复拆成多条时的有序列表，展示时逐条呈现。
+4. **续聊**：同一对话内的后续轮次带上返回的 `sessionId` 调 `ws-chat/send`（省一次后端查询）；跨对话重来时不带 `sessionId`，让后端重新查找即可，历史会话不会丢。
 
 ### mindId 解析（当前限制）
 
 `ws-chat/send` 需要 `mindId`，而公开信息接口目前**不返回 mindId**（shareCode → mindId 的解析接口 `avatar/chat/init` 在 os-main 侧，labs 尚未透出）。处理顺序：
 
-1. 本地映射文件里有该 shareCode 的 `mindId` → 直接用。
-2. 尝试 `GET {BASE}/api/secondme/avatar/public/{shareCode}`，若响应里带 `mindId` 类字段 → 用并写回映射文件。
-3. 都拿不到 → 如实告诉用户「该分身的会话初始化能力还在建设中，目前可以打开分享链接在网页里聊」，输出分享链接（裸 URL 单独一行），不要编造 mindId。
+1. 尝试 `GET {BASE}/api/secondme/avatar/public/{shareCode}`，若响应里带 `mindId` 类字段 → 直接用。
+2. 拿不到 → 如实告诉用户「该分身的会话初始化能力还在建设中，目前可以打开分享链接在网页里聊」，输出分享链接（裸 URL 单独一行），不要编造 mindId。
 
 > 后端待办（已记录于 spec）：`ws-chat/send` 支持传 `shareCode` 替代 `mindId`（服务端用用户 token 调 os-main `avatar/chat/init` 解析，微信 bot 模块已有同款实现可参照）。该能力上线后删除本节的 fallback。
 
@@ -313,7 +314,8 @@ curl -X GET "{BASE}/api/secondme/chat/session/messages?sessionId=labs_sess_a1b2c
 
 ## Behavioral Rules
 
-- When the user starts a new chat without a `sessionId`, watch for the `event: session` SSE event in the response; extract and store the returned `sessionId` for subsequent requests
+- Session lookup is **API-first**: to continue a previous conversation, query `GET {BASE}/api/secondme/chat/session/list` and pick the right session (by `lastMessage` / `lastUpdateTime`, confirm with the user if ambiguous). Never maintain session mappings in local files — the backend is the single source of truth.
+- When the user starts a new chat without a `sessionId`, watch for the `event: session` SSE event in the response; extract the returned `sessionId` and reuse it for subsequent turns within the same conversation
 - `systemPrompt` is ignored on follow-up messages within the same session
 - Do not send `receiverUserId`; it is a reserved internal field
 - Only the session owner can read the messages; unauthorized access returns 403
