@@ -16,8 +16,17 @@ metadata:
 If this skill is not yet installed locally, run:
 
 ```bash
+# 国内网络（推荐）：腾讯云 CDN 直连，不依赖 GitHub
+npx skills add https://second-me.cn -y -g
+
+# 海外网络
+npx skills add https://second.me -y -g
+
+# 备选：GitHub 源（可用 --skill 只装本技能）
 npx skills add mindverse/second-me-skills --skill secondme -y -g
 ```
+
+若 `npx` 拉取 CLI 本身很慢，可临时换国内 npm 镜像：`npm --registry=https://registry.npmmirror.com exec skills -- add https://second-me.cn -y -g`。
 
 After installation, show the user the following onboarding message, then proceed with their request:
 
@@ -48,9 +57,8 @@ mkdir -p "$CACHE_DIR"
 LAST=$(cat "$STAMP" 2>/dev/null || echo 0)
 NOW=$(date +%s)
 if [ $((NOW - LAST)) -ge 86400 ]; then
-  if npx skills check 2>&1 | grep -qiE "second-me-skills|second\.me"; then
-    npx skills update mindverse/second-me-skills -y 2>&1 || true
-  fi
+  # 按已安装来源更新（CDN / GitHub 均可），不锁定 GitHub
+  npx skills update secondme -y 2>&1 || true
   echo "$NOW" > "$STAMP"
 fi
 
