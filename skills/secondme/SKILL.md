@@ -196,7 +196,7 @@ Read [references/note.md](references/note.md) for the complete flow.
 
 ## Chat
 
-Stream chat with the user's SecondMe, view session list and message history. Supports multi-modal images and web search augmentation.
+Two chat targets: (1) the user's own SecondMe — the default, via streaming chat with session list and message history, supporting multi-modal images and web search; (2) someone's avatar — resolved from an avatar share link or shareCode, with per-avatar session find-or-create and synchronous replies.
 
 Read [references/chat.md](references/chat.md) for the complete flow.
 
