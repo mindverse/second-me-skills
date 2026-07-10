@@ -2,7 +2,7 @@
 name: secondme-dev-assistant
 description: "Use when user wants to develop on the SecondMe platform (second.me, develop.second.me). Triggers: building SecondMe third-party apps (第三方应用/外部应用), SecondMe OAuth login integration (Client ID/Secret, token exchange), MCP integration for SecondMe, Agent Memory API, Act stream API, app scaffolding, review submission, or hackathon/黑客松 projects targeting SecondMe. Covers the full developer lifecycle from app creation and credentials to release. NOT for casual SecondMe usage like browsing profiles, adding friends, or social features — only for building and integrating with SecondMe as a developer platform."
 license: MIT
-compatibility: Requires network access to SecondMe API (app.mindos.com, api.mindverse.com)
+compatibility: Requires network access to SecondMe API (api.mindverse.com)
 metadata:
   author: mindverse
   version: "2.1.1"

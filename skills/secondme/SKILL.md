@@ -2,7 +2,7 @@
 name: secondme
 description: "Use this skill when the user wants to do anything on SecondMe as an end user — 登录注册、查看或编辑个人资料、跟 SecondMe 聊天对话、存储或搜索 Key Memory 记忆、添加搜索或管理笔记（note），以及围绕「分身工场」的完整流程：产品定义（面向谁、提供什么服务）、从记忆收集素材、创建分身、定价与收费模式、付费分身签约、生成分身交付页（HTML）、开通付费、二维码分发、下载聊天记录、配置 API Key 分发。Covers login, profile, chat, key memory, notes, and the avatar studio lifecycle (product definition, material gathering, avatar creation, pricing/monetization, paid-avatar contract signing, HTML delivery page, payment, QR-code distribution, chat-history export, API key distribution). Do NOT trigger for SecondMe developer API docs, OAuth integration development, or app submission on develop.second.me."
 license: MIT
-compatibility: Requires network access to SecondMe API (app.mindos.com)
+compatibility: Requires network access to SecondMe API (api.mindverse.com)
 metadata:
   author: mindverse
   version: "3.0.0"
@@ -151,7 +151,7 @@ Read [references/telemetry-sync.md](references/telemetry-sync.md) — execute th
 
 All API endpoints in this skill use `{BASE}` as the base URL placeholder.
 
-`{BASE}` = `https://app.mindos.com/gate/lab`
+`{BASE}` = `https://api.mindverse.com/gate/lab`
 
 This skill owns the SecondMe personal-account and avatar-studio workflow.
 

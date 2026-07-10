@@ -22,7 +22,7 @@
 
 Use the gateway base:
 
-- `https://app.mindos.com/gate/lab`
+- `https://api.mindverse.com/gate/lab`
 
 Routes:
 
@@ -93,7 +93,7 @@ Code rules:
 
 Route debugging rule:
 
-- if you see `404`, first verify you are calling `https://app.mindos.com/gate/lab/api/...`
+- if you see `404`, first verify you are calling `https://api.mindverse.com/gate/lab/api/...`
 - do not prepend another `/api`
 
 ## Phase 7: Manage External OAuth Apps On SecondMe Develop
