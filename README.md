@@ -40,8 +40,6 @@ npx skills add https://second.me -y -g
 # "根据 https://second.me/skill.md 安装技能，并一步步引导我完成 Second Me 的创建和 Onboarding"
 ```
 
-> npx 拉取 CLI 慢时可换国内 npm 镜像：`npm --registry=https://registry.npmmirror.com exec skills -- add https://second.me -y -g`
-
 ### 开发者用法
 
 在 Claude Code 中，`secondme-dev-assistant` skill 会在你提到 SecondMe 应用开发、OAuth、MCP 集成等关键词时自动触发。

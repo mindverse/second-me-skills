@@ -18,8 +18,6 @@ If this skill is not yet installed locally, run:
 npx skills add https://second.me -y -g
 ```
 
-若 `npx` 拉取 CLI 本身很慢，可临时换国内 npm 镜像：`npm --registry=https://registry.npmmirror.com exec skills -- add https://second.me -y -g`。
-
 > **在线直读本文件（未安装）的说明**：本技能按「SKILL.md 路由 + references 按需加载」设计，本文件只是目录——细节都在 references 里。在线阅读时相对链接 `references/…` 在主域名下不可达，完整参考文件在：`https://second.me/.well-known/skills/secondme/references/<文件名>`。但正确用法是先执行上面的安装命令，安装后所有文件都在本地。
 
 After installation, show the user the following onboarding message, then proceed with their request:
