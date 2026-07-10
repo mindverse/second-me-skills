@@ -27,8 +27,13 @@ ROOT = Path(__file__).resolve().parents[1]
 BUCKET = "mindverseglobal-cos-1309544882"
 REGION = "ap-shanghai"
 COS_ENDPOINT = f"https://{BUCKET}.cos.{REGION}.myqcloud.com"
-CDN_HOST = "cdn.tencentcloudapi.com"
 CDN_BASE_URL = "https://mindverseglobal-cos-cdn.mindverse.com"
+# EdgeOne zones fronting the skill distribution; their edge cache (max-age up to
+# 1y) must be purged on every deploy or second.me keeps serving stale skills.
+EDGEONE_ZONES = {
+    "zone-3hvat5bhdh1m": "second.me",
+    "zone-3hv7vs8o265e": "second-me.cn",
+}
 TEXT_TYPE = "text/plain; charset=utf-8"
 JSON_TYPE = "application/json; charset=utf-8"
 CACHE_CONTROL = "no-cache"
@@ -122,17 +127,26 @@ def cos_request(
     return http_call(request)
 
 
-def cdn_api(secret_id: str, secret_key: str, action: str, payload: dict) -> dict:
+def tencent_api(
+    secret_id: str,
+    secret_key: str,
+    *,
+    service: str,
+    version: str,
+    action: str,
+    payload: dict,
+) -> dict:
+    host = f"{service}.tencentcloudapi.com"
     timestamp = int(time.time())
     date = time.strftime("%Y-%m-%d", time.gmtime(timestamp))
     body = json.dumps(payload).encode()
     canonical_request = (
         "POST\n/\n\n"
-        f"content-type:{JSON_TYPE}\nhost:{CDN_HOST}\n\n"
+        f"content-type:{JSON_TYPE}\nhost:{host}\n\n"
         "content-type;host\n"
         f"{hashlib.sha256(body).hexdigest()}"
     )
-    scope = f"{date}/cdn/tc3_request"
+    scope = f"{date}/{service}/tc3_request"
     string_to_sign = (
         f"TC3-HMAC-SHA256\n{timestamp}\n{scope}\n"
         f"{hashlib.sha256(canonical_request.encode()).hexdigest()}"
@@ -141,10 +155,10 @@ def cdn_api(secret_id: str, secret_key: str, action: str, payload: dict) -> dict
     def digest(key: bytes, message: str) -> bytes:
         return hmac.new(key, message.encode(), hashlib.sha256).digest()
 
-    signing_key = digest(digest(digest(("TC3" + secret_key).encode(), date), "cdn"), "tc3_request")
+    signing_key = digest(digest(digest(("TC3" + secret_key).encode(), date), service), "tc3_request")
     signature = hmac.new(signing_key, string_to_sign.encode(), hashlib.sha256).hexdigest()
     request = urllib.request.Request(
-        f"https://{CDN_HOST}/",
+        f"https://{host}/",
         data=body,
         method="POST",
         headers={
@@ -154,13 +168,13 @@ def cdn_api(secret_id: str, secret_key: str, action: str, payload: dict) -> dict
             ),
             "Content-Type": JSON_TYPE,
             "X-TC-Action": action,
-            "X-TC-Version": "2018-06-06",
+            "X-TC-Version": version,
             "X-TC-Timestamp": str(timestamp),
         },
     )
     response = json.loads(http_call(request))
     if "Error" in response.get("Response", {}):
-        raise SystemExit(f"CDN API {action} failed: {json.dumps(response, ensure_ascii=False)}")
+        raise SystemExit(f"{service} API {action} failed: {json.dumps(response, ensure_ascii=False)}")
     return response
 
 
@@ -324,6 +338,7 @@ def refresh_cdn(*, dry_run: bool) -> None:
 
     if dry_run:
         print("+ purge CDN paths " + ", ".join(paths))
+        print("+ purge EdgeOne skill paths on " + ", ".join(EDGEONE_ZONES.values()))
         return
 
     secret_id = secret_value("TENCENT_CDN_SECRET_ID", "secret_id") or secret_value(
@@ -336,8 +351,35 @@ def refresh_cdn(*, dry_run: bool) -> None:
         print("No Tencent CDN credentials configured. Skipping CDN refresh.")
         return
 
-    response = cdn_api(secret_id, secret_key, "PurgePathCache", {"Paths": paths, "FlushType": "flush"})
+    response = tencent_api(
+        secret_id,
+        secret_key,
+        service="cdn",
+        version="2018-06-06",
+        action="PurgePathCache",
+        payload={"Paths": paths, "FlushType": "flush"},
+    )
     print(json.dumps(response, ensure_ascii=False))
+
+    refresh_edgeone(secret_id, secret_key)
+
+
+def refresh_edgeone(secret_id: str, secret_key: str) -> None:
+    for zone_id, domain in EDGEONE_ZONES.items():
+        for purge_type, targets in [
+            ("purge_url", [f"https://{domain}/skill.md", f"https://{domain}/dev-skill.md"]),
+            ("purge_prefix", [f"https://{domain}/.well-known/skills/", f"https://{domain}/skill/"]),
+        ]:
+            response = tencent_api(
+                secret_id,
+                secret_key,
+                service="teo",
+                version="2022-09-01",
+                action="CreatePurgeTask",
+                payload={"ZoneId": zone_id, "Type": purge_type, "Targets": targets},
+            )
+            job_id = response.get("Response", {}).get("JobId", "")
+            print(f"edgeone purge {domain} {purge_type}: {job_id}")
 
 
 def main() -> None:
