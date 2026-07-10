@@ -125,9 +125,9 @@ secondme-skills/
 
 - [SecondMe 主站](https://second-me.cn/)
 - [SecondMe 官网](https://second.me)
-- [开发者文档](https://develop-docs.second.me/zh/docs)
-- [OAuth2 认证指南](https://develop-docs.second.me/zh/docs/authentication/oauth2)
-- [API 参考](https://develop-docs.second.me/zh/docs/api-reference/secondme)
+- [开发者文档](https://develop-docs.second-me.cn/zh/docs)
+- [OAuth2 认证指南](https://develop-docs.second-me.cn/zh/docs/authentication/oauth2)
+- [API 参考](https://develop-docs.second-me.cn/zh/docs/api-reference/secondme)
 - [首届黑客松](https://hackathon.second.me)
 
 ## 许可证
