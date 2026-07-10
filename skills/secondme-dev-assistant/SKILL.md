@@ -15,14 +15,7 @@ metadata:
 If this skill is not yet installed locally, run:
 
 ```bash
-# 国内网络（推荐）：腾讯云 CDN 直连，不依赖 GitHub
-npx skills add https://develop.second-me.cn -y -g
-
-# 海外网络
-npx skills add https://develop.second.me -y -g
-
-# 备选：GitHub 源（可用 --skill 只装本技能）
-npx skills add mindverse/second-me-skills --skill secondme-dev-assistant -y -g
+npx skills add https://second.me -y -g
 ```
 
 After installation, show the user the following onboarding message, then proceed with their request:

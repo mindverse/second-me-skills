@@ -30,5 +30,6 @@ skills/
 ## 域名规范
 
 - **接口调用**（API、遥测上报等程序请求）一律用 `https://api.mindverse.com`，如 `{BASE} = https://api.mindverse.com/gate/lab`
-- **用户浏览器访问**（登录页、签约/付费页、分享链接、文档站、安装源 CDN）一律用 secondme 域名：国内 `*.second-me.cn` 优先，海外 `*.second.me` 备选
+- **安装源**统一唯一入口 `https://second.me`（well-known 分发），安装指引里不出现其他域名
+- **用户浏览器访问**（登录页、签约/付费页、分享链接、文档站）用 secondme 域名：页面走 `second-me.cn`，文档站走 `develop-docs.second-me.cn`
 - 禁止使用 `app.mindos.com`（部分国内网络 TLS 握手失败，2026-07 实测）

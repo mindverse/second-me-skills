@@ -2,7 +2,7 @@
 
 **SecondMe Skills 包含两类能力：给开发者构建基于 SecondMe 的第三方应用，也给终端用户通过 Agent 直接使用 SecondMe。**
 
-> **English:** SecondMe Skills is a Claude Code plugin with two skills — `secondme` for end-users to run their SecondMe through an agent (login, profile, Key Memory, notes, chat, and the full avatar-studio lifecycle: product definition, avatar creation, pricing, contract signing, HTML delivery, payment, distribution), and `secondme-dev-assistant` for developers building SecondMe apps and integrations (OAuth, MCP, app submission). Install: `npx skills add https://second-me.cn -y -g` (CDN, works in mainland China; GitHub source `mindverse/second-me-skills` also available).
+> **English:** SecondMe Skills is a Claude Code plugin with two skills — `secondme` for end-users to run their SecondMe through an agent (login, profile, Key Memory, notes, chat, and the full avatar-studio lifecycle: product definition, avatar creation, pricing, contract signing, HTML delivery, payment, distribution), and `secondme-dev-assistant` for developers building SecondMe apps and integrations (OAuth, MCP, app submission). Install: `npx skills add https://second.me -y -g`.
 
 SecondMe Skills 是一套技能包，当前主要覆盖两条使用路径：
 
@@ -34,25 +34,13 @@ SecondMe Skills 是一套技能包，当前主要覆盖两条使用路径：
 ### 安装
 
 ```bash
-# 国内网络（推荐）：腾讯云 CDN 直连，不依赖 GitHub
-npx skills add https://second-me.cn -y -g
-
-# 海外网络 CDN
 npx skills add https://second.me -y -g
 
-# 只安装开发者技能（不含用户技能）
-npx skills add https://develop.second-me.cn -y -g   # 国内
-npx skills add https://develop.second.me -y -g      # 海外
-
-# 备选：GitHub 源（可用 --skill 选择性安装）
-npx skills add mindverse/second-me-skills --skill secondme -y -g
-
-# 或告诉你的 Agent（国内域名同样可用 second-me.cn）：
-# "根据 https://second-me.cn/skill.md 安装技能，并一步步引导我完成 Second Me 的创建和 Onboarding"
-# "根据 https://develop.second-me.cn/skill.md 安装技能，引导我完成联调与信息提交"
+# 或告诉你的 Agent：
+# "根据 https://second.me/skill.md 安装技能，并一步步引导我完成 Second Me 的创建和 Onboarding"
 ```
 
-> npx 拉取 CLI 慢时可换国内 npm 镜像：`npm --registry=https://registry.npmmirror.com exec skills -- add https://second-me.cn -y -g`
+> npx 拉取 CLI 慢时可换国内 npm 镜像：`npm --registry=https://registry.npmmirror.com exec skills -- add https://second.me -y -g`
 
 ### 开发者用法
 
