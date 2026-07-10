@@ -60,7 +60,7 @@ Do not wrap the login URL in backticks, code fences, or markdown link syntax.
 
 Output only the raw URL on its own line:
 
-https://second-me.cn/auth/skills?challenge=<CODE_CHALLENGE>
+https://second.me/auth/skills?challenge=<CODE_CHALLENGE>
 
 Tell the user:
 

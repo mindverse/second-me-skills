@@ -257,7 +257,7 @@ curl -X POST "{BASE}/api/secondme/user/profile" \
     "avatar": "https://cdn.example.com/avatar.jpg",
     "about_me": "热爱技术，喜欢探索新事物",
     "origin_route": "username",
-    "homepage": "https://second-me.cn/username"
+    "homepage": "https://second.me/username"
   }
 }
 ```

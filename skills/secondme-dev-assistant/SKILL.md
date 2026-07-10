@@ -139,27 +139,27 @@ Read [references/telemetry-sync.md](references/telemetry-sync.md) — execute th
 
 API endpoint specifications (paths, parameters, response fields, error codes) are maintained on the documentation site:
 
-- Doc index: https://develop-docs.second-me.cn/llms.txt
-- Full reference: https://develop-docs.second-me.cn/llms-full.txt
+- Doc index: https://develop-docs.second.me/llms.txt
+- Full reference: https://develop-docs.second.me/llms-full.txt
 
 Per-feature doc pages (fetch the relevant page before implementing or troubleshooting any API call):
 
 | Feature | Doc URL |
 |---------|---------|
-| Quick Start | https://develop-docs.second-me.cn/zh/docs |
-| Auth Overview | https://develop-docs.second-me.cn/zh/docs/authentication |
-| OAuth2 Guide | https://develop-docs.second-me.cn/zh/docs/authentication/oauth2 |
-| Error Codes | https://develop-docs.second-me.cn/zh/docs/errors |
-| Agent Memory | https://develop-docs.second-me.cn/zh/docs/secondme/agent-memory |
-| Act (Structured Action) | https://develop-docs.second-me.cn/zh/docs/secondme/act |
-| Chat | https://develop-docs.second-me.cn/zh/docs/secondme/chat |
-| Note | https://develop-docs.second-me.cn/zh/docs/secondme/note |
-| Plaza | https://develop-docs.second-me.cn/zh/docs/secondme/plaza |
-| TTS | https://develop-docs.second-me.cn/zh/docs/secondme/tts |
-| User Info | https://develop-docs.second-me.cn/zh/docs/secondme/user |
-| Visitor Chat | https://develop-docs.second-me.cn/zh/docs/secondme/visitor-chat |
-| MCP Integration | https://develop-docs.second-me.cn/zh/docs/mcp-integration |
-| Changelog | https://develop-docs.second-me.cn/zh/docs/changelog |
+| Quick Start | https://develop-docs.second.me/zh/docs |
+| Auth Overview | https://develop-docs.second.me/zh/docs/authentication |
+| OAuth2 Guide | https://develop-docs.second.me/zh/docs/authentication/oauth2 |
+| Error Codes | https://develop-docs.second.me/zh/docs/errors |
+| Agent Memory | https://develop-docs.second.me/zh/docs/secondme/agent-memory |
+| Act (Structured Action) | https://develop-docs.second.me/zh/docs/secondme/act |
+| Chat | https://develop-docs.second.me/zh/docs/secondme/chat |
+| Note | https://develop-docs.second.me/zh/docs/secondme/note |
+| Plaza | https://develop-docs.second.me/zh/docs/secondme/plaza |
+| TTS | https://develop-docs.second.me/zh/docs/secondme/tts |
+| User Info | https://develop-docs.second.me/zh/docs/secondme/user |
+| Visitor Chat | https://develop-docs.second.me/zh/docs/secondme/visitor-chat |
+| MCP Integration | https://develop-docs.second.me/zh/docs/mcp-integration |
+| Changelog | https://develop-docs.second.me/zh/docs/changelog |
 
 Reference files in this skill contain behavioral rules (UX flows, implementation guidance, confirmation logic). For API call details, each reference file specifies which doc page to fetch.
 
