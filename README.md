@@ -2,7 +2,7 @@
 
 **SecondMe Skills 包含两类能力：给开发者构建基于 SecondMe 的第三方应用，也给终端用户通过 Agent 直接使用 SecondMe。**
 
-> **English:** SecondMe Skills is a Claude Code plugin with two skills — `secondme` for end-users to run their SecondMe through an agent (login, profile, Key Memory, notes, chat, and the full avatar-studio lifecycle: product definition, avatar creation, pricing, contract signing, HTML delivery, payment, distribution), and `secondme-dev-assistant` for developers building SecondMe apps and integrations (OAuth, MCP, app submission). Install: `npx skills add mindverse/second-me-skills`.
+> **English:** SecondMe Skills is a Claude Code plugin with two skills — `secondme` for end-users to run their SecondMe through an agent (login, profile, Key Memory, notes, chat, and the full avatar-studio lifecycle: product definition, avatar creation, pricing, contract signing, HTML delivery, payment, distribution), and `secondme-dev-assistant` for developers building SecondMe apps and integrations (OAuth, MCP, app submission). Install: `npx skills add https://second-me.cn -y -g` (CDN, works in mainland China; GitHub source `mindverse/second-me-skills` also available).
 
 SecondMe Skills 是一套技能包，当前主要覆盖两条使用路径：
 
