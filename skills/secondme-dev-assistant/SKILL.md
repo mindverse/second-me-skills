@@ -2,7 +2,7 @@
 name: secondme-dev-assistant
 description: "Use when user wants to develop on the SecondMe platform (second.me, develop.second.me). Triggers: building SecondMe third-party apps (第三方应用/外部应用), SecondMe OAuth login integration (Client ID/Secret, token exchange), MCP integration for SecondMe, Agent Memory API, Act stream API, app scaffolding, review submission, or hackathon/黑客松 projects targeting SecondMe. Covers the full developer lifecycle from app creation and credentials to release. NOT for casual SecondMe usage like browsing profiles, adding friends, or social features — only for building and integrating with SecondMe as a developer platform."
 license: MIT
-compatibility: Requires network access to SecondMe API (app.mindos.com, api.mindverse.com)
+compatibility: Requires network access to SecondMe API (api.mindverse.com)
 metadata:
   author: mindverse
   version: "2.1.1"
@@ -15,7 +15,7 @@ metadata:
 If this skill is not yet installed locally, run:
 
 ```bash
-npx skills add mindverse/second-me-skills --skill secondme-dev-assistant -y -g
+npx skills add https://second.me -y -g
 ```
 
 After installation, show the user the following onboarding message, then proceed with their request:
@@ -47,9 +47,8 @@ mkdir -p "$CACHE_DIR"
 LAST=$(cat "$STAMP" 2>/dev/null || echo 0)
 NOW=$(date +%s)
 if [ $((NOW - LAST)) -ge 86400 ]; then
-  if npx skills check 2>&1 | grep -qiE "second-me-skills|second\.me"; then
-    npx skills update mindverse/second-me-skills -y 2>&1 || true
-  fi
+  # 按已安装来源更新（CDN / GitHub 均可），不锁定 GitHub
+  npx skills update secondme-dev-assistant -y 2>&1 || true
   echo "$NOW" > "$STAMP"
 fi
 
@@ -140,27 +139,27 @@ Read [references/telemetry-sync.md](references/telemetry-sync.md) — execute th
 
 API endpoint specifications (paths, parameters, response fields, error codes) are maintained on the documentation site:
 
-- Doc index: https://develop-docs.second-me.cn/llms.txt
-- Full reference: https://develop-docs.second-me.cn/llms-full.txt
+- Doc index: https://develop-docs.second.me/llms.txt
+- Full reference: https://develop-docs.second.me/llms-full.txt
 
 Per-feature doc pages (fetch the relevant page before implementing or troubleshooting any API call):
 
 | Feature | Doc URL |
 |---------|---------|
-| Quick Start | https://develop-docs.second-me.cn/zh/docs |
-| Auth Overview | https://develop-docs.second-me.cn/zh/docs/authentication |
-| OAuth2 Guide | https://develop-docs.second-me.cn/zh/docs/authentication/oauth2 |
-| Error Codes | https://develop-docs.second-me.cn/zh/docs/errors |
-| Agent Memory | https://develop-docs.second-me.cn/zh/docs/secondme/agent-memory |
-| Act (Structured Action) | https://develop-docs.second-me.cn/zh/docs/secondme/act |
-| Chat | https://develop-docs.second-me.cn/zh/docs/secondme/chat |
-| Note | https://develop-docs.second-me.cn/zh/docs/secondme/note |
-| Plaza | https://develop-docs.second-me.cn/zh/docs/secondme/plaza |
-| TTS | https://develop-docs.second-me.cn/zh/docs/secondme/tts |
-| User Info | https://develop-docs.second-me.cn/zh/docs/secondme/user |
-| Visitor Chat | https://develop-docs.second-me.cn/zh/docs/secondme/visitor-chat |
-| MCP Integration | https://develop-docs.second-me.cn/zh/docs/mcp-integration |
-| Changelog | https://develop-docs.second-me.cn/zh/docs/changelog |
+| Quick Start | https://develop-docs.second.me/zh/docs |
+| Auth Overview | https://develop-docs.second.me/zh/docs/authentication |
+| OAuth2 Guide | https://develop-docs.second.me/zh/docs/authentication/oauth2 |
+| Error Codes | https://develop-docs.second.me/zh/docs/errors |
+| Agent Memory | https://develop-docs.second.me/zh/docs/secondme/agent-memory |
+| Act (Structured Action) | https://develop-docs.second.me/zh/docs/secondme/act |
+| Chat | https://develop-docs.second.me/zh/docs/secondme/chat |
+| Note | https://develop-docs.second.me/zh/docs/secondme/note |
+| Plaza | https://develop-docs.second.me/zh/docs/secondme/plaza |
+| TTS | https://develop-docs.second.me/zh/docs/secondme/tts |
+| User Info | https://develop-docs.second.me/zh/docs/secondme/user |
+| Visitor Chat | https://develop-docs.second.me/zh/docs/secondme/visitor-chat |
+| MCP Integration | https://develop-docs.second.me/zh/docs/mcp-integration |
+| Changelog | https://develop-docs.second.me/zh/docs/changelog |
 
 Reference files in this skill contain behavioral rules (UX flows, implementation guidance, confirmation logic). For API call details, each reference file specifies which doc page to fetch.
 

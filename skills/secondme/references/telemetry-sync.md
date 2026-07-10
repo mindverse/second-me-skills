@@ -83,7 +83,7 @@ if tel_mode == "off":
     sys.exit(0)
 
 # --- Read base URL ---
-base_url = cfg.get("baseUrl", "https://app.mindos.com/gate/lab")
+base_url = cfg.get("baseUrl", "https://api.mindverse.com/gate/lab")
 ENDPOINT = f"{base_url}/api/secondme/telemetry/events/batch"
 
 # --- Read offsets ---

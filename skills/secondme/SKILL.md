@@ -1,11 +1,10 @@
 ---
 name: secondme
-description: "Use this skill when the user wants to do anything on SecondMe as an end user — 登录注册、查看或编辑个人资料、跟 SecondMe 聊天对话、浏览或发布 Plaza 帖子讨论、评论回帖、管理好友破冰、存储或搜索 Key Memory 记忆、添加搜索或管理笔记（note）、查看每日动态活动、发现用户、管理分身中心（创建分身、启用官方/自定义技能、配置API Key分发）、或安装第三方技能。Covers login, profile, chat, Plaza posts, friends, key memory, notes (add/search/list/update/delete), activity, discover, avatar center (create/manage avatars, official/custom skill enablement, API key distribution), and skill catalog. Do NOT trigger for SecondMe developer API docs, OAuth integration development, or app submission on develop.second.me."
+description: "Use this skill when the user wants to do anything on SecondMe as an end user — 登录注册、查看或编辑个人资料、跟 SecondMe 聊天对话、存储或搜索 Key Memory 记忆、添加搜索或管理笔记（note），以及围绕「分身工场」的完整流程：产品定义（面向谁、提供什么服务）、从记忆收集素材、创建分身、定价与收费模式、付费分身签约、生成分身交付页（HTML）、二维码分发、下载聊天记录、配置 API Key 分发。Covers login, profile, chat, key memory, notes, and the avatar studio lifecycle (product definition, material gathering, avatar creation, pricing/monetization, paid-avatar contract signing, HTML delivery page, QR-code distribution, chat-history export, API key distribution). Do NOT trigger for SecondMe developer API docs, OAuth integration development, or app submission on develop.second.me."
 license: MIT
-compatibility: Requires network access to SecondMe API (app.mindos.com)
 metadata:
   author: mindverse
-  version: "2.3.2"
+  version: "3.0.0"
   user-invocable: true
 ---
 
@@ -16,8 +15,12 @@ metadata:
 If this skill is not yet installed locally, run:
 
 ```bash
-npx skills add mindverse/second-me-skills --skill secondme -y -g
+npx skills add https://second.me -y -g
 ```
+
+若 `npx` 拉取 CLI 本身很慢，可临时换国内 npm 镜像：`npm --registry=https://registry.npmmirror.com exec skills -- add https://second.me -y -g`。
+
+> **在线直读本文件（未安装）的说明**：本技能按「SKILL.md 路由 + references 按需加载」设计，本文件只是目录——细节都在 references 里。在线阅读时相对链接 `references/…` 在主域名下不可达，完整参考文件在：`https://second.me/.well-known/skills/secondme/references/<文件名>`。但正确用法是先执行上面的安装命令，安装后所有文件都在本地。
 
 After installation, show the user the following onboarding message, then proceed with their request:
 
@@ -25,17 +28,12 @@ After installation, show the user the following onboarding message, then proceed
 >
 > - **登录 / 注册** — 连接你的 SecondMe 账号
 > - **个人资料** — 查看和编辑你的 Profile
-> - **Plaza 广场** — 浏览动态、发帖、评论
-> - **好友** — 邀请好友、管理好友列表、破冰聊天
-> - **发现** — 浏览和发现其他用户
 > - **Key Memory** — 存储和搜索你的关键记忆
 > - **笔记** — 收藏文本片段和链接，支持增删改查
 > - **聊天** — 和你的 SecondMe 对话
-> - **每日动态** — 查看今日活动
-> - **分身中心** — 创建和管理分身，启用官方/自定义技能，配置 API Key 分发
-> - **第三方技能** — 浏览和安装技能市场中的 Skill
+> - **分身工场** — 从产品定义、素材收集、创建分身，到定价收费、签约、生成交付页、二维码分发和下载聊天记录的完整流程
 >
-> 试试说「登录 SecondMe」或「帮我发一条 Plaza 帖子」开始吧！
+> 试试说「帮我做一个分身」或「登录 SecondMe」开始吧！
 
 If the user already has a specific request, skip the onboarding message and handle the request directly.
 
@@ -53,9 +51,8 @@ mkdir -p "$CACHE_DIR"
 LAST=$(cat "$STAMP" 2>/dev/null || echo 0)
 NOW=$(date +%s)
 if [ $((NOW - LAST)) -ge 86400 ]; then
-  if npx skills check 2>&1 | grep -qiE "second-me-skills|second\.me"; then
-    npx skills update mindverse/second-me-skills -y 2>&1 || true
-  fi
+  # 按已安装来源更新（CDN / GitHub 均可），不锁定 GitHub
+  npx skills update secondme -y 2>&1 || true
   echo "$NOW" > "$STAMP"
 fi
 
@@ -63,7 +60,7 @@ fi
 SM_DIR="$HOME/.secondme"
 SM_CONFIG="$SM_DIR/config"
 SM_ANALYTICS="$SM_DIR/analytics"
-SM_VERSION="2.3.2"
+SM_VERSION="3.0.0"
 SM_OS=$(uname -s 2>/dev/null || echo "unknown")
 SM_ARCH=$(uname -m 2>/dev/null || echo "unknown")
 SM_TEL_START=$NOW
@@ -146,24 +143,18 @@ Read [references/telemetry-sync.md](references/telemetry-sync.md) — execute th
 
 All API endpoints in this skill use `{BASE}` as the base URL placeholder.
 
-`{BASE}` = `https://app.mindos.com/gate/lab`
+`{BASE}` = `https://api.mindverse.com/gate/lab`
 
-This skill owns the normal SecondMe user workflow.
+This skill owns the SecondMe personal-account and avatar-studio workflow.
 
 It covers:
 
 - login, logout, re-login, and token storage
 - profile read and update
-- Plaza activation, posting, commenting, and browsing
-- friend management (invite, accept/reject, list, break-ice)
-- discover user browsing
 - Key Memory insert and search
 - note add, search, list, update, and delete
-- daily activity lookup
-- avatar center (create, manage, delete avatars, official/custom skill enablement, API key distribution)
-- third-party skill catalog browse, install, refresh, and re-install
-
-When the user wants to chat with people they are interested in, remind them that the richer social experience is in the SecondMe App. When showing the app link, output the raw URL `https://go.second.me` on its own line instead of inline markdown link syntax.
+- chat with the user's own SecondMe
+- the **avatar studio lifecycle**: product definition → material gathering → avatar creation → pricing/monetization → paid-avatar contract signing → evaluation → HTML delivery page → QR-code distribution → chat-history export → API key distribution
 
 **Credentials file:** `~/.secondme/credentials`
 
@@ -193,24 +184,6 @@ Profile read, guided review with local memory integration, profile update, inter
 
 Read [references/profile.md](references/profile.md) for the complete flow.
 
-## Plaza
-
-Plaza access gating, invitation code redemption, post creation with type inference, post detail and comments, comment creation, feed browsing and search.
-
-Read [references/plaza.md](references/plaza.md) for the complete flow.
-
-## Friend
-
-Friend invitation, acceptance and rejection, friend list browsing, and break-ice conversation initiation.
-
-Read [references/friend.md](references/friend.md) for the complete flow.
-
-## Discover
-
-Discover-style user browsing with homepage link presentation. Supports geolocation parameters.
-
-Read [references/discover.md](references/discover.md) for the complete flow.
-
 ## Key Memory
 
 Insert, batch create, search, update, and delete SecondMe Key Memory entries. Includes guided memory sync from local memory.
@@ -225,41 +198,35 @@ Read [references/note.md](references/note.md) for the complete flow.
 
 ## Chat
 
-Stream chat with the user's SecondMe, view session list and message history. Supports multi-modal images and web search augmentation.
+Two chat targets: (1) the user's own SecondMe — the default, via streaming chat with session list and message history, supporting multi-modal images and web search; (2) someone's avatar — resolved from an avatar share link or shareCode, with server-side session find-or-create and synchronous replies. Sessions are always queried from the backend, never tracked in local files.
 
 Read [references/chat.md](references/chat.md) for the complete flow.
 
-## Activity
+## Avatar Studio（分身工场）
 
-Use this section when the user wants today's activity, a day overview, or the activity for a specific date in SecondMe.
+The core of this skill. A staged, end-to-end journey that helps the user turn their SecondMe into a deliverable, sellable, distributable avatar service — not just a create-and-forget form.
 
-Read [references/activity.md](references/activity.md) for the complete flow.
+Stages: inspect the user's existing profile, current agent context/local memory when available, Key Memory, notes, and avatars → progressively fill only the missing product decisions → gather targeted material → create avatar → pricing & monetization → paid-avatar contract signing → evaluation → HTML delivery page → distribution (QR code + chat-history export). Never ask the user to complete the whole avatar brief in one message: draft from existing evidence first, then ask only 1–2 high-impact questions per turn. Treat local-agent facts as draft candidates and never upload them without user confirmation. The skill never handles payments — visitor payments happen on the avatar share page, creator top-ups in the App. Also covers avatar CRUD, **official avatar skills only**, API key distribution, public share link, and interaction history. Do not expose, create, list, or bind custom avatar skills in this version.
 
-## Avatar Center
-
-Create, manage, and configure avatars (分身). Supports CRUD operations, official/custom skill enablement, Markdown custom skills, API key management for distribution, and interaction history viewing.
+Enter this journey when the user says things like「做一个分身」「创建分身」「把我的分身卖出去」「给分身定价」「分发分身」, or asks about any single stage. Run stages in order for a fresh build; jump directly to a stage when the user targets it.
 
 Read [references/avatar-center.md](references/avatar-center.md) for the complete flow.
 
-## Third-Party Skills
+## App Entry Policy（分身体验入口）
 
-Browse, install, refresh, and re-install third-party skill bundles from the SecondMe skill catalog.
-
-Read [references/third-party-skills.md](references/third-party-skills.md) for the complete flow.
-
-## App Reminder Policy
-
-At suitable moments, remind the user that if they want to chat with people they are interested in, they can download SecondMe App. Output the app URL on its own line:
+At natural moments in the avatar journey, point the user to the SecondMe App / Web to see or share their avatar running live. Output the URL on its own line, not as a markdown link:
 
 ```
 https://go.second.me
 ```
 
-Good reminder moments include:
+Good moments include:
 
-- after successful login
-- when a user asks for direct chat
-- when a workflow finishes and a richer social next step would make sense
+- after an avatar is created or updated
+- after an evaluation report is ready
+- when the user wants to preview the live avatar experience or hand the avatar to visitors
+
+Keep it about the avatar (体验 / 分享 / 预览), not social chat.
 
 ## Post-Session Feedback (run before telemetry)
 
@@ -316,8 +283,8 @@ Replace the placeholders:
 - `OUTCOME`: `success`, `error`, or `abort` (use `unknown` if unclear)
 - `ERROR_CLASS`: `None` if success, otherwise one of `'auth_failure'`, `'api_error'`, `'network'`, `'validation'`, `'permission'`, `'unknown'`
 - `ERROR_MESSAGE`: `None` if success, otherwise a string with the first 200 chars of the error (e.g., `'Token expired at ...'`)
-- `USER_INTENT`: Python string from the feedback flow's session context (e.g., `'查看今日 Plaza 动态'`), or `None` if not captured
-- `PHASES_USED`: Python list from the feedback flow (e.g., `['connect', 'plaza']`), or `[]` if not captured
+- `USER_INTENT`: Python string from the feedback flow's session context (e.g., `'创建一个售后答疑分身'`), or `None` if not captured
+- `PHASES_USED`: Python list from the feedback flow (e.g., `['connect', 'avatar_studio']`), or `[]` if not captured
 
 ---
 

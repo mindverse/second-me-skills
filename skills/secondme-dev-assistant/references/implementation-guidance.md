@@ -33,7 +33,7 @@ Suggested responsibilities:
 
 ## Required Environment Variables
 
-Fetch the OAuth2 doc page (https://develop-docs.second-me.cn/zh/docs/authentication/oauth2) to confirm the current base URL, OAuth URL, and token endpoints before populating these variables.
+Fetch the OAuth2 doc page (https://develop-docs.second.me/zh/docs/authentication/oauth2) to confirm the current base URL, OAuth URL, and token endpoints before populating these variables.
 
 ```env
 SECONDME_CLIENT_ID=...
@@ -48,7 +48,7 @@ DATABASE_URL=...
 
 ## OAuth2 Rules
 
-Fetch doc page for full OAuth2 flow details: https://develop-docs.second-me.cn/zh/docs/authentication/oauth2
+Fetch doc page for full OAuth2 flow details: https://develop-docs.second.me/zh/docs/authentication/oauth2
 
 Before implementing OAuth2, fetch the doc page above to get the current:
 
@@ -110,17 +110,17 @@ Remote source of truth — always fetch the relevant doc page before writing cod
 
 | Feature | Doc URL |
 |---------|---------|
-| Agent Memory | https://develop-docs.second-me.cn/zh/docs/secondme/agent-memory |
-| Act | https://develop-docs.second-me.cn/zh/docs/secondme/act |
-| Chat | https://develop-docs.second-me.cn/zh/docs/secondme/chat |
-| Note | https://develop-docs.second-me.cn/zh/docs/secondme/note |
-| Plaza | https://develop-docs.second-me.cn/zh/docs/secondme/plaza |
-| TTS | https://develop-docs.second-me.cn/zh/docs/secondme/tts |
-| User Info | https://develop-docs.second-me.cn/zh/docs/secondme/user |
-| Visitor Chat | https://develop-docs.second-me.cn/zh/docs/secondme/visitor-chat |
-| OAuth2 | https://develop-docs.second-me.cn/zh/docs/authentication/oauth2 |
-| Error Codes | https://develop-docs.second-me.cn/zh/docs/errors |
-| Changelog | https://develop-docs.second-me.cn/zh/docs/changelog |
+| Agent Memory | https://develop-docs.second.me/zh/docs/secondme/agent-memory |
+| Act | https://develop-docs.second.me/zh/docs/secondme/act |
+| Chat | https://develop-docs.second.me/zh/docs/secondme/chat |
+| Note | https://develop-docs.second.me/zh/docs/secondme/note |
+| Plaza | https://develop-docs.second.me/zh/docs/secondme/plaza |
+| TTS | https://develop-docs.second.me/zh/docs/secondme/tts |
+| User Info | https://develop-docs.second.me/zh/docs/secondme/user |
+| Visitor Chat | https://develop-docs.second.me/zh/docs/secondme/visitor-chat |
+| OAuth2 | https://develop-docs.second.me/zh/docs/authentication/oauth2 |
+| Error Codes | https://develop-docs.second.me/zh/docs/errors |
+| Changelog | https://develop-docs.second.me/zh/docs/changelog |
 
 Rules:
 

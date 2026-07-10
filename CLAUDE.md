@@ -26,3 +26,11 @@ skills/
 
 - Plugin name: `secondme-skills`
 - Skills: `secondme`, `secondme-dev-assistant`
+
+## 域名规范
+
+- **接口调用**（API、遥测上报等程序请求）一律用 `https://api.mindverse.com`，如 `{BASE} = https://api.mindverse.com/gate/lab`
+- **安装源**统一唯一入口 `https://second.me`（well-known 分发），安装指引里不出现其他域名
+- **用户浏览器访问**统一 `*.second.me` 域名家族：页面（登录/签约/协议/分享链接）`second.me`，文档站 `develop-docs.second.me`，应用市场 `appstore.second.me`，PRE 环境 `beta.second.me`
+- `second-me.cn` 与 `app.mindos.com` 不出现在技能文档中（后者部分国内网络 TLS 握手失败，2026-07 实测）
+- `/contract/payment` 是协议文本页且必须带 `?tier=1|2|3`，不是收银台；实际付款在 App 账户页 / 分身分享页解锁流程
