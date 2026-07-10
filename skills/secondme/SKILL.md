@@ -2,7 +2,6 @@
 name: secondme
 description: "Use this skill when the user wants to do anything on SecondMe as an end user — 登录注册、查看或编辑个人资料、跟 SecondMe 聊天对话、存储或搜索 Key Memory 记忆、添加搜索或管理笔记（note），以及围绕「分身工场」的完整流程：产品定义（面向谁、提供什么服务）、从记忆收集素材、创建分身、定价与收费模式、付费分身签约、生成分身交付页（HTML）、二维码分发、下载聊天记录、配置 API Key 分发。Covers login, profile, chat, key memory, notes, and the avatar studio lifecycle (product definition, material gathering, avatar creation, pricing/monetization, paid-avatar contract signing, HTML delivery page, QR-code distribution, chat-history export, API key distribution). Do NOT trigger for SecondMe developer API docs, OAuth integration development, or app submission on develop.second.me."
 license: MIT
-compatibility: Requires network access to SecondMe API (api.mindverse.com)
 metadata:
   author: mindverse
   version: "3.0.0"
@@ -207,7 +206,7 @@ Read [references/chat.md](references/chat.md) for the complete flow.
 
 The core of this skill. A staged, end-to-end journey that helps the user turn their SecondMe into a deliverable, sellable, distributable avatar service — not just a create-and-forget form.
 
-Stages: product definition (who it's for, what service) → gather material from Key Memory / notes → create avatar → pricing & monetization → paid-avatar contract signing → evaluation → HTML delivery page → distribution (QR code + chat-history export). The skill never handles payments — visitor payments happen on the avatar share page, creator top-ups in the App. Also covers avatar CRUD, official/custom skill enablement (incl. Markdown custom skills), API key distribution, public share link, and interaction history.
+Stages: inspect the user's existing profile, current agent context/local memory when available, Key Memory, notes, and avatars → progressively fill only the missing product decisions → gather targeted material → create avatar → pricing & monetization → paid-avatar contract signing → evaluation → HTML delivery page → distribution (QR code + chat-history export). Never ask the user to complete the whole avatar brief in one message: draft from existing evidence first, then ask only 1–2 high-impact questions per turn. Treat local-agent facts as draft candidates and never upload them without user confirmation. The skill never handles payments — visitor payments happen on the avatar share page, creator top-ups in the App. Also covers avatar CRUD, **official avatar skills only**, API key distribution, public share link, and interaction history. Do not expose, create, list, or bind custom avatar skills in this version.
 
 Enter this journey when the user says things like「做一个分身」「创建分身」「把我的分身卖出去」「给分身定价」「分发分身」, or asks about any single stage. Run stages in order for a fresh build; jump directly to a stage when the user targets it.
 
@@ -294,4 +293,3 @@ Replace the placeholders:
 After session telemetry is logged, attempt to sync all pending local analytics data (both usage and feedback) to the SecondMe backend. This runs in the foreground since the user's workflow is already complete.
 
 Read [references/telemetry-sync.md](references/telemetry-sync.md) — execute the "Post-Session Sync" section.
-
