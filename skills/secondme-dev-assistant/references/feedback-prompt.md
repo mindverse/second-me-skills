@@ -2,42 +2,47 @@
 
 This reference defines the first-time feedback/telemetry prompt. Only execute this flow when `TEL_PROMPTED` is `no`.
 
-## Step 1: Ask About Community Mode
+## Step 1: Ask Once, Neutrally
+
+Telemetry is **off by default**. Ask exactly one question with the three modes presented neutrally — do not mark any option as recommended, and do not re-ask if the user declines.
 
 Use AskUserQuestion:
 
-> SecondMe Skills 希望变得更好！开启 Community 模式后，会记录匿名使用数据（使用了哪些 skill、使用时长、是否出错），并附带一个稳定的设备 ID 以便追踪趋势和修复问题。此外，每次 skill 使用结束后会记录简短的体验反馈（满意度和改进建议）。这些数据会保存在本地（`~/.secondme/analytics/`），并在你登录后自动同步到 SecondMe 服务端，帮助我们改进产品。
+> SecondMe Skills 可以记录匿名使用数据来帮助改进产品。你可以选择：
 >
-> 我们**不会**收集任何代码、文件路径、凭据或个人信息。
-> 你可以随时编辑 `~/.secondme/config` 中的 `telemetry` 字段来更改设置。
+> - **Community**：记录使用了哪些 skill、使用时长、是否出错，附带一个随机生成的设备 ID 以便追踪趋势；使用结束后记录简短体验反馈。
+> - **Anonymous**：只记录“有人使用了某个 skill”的计数，无设备 ID，无法关联会话。
+> - **Off**：完全不记录。
+>
+> 前两种模式下数据保存在本地 `~/.secondme/analytics/`，登录后同步到 SecondMe 服务端。我们**不会**收集任何代码、文件路径、凭据或个人信息。之后可随时编辑 `~/.secondme/config` 中的 `telemetry` 字段更改设置。
 
 Options:
 
-- A) 好的，帮助 SecondMe 改进！（推荐）
-- B) 不了，谢谢
+- A) Community 模式
+- B) Anonymous 模式
+- C) 完全关闭
 
-## Step 2: Handle Response
+## Step 2: Persist the Choice
 
-### If A (community)
-
-Run:
+Write the selected mode (`community` / `anonymous` / `off`) and mark the prompt as done:
 
 ```bash
 SM_DIR="$HOME/.secondme"
 SM_CONFIG="$SM_DIR/config"
+SM_MODE="<community|anonymous|off>"
 mkdir -p "$SM_DIR"
 python3 -c "
 import json, os
 p = os.path.expanduser('$SM_CONFIG')
 try: d = json.load(open(p))
 except: d = {}
-d['telemetry'] = 'community'
+d['telemetry'] = '$SM_MODE'
 json.dump(d, open(p, 'w'), indent=2)
 "
 touch "$SM_DIR/.feedback-prompted"
 ```
 
-Then generate a stable device ID:
+If the user chose Community, also generate a stable device ID:
 
 ```bash
 SM_DIR="$HOME/.secondme"
@@ -48,62 +53,10 @@ fi
 
 Proceed with the user's original request.
 
-### If B (declined community)
-
-Ask a follow-up question using AskUserQuestion:
-
-> 那 Anonymous 模式呢？我们只会记录"有人使用了某个 skill"——没有设备 ID，无法关联会话，只是一个计数器。数据会保存在本地并在登录后以匿名形式同步到服务端。
-
-Options:
-
-- A) 可以，匿名模式没问题
-- B) 不了，完全关闭
-
-#### If B → A (anonymous)
-
-Run:
-
-```bash
-SM_DIR="$HOME/.secondme"
-SM_CONFIG="$SM_DIR/config"
-mkdir -p "$SM_DIR"
-python3 -c "
-import json, os
-p = os.path.expanduser('$SM_CONFIG')
-try: d = json.load(open(p))
-except: d = {}
-d['telemetry'] = 'anonymous'
-json.dump(d, open(p, 'w'), indent=2)
-"
-touch "$SM_DIR/.feedback-prompted"
-```
-
-Proceed with the user's original request.
-
-#### If B → B (fully off)
-
-Run:
-
-```bash
-SM_DIR="$HOME/.secondme"
-SM_CONFIG="$SM_DIR/config"
-mkdir -p "$SM_DIR"
-python3 -c "
-import json, os
-p = os.path.expanduser('$SM_CONFIG')
-try: d = json.load(open(p))
-except: d = {}
-d['telemetry'] = 'off'
-json.dump(d, open(p, 'w'), indent=2)
-"
-touch "$SM_DIR/.feedback-prompted"
-```
-
-Proceed with the user's original request.
-
 ## Rules
 
 - This flow runs **only once**. The `touch ~/.secondme/.feedback-prompted` marker ensures it never repeats.
 - If `TEL_PROMPTED` is already `yes`, skip this entire flow.
+- Ask exactly one question. Never re-ask, upsell, or follow up after the user picks a mode — including when they pick Off.
 - The config write uses `python3 -c` to safely merge into the existing JSON config without overwriting other keys (like `baseUrl`).
 - After the prompt is handled, **immediately continue** with the user's actual request. Do not add extra commentary about the choice.

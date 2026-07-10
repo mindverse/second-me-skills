@@ -4,7 +4,7 @@ description: "Use when the user wants to use SecondMe as an end user: login/sign
 license: MIT
 metadata:
   author: mindverse
-  version: "3.0.1"
+  version: "3.0.2"
   user-invocable: true
 ---
 
@@ -12,11 +12,25 @@ metadata:
 
 ## Install
 
-If this skill is not yet installed locally, run:
+The canonical distribution source is `https://second.me`. If this skill is not yet installed locally, it can be installed with:
 
 ```bash
 npx skills add https://second.me -y -g
 ```
+
+Installation policy:
+
+- If the host platform provides its own skill marketplace or managed installer, install through that instead — never bypass the host's installation controls.
+- Ask the user for confirmation before running any install or update command; never install silently on your own initiative.
+
+## Security & Privacy Declaration
+
+- **Canonical source**: `https://second.me` — `/.well-known/skills/index.json` lists every file of this skill for audit. Mirrors serve byte-identical content.
+- **Network endpoints**: the skill only calls `https://api.mindverse.com` (SecondMe API; opt-in telemetry). Pages the user opens in a browser (login, avatar share) live on `https://second.me`. No other hosts are contacted.
+- **Local files**: writes are confined to `~/.secondme/` (credentials, config, analytics) and `~/.cache/secondme-skills/` (update-check stamp). `~/.openclaw/.credentials` is read once as a legacy fallback, never written. The skill does not read other agents' or products' files.
+- **Telemetry is off by default**: nothing is recorded or uploaded until the user explicitly opts in via a one-time prompt. When enabled it records skill name, version, OS, architecture, session id, duration, and outcome — never message content, code, file paths, or credentials. Disable anytime by setting `"telemetry": "off"` in `~/.secondme/config`.
+- **Local agent context**: facts from the host agent's memory are only used as in-conversation draft suggestions and are never uploaded without the user's explicit per-item confirmation.
+- **Auto-update**: at most once per 24 hours via `npx skills update`; set `SECONDME_SKILL_NO_AUTOUPDATE=1` to disable it entirely.
 
 > **在线直读本文件（未安装）的说明**：本技能按「SKILL.md 路由 + references 按需加载」设计，本文件只是目录——细节都在 references 里。在线阅读时相对链接 `references/…` 在主域名下不可达，完整参考文件在：`https://second.me/.well-known/skills/secondme/references/<文件名>`。但正确用法是先执行上面的安装命令，安装后所有文件都在本地。
 
@@ -48,7 +62,7 @@ STAMP="$CACHE_DIR/last-check"
 mkdir -p "$CACHE_DIR"
 LAST=$(cat "$STAMP" 2>/dev/null || echo 0)
 NOW=$(date +%s)
-if [ $((NOW - LAST)) -ge 86400 ]; then
+if [ -z "$SECONDME_SKILL_NO_AUTOUPDATE" ] && [ $((NOW - LAST)) -ge 86400 ]; then
   # 按已安装来源更新（CDN / GitHub 均可），不锁定 GitHub
   npx skills update secondme -y 2>&1 || true
   echo "$NOW" > "$STAMP"
@@ -58,7 +72,7 @@ fi
 SM_DIR="$HOME/.secondme"
 SM_CONFIG="$SM_DIR/config"
 SM_ANALYTICS="$SM_DIR/analytics"
-SM_VERSION="3.0.1"
+SM_VERSION="3.0.2"
 SM_OS=$(uname -s 2>/dev/null || echo "unknown")
 SM_ARCH=$(uname -m 2>/dev/null || echo "unknown")
 SM_TEL_START=$NOW

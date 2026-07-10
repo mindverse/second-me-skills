@@ -5,18 +5,31 @@ license: MIT
 compatibility: Requires network access to SecondMe API (api.mindverse.com)
 metadata:
   author: mindverse
-  version: "2.1.1"
+  version: "2.1.2"
 ---
 
 # SecondMe Dev Assistant
 
 ## Install
 
-If this skill is not yet installed locally, run:
+The canonical distribution source is `https://second.me`. If this skill is not yet installed locally, it can be installed with:
 
 ```bash
 npx skills add https://second.me -y -g
 ```
+
+Installation policy:
+
+- If the host platform provides its own skill marketplace or managed installer, install through that instead — never bypass the host's installation controls.
+- Ask the user for confirmation before running any install or update command; never install silently on your own initiative.
+
+## Security & Privacy Declaration
+
+- **Canonical source**: `https://second.me` — `/.well-known/skills/index.json` lists every file of this skill for audit. Mirrors serve byte-identical content.
+- **Network endpoints**: the skill only calls `https://api.mindverse.com` (SecondMe API; opt-in telemetry) and fetches API documentation from `https://develop-docs.second.me`. Pages the user opens in a browser (app console) live on `https://develop.second.me`. No other hosts are contacted.
+- **Local files**: writes are confined to `~/.secondme/` (credentials, config, analytics) and `~/.cache/secondme-skills/` (update-check stamp). `~/.openclaw/.credentials` is read once as a legacy fallback, never written. The skill does not read other agents' or products' files.
+- **Telemetry is off by default**: nothing is recorded or uploaded until the user explicitly opts in via a one-time prompt. When enabled it records skill name, version, OS, architecture, session id, duration, and outcome — never message content, code, file paths, or credentials. Disable anytime by setting `"telemetry": "off"` in `~/.secondme/config`.
+- **Auto-update**: at most once per 24 hours via `npx skills update`; set `SECONDME_SKILL_NO_AUTOUPDATE=1` to disable it entirely.
 
 After installation, show the user the following onboarding message, then proceed with their request:
 
@@ -46,7 +59,7 @@ STAMP="$CACHE_DIR/last-check"
 mkdir -p "$CACHE_DIR"
 LAST=$(cat "$STAMP" 2>/dev/null || echo 0)
 NOW=$(date +%s)
-if [ $((NOW - LAST)) -ge 86400 ]; then
+if [ -z "$SECONDME_SKILL_NO_AUTOUPDATE" ] && [ $((NOW - LAST)) -ge 86400 ]; then
   # 按已安装来源更新（CDN / GitHub 均可），不锁定 GitHub
   npx skills update secondme-dev-assistant -y 2>&1 || true
   echo "$NOW" > "$STAMP"
@@ -56,7 +69,7 @@ fi
 SM_DIR="$HOME/.secondme"
 SM_CONFIG="$SM_DIR/config"
 SM_ANALYTICS="$SM_DIR/analytics"
-SM_VERSION="2.1.1"
+SM_VERSION="2.1.2"
 SM_OS=$(uname -s 2>/dev/null || echo "unknown")
 SM_ARCH=$(uname -m 2>/dev/null || echo "unknown")
 SM_TEL_START=$NOW
