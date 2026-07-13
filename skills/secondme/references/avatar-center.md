@@ -1,11 +1,11 @@
 # Avatar Studio（分身工场）
 
-帮用户把 SecondMe 分身做成一个**可交付、可售卖、可分发的服务产品**。这不是一次性表单，而是一条端到端旅程：先查用户和 Agent 已经知道的信息，再逐轮补齐关键缺口 → 素材收集 → 建分身 → 定价收费 → 签约（付费必须）→ 评测 → 交付 HTML → 分发。本文件同时收录分身 CRUD、**官方技能**、API Key、交互记录等底层 API。当前版本不向用户透出、创建、查询或绑定自定义技能。
+帮用户把 SecondMe 分身做成一个**可交付、可售卖、可分发的服务产品**。这不是一次性表单，而是一条端到端旅程：先查用户和 Agent 已经知道的信息，再逐轮补齐关键缺口 → 素材收集 → 建分身 → 定价收费 → 签约（付费必须）→ 评测 → 分发。本文件同时收录分身 CRUD、**官方技能**、API Key、交互记录等底层 API。当前版本不向用户透出、创建、查询或绑定自定义技能。
 
 ## Table of Contents
 
 - [Avatar Studio 旅程](#avatar-studio-旅程)（先读这里）
-- [新增能力细节](#新增能力细节)（scenarioPrompt 规范 / 定价 / 签约 / 交付 HTML / 付费 / 二维码 / 下载聊天记录）
+- [新增能力细节](#新增能力细节)（scenarioPrompt 规范 / 定价 / 签约 / 付费 / 二维码 / 下载聊天记录）
 - [标识符体系（avatarId vs shareCode）](#标识符体系avatarid-vs-sharecode)
 - [Authentication Boundary](#authentication-boundary)
 - [API Reference](#api-reference)
@@ -44,7 +44,7 @@
 
 ```
 0 登录/资料 → 0.5 签约提前申请(可跳过) → 1 产品定义 → 2 收集素材 → 3 建分身
-   → 4 定价收费 →〔5 签约·硬门〕→ 6 评测 → 7 交付HTML → 8 分发
+   → 4 定价收费 →〔5 签约·硬门〕→ 6 评测 → 7 分发
                                         〔 〕= 付费分身专属
 ```
 
@@ -231,23 +231,13 @@ PAID 分身的创建路径二选一：
 >
 > 完整的「模型仿真测评 + 维度评分 + 优化建议」为后续版本能力（将走匿名访客链路，正是为了规避上述偏差）。用户明确要测评时，说明该能力正在建设中，先用网页访客预览兜底。
 
-### 阶段 7 · 交付 HTML
+### 阶段 7 · 分发
 
-为分身生成一个可交付的产品页（HTML），交给用户或其客户。页面由 skill 本地生成，取材：
-
-- 分身公开信息：`GET {BASE}/api/secondme/avatar/public/{shareCode}`（标题、封面、开场白、介绍）
-- 分享链接与二维码（见阶段 8）
-
-页面内容建议包含：分身名称与介绍、服务说明（来自产品定义）、开场白示例、访问二维码、分享链接、（付费分身）套餐与价格。产出一个自包含 HTML 文件交付。
-
-### 阶段 8 · 分发
-
-让分身触达访客。默认动作 + 按需提示：
+让分身触达访客。**默认动作：给分享链接 + 微信小程序花瓣码链接**；其余按需提示：
 
 1. **默认：给分享链接**——拼 `https://second-me.cn/{ownerRoute}/avatar/{shareCode}`，裸 URL 单独一行输出。访客打开即聊；付费分身的解锁付款也在这个页面自动发生。
-2. **微信小程序花瓣码（可程序化获取）**：`GET {BASE}/api/secondme/avatar/wxapp-qrcode?avatarId=` 直接返回花瓣码图片 URL（见 [获取小程序花瓣码](#获取小程序花瓣码)），可以给用户下载、也可以嵌进交付页。码图异步生成，新建分身若暂未就绪稍后重试。
+2. **微信小程序花瓣码（可程序化获取）**：`GET {BASE}/api/secondme/avatar/wxapp-qrcode?avatarId=` 直接返回花瓣码图片 URL（见 [获取小程序花瓣码](#获取小程序花瓣码)），可以给用户下载。码图异步生成，新建分身若暂未就绪稍后重试。
 3. **微信 Bot 海报（分享页保存）**：带分身头像的开聊海报只在分享页的「分享分身」弹窗里提供，提示用户打开分享链接、点分享按钮一键保存。skill 不要自行仿制。
-4. **交付 HTML 内嵌码**：仅当生成交付页（阶段 7）需要自包含访问码时，本地生成 H5 链接二维码（见 [二维码分发](#二维码分发)）；花瓣码 URL 也可直接嵌入。
 
 - **下载聊天记录（全量导出）**：走异步导出任务拿完整聊天记录 CSV——`POST {BASE}/api/secondme/avatar/conversations/export` 创建任务 → 轮询 `GET …/conversations/export/{jobId}` 至 `SUCCEEDED` → 用 `downloadUrl` 下载（带签名链接约 30 分钟有效）。下载后可直接替用户做分析（高频问题、访客画像等）。详见 [聊天记录导出](#导出聊天记录异步任务)。快速浏览用摘要接口 `GET …/avatar/{avatarId}/interactions`（会话级摘要）即可，不必每次都导出。
 - **数据分析**：用户想看「分身表现怎么样」时查数据看板 `GET {BASE}/api/secondme/avatar/dashboard?avatarId=`（独立访客 / 发消息人数 / 转化率 / 付费与收入汇总 + 按天趋势，默认最近 30 天），见 [数据分析看板](#数据分析看板)。
@@ -546,30 +536,10 @@ PAID 分身的创建路径二选一：
 
 告知用户这些页面需要登录（withAuth），用当前 SecondMe 账号打开即可。完成后回到对话继续后续阶段。
 
-### 交付 HTML 的取材
-
-生成产品页时，先取分身公开信息 `GET {BASE}/api/secondme/avatar/public/{shareCode}`（无需鉴权），拿到标题、封面、开场白、介绍，结合产品定义访谈内容和分享链接/二维码，产出一个自包含 HTML 文件。
-
 ### 二维码分发
 
 - **优先用官方码**：分享页「分享分身」弹窗内置微信 Bot 海报和微信小程序花瓣码（一键保存）。微信生态分发一律引导用户去分享页保存官方码——比本地生成的裸码更好看、且直达微信开聊 / 小程序。
-- **本地生成仅用于交付 HTML 内嵌**（自包含的 H5 链接访问码），推荐 `segno`（纯 Python、无系统依赖）：
-
-  ```bash
-  python3 -m pip install --quiet --user segno 2>/dev/null || pip3 install --quiet segno
-  python3 - <<'PY'
-  import segno
-  url = "https://second-me.cn/{ownerRoute}/avatar/{shareCode}"  # 替换为真实链接
-  qr = segno.make(url, error="m")
-  qr.save("avatar-qr.png", scale=10, border=2)   # 独立图片，可直接发给用户
-  print("data:image/png;base64 版本（内嵌交付 HTML 用）:")
-  print(qr.png_data_uri(scale=8)[:80] + "…")
-  PY
-  ```
-
-  - 独立交付：`avatar-qr.png` 直接给用户（打印、贴海报、发群）。
-  - 内嵌交付 HTML（阶段 7）：用 `qr.png_data_uri()` 生成 data URI 写进 `<img src>`，保持交付页自包含。
-  - 环境装不了 pip 包时的兜底：把分享链接原样给用户，并告知可用任意二维码工具（如草料）自行生成，不要跳过分发环节。
+- **不做本地二维码生成**：用户需要 H5 链接二维码时，把分享链接原样给他，并告知可用任意二维码工具（如草料）自行生成，不要跳过分发环节。
 - 不调用后端 qrlink 接口：`/api/qrlink/create-bind` 受 `qrlink_bind_whitelist` 应用白名单保护且要求 OAuth2 app_id，普通用户 Auth Token 无权调用。
 
 ### 下载聊天记录
@@ -602,7 +572,7 @@ PAID 分身的创建路径二选一：
 1. 创建分身后**同时记住两个值**，本轮对话内后续操作直接用，不要反复查。
 2. 用户给的是分享链接或 shareCode（要聊天 / 看公开信息）→ 直接用；要做管理或数据操作 → 先 `public/{shareCode}` 换 `id`（顺便确认是不是本人的分身）。
 3. 用户给的是 avatarId（或从列表选的）→ 管理操作直接用；要聊天或生成分享物料 → 先 `detail` 换 `shareCode`。
-4. **对外产物（分享链接、交付页、二维码）里只出现 shareCode，绝不出现 avatarId**——avatarId 连续可枚举，露出去等于开放遍历。
+4. **对外产物（分享链接、二维码）里只出现 shareCode，绝不出现 avatarId**——avatarId 连续可枚举，露出去等于开放遍历。
 5. 他人分身只有 shareCode 一个入口（公开信息 + 聊天）；拿他人 avatarId 做不了任何事，属正常权限设计而非故障。
 
 ---
@@ -1215,7 +1185,7 @@ GET {BASE}/api/secondme/avatar/wxapp-qrcode?avatarId={avatarId}
 }
 ```
 
-说明：码图由后端异步生成，**新建分身可能暂未就绪**（返回空或报错时稍后重试）。图片可直接下载给用户或嵌入交付页。
+说明：码图由后端异步生成，**新建分身可能暂未就绪**（返回空或报错时稍后重试）。图片可直接下载给用户。
 
 ---
 
