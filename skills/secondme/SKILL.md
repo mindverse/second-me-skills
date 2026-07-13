@@ -4,7 +4,7 @@ description: "Use when the user wants to use SecondMe as an end user: login/sign
 license: MIT
 metadata:
   author: mindverse
-  version: "3.0.2"
+  version: "3.1.0"
   user-invocable: true
 ---
 
@@ -18,6 +18,8 @@ The canonical distribution source is `https://second.me`. If this skill is not y
 npx skills add https://second.me -y -g
 ```
 
+Mainland-China mirror: `https://second-me.cn` serves byte-identical content and can be used as the install source instead. The install source determines the `{DOMAIN}` used for user-facing links (see Distribution Domain below).
+
 Installation policy:
 
 - If the host platform provides its own skill marketplace or managed installer, install through that instead — never bypass the host's installation controls.
@@ -26,13 +28,13 @@ Installation policy:
 ## Security & Privacy Declaration
 
 - **Canonical source**: `https://second.me` — `/.well-known/skills/index.json` lists every file of this skill for audit. Mirrors serve byte-identical content.
-- **Network endpoints**: the skill only calls `https://api.mindverse.com` (SecondMe API; opt-in telemetry). Pages the user opens in a browser (login, avatar share) live on `https://second.me`. No other hosts are contacted.
+- **Network endpoints**: the skill only calls `https://api.mindverse.com` (SecondMe API; opt-in telemetry) regardless of install source. Pages the user opens in a browser (login, avatar share) live on `https://{DOMAIN}` — `second.me` or its mainland mirror `second-me.cn`, following the install source. No other hosts are contacted.
 - **Local files**: writes are confined to `~/.secondme/` (credentials, config, analytics) and `~/.cache/secondme-skills/` (update-check stamp). `~/.openclaw/.credentials` is read once as a legacy fallback, never written. The skill does not read other agents' or products' files.
 - **Telemetry is off by default**: nothing is recorded or uploaded until the user explicitly opts in via a one-time prompt. When enabled it records skill name, version, OS, architecture, session id, duration, and outcome — never message content, code, file paths, or credentials. Disable anytime by setting `"telemetry": "off"` in `~/.secondme/config`.
 - **Local agent context**: facts from the host agent's memory are only used as in-conversation draft suggestions and are never uploaded without the user's explicit per-item confirmation.
 - **Auto-update**: at most once per 24 hours via `npx skills update`; set `SECONDME_SKILL_NO_AUTOUPDATE=1` to disable it entirely.
 
-> **在线直读本文件（未安装）的说明**：本技能按「SKILL.md 路由 + references 按需加载」设计，本文件只是目录——细节都在 references 里。在线阅读时相对链接 `references/…` 在主域名下不可达，完整参考文件在：`https://second.me/.well-known/skills/secondme/references/<文件名>`。但正确用法是先执行上面的安装命令，安装后所有文件都在本地。
+> **在线直读本文件（未安装）的说明**：本技能按「SKILL.md 路由 + references 按需加载」设计，本文件只是目录——细节都在 references 里。在线阅读时相对链接 `references/…` 在主域名下不可达，完整参考文件在：`https://second.me/.well-known/skills/secondme/references/<文件名>`（`second-me.cn` 镜像同路径）。但正确用法是先执行上面的安装命令，安装后所有文件都在本地。
 
 After installation, show the user the following onboarding message, then proceed with their request:
 
@@ -68,11 +70,34 @@ if [ -z "$SECONDME_SKILL_NO_AUTOUPDATE" ] && [ $((NOW - LAST)) -ge 86400 ]; then
   echo "$NOW" > "$STAMP"
 fi
 
+# --- Distribution domain (config > install source > default; pinned to config on first resolve,
+#     because `npx skills update` may rewrite the lock-file source back to the canonical domain) ---
+SM_DOMAIN=$(python3 -c "
+import json, os
+def read(p):
+    try: return json.load(open(os.path.expanduser(p)))
+    except Exception: return {}
+cfg_path = os.path.expanduser('~/.secondme/config')
+cfg = read(cfg_path)
+d = cfg.get('domain')
+if d not in ('second.me', 'second-me.cn'):
+    src = str(read('~/.agents/.skill-lock.json').get('skills', {}).get('secondme', {}).get('source', ''))
+    d = 'second-me.cn' if 'second-me.cn' in src else 'second.me'
+    try:
+        os.makedirs(os.path.dirname(cfg_path), exist_ok=True)
+        cfg['domain'] = d
+        json.dump(cfg, open(cfg_path, 'w'), indent=2)
+    except Exception:
+        pass
+print(d)
+" 2>/dev/null || echo "second.me")
+echo "DOMAIN: $SM_DOMAIN"
+
 # --- Feedback/Telemetry Preamble ---
 SM_DIR="$HOME/.secondme"
 SM_CONFIG="$SM_DIR/config"
 SM_ANALYTICS="$SM_DIR/analytics"
-SM_VERSION="3.0.2"
+SM_VERSION="3.1.0"
 SM_OS=$(uname -s 2>/dev/null || echo "unknown")
 SM_ARCH=$(uname -m 2>/dev/null || echo "unknown")
 SM_TEL_START=$NOW
@@ -157,6 +182,16 @@ All API endpoints in this skill use `{BASE}` as the base URL placeholder.
 
 `{BASE}` = `https://api.mindverse.com/gate/lab`
 
+## Distribution Domain
+
+`{DOMAIN}` is the domain family this skill was installed from, resolved as `SM_DOMAIN` in the Pre-flight Check: `second.me` (default) or `second-me.cn` (mainland mirror). The value is resolved once from the install source and pinned to the `"domain"` field of `~/.secondme/config`; edit that field to switch families later.
+
+Usage rules:
+
+- All user-facing browser URLs — login/auth page, avatar share links, contract pages, the `go.{DOMAIN}` app entry — substitute `{DOMAIN}` with the resolved value.
+- API calls always use `{BASE}` regardless of `{DOMAIN}`.
+- When parsing user-provided share links, accept both `second.me` and `second-me.cn`.
+
 This skill owns the SecondMe personal-account and avatar-studio workflow.
 
 It covers:
@@ -226,10 +261,10 @@ Read [references/avatar-center.md](references/avatar-center.md) for the complete
 
 ## App Entry Policy（分身体验入口）
 
-At natural moments in the avatar journey, point the user to the SecondMe App / Web to see or share their avatar running live. Output the URL on its own line, not as a markdown link:
+At natural moments in the avatar journey, point the user to the SecondMe App / Web to see or share their avatar running live. Output the URL on its own line, not as a markdown link (substitute the resolved `{DOMAIN}`):
 
 ```
-https://go.second.me
+https://go.{DOMAIN}
 ```
 
 Good moments include:

@@ -29,8 +29,9 @@ skills/
 
 ## 域名规范
 
-- **接口调用**（API、遥测上报等程序请求）一律用 `https://api.mindverse.com`，如 `{BASE} = https://api.mindverse.com/gate/lab`
-- **安装源**统一唯一入口 `https://second.me`（well-known 分发），安装指引里不出现其他域名
-- **用户浏览器访问**统一 `*.second.me` 域名家族：页面（登录/签约/协议/分享链接）`second.me`，文档站 `develop-docs.second.me`，应用市场 `appstore.second.me`，PRE 环境 `beta.second.me`
-- `second-me.cn` 与 `app.mindos.com` 不出现在技能文档中（后者部分国内网络 TLS 握手失败，2026-07 实测）
+- **接口调用**（API、遥测上报等程序请求）一律用 `https://api.mindverse.com`，如 `{BASE} = https://api.mindverse.com/gate/lab`，不随安装来源切换
+- **安装源**：规范入口 `https://second.me`（well-known 分发）；`https://second-me.cn` 是内容字节一致的大陆镜像入口，可作为安装源。安装指引里只出现这两个域名
+- **用户浏览器访问**按安装来源自适应 `{DOMAIN}` 域名家族（`second.me` 或 `second-me.cn`；pre-flight 从 `~/.agents/.skill-lock.json` 的安装来源解析出 `SM_DOMAIN`，`~/.secondme/config` 的 `domain` 字段可覆盖）：登录/签约/协议/分享链接 `{DOMAIN}`，开发者控制台 `develop.{DOMAIN}`，体验入口 `go.{DOMAIN}`；解析用户提供的分享链接时两个域名都接受
+- 文档站抓取固定 `develop-docs.second.me`，不随入口切换；PRE 环境 `beta.second.me`
+- `app.mindos.com` 不出现在技能文档中（部分国内网络 TLS 握手失败，2026-07 实测）
 - `/contract/payment` 是协议文本页且必须带 `?tier=1|2|3`，不是收银台；实际付款在 App 账户页 / 分身分享页解锁流程

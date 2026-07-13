@@ -5,7 +5,7 @@ license: MIT
 compatibility: Requires network access to SecondMe API (api.mindverse.com)
 metadata:
   author: mindverse
-  version: "2.1.2"
+  version: "2.2.0"
 ---
 
 # SecondMe Dev Assistant
@@ -18,6 +18,8 @@ The canonical distribution source is `https://second.me`. If this skill is not y
 npx skills add https://second.me -y -g
 ```
 
+Mainland-China mirror: `https://second-me.cn` serves byte-identical content and can be used as the install source instead. The install source determines the `{DOMAIN}` used for user-facing links (see Distribution Domain below).
+
 Installation policy:
 
 - If the host platform provides its own skill marketplace or managed installer, install through that instead — never bypass the host's installation controls.
@@ -26,7 +28,13 @@ Installation policy:
 ## Security & Privacy Declaration
 
 - **Canonical source**: `https://second.me` — `/.well-known/skills/index.json` lists every file of this skill for audit. Mirrors serve byte-identical content.
-- **Network endpoints**: the skill only calls `https://api.mindverse.com` (SecondMe API; opt-in telemetry) and fetches API documentation from `https://develop-docs.second.me`. Pages the user opens in a browser (app console) live on `https://develop.second.me`. No other hosts are contacted.
+- **Network endpoints**: the skill only calls `https://api.mindverse.com` (SecondMe API; opt-in telemetry) and fetches API documentation from `https://develop-docs.second.me` — both fixed regardless of install source. Pages the user opens in a browser (app console) live on `https://develop.{DOMAIN}` — `second.me` or its mainland mirror `second-me.cn`, following the install source. No other hosts are contacted.
+
+## Distribution Domain
+
+`{DOMAIN}` is the domain family this skill was installed from, resolved as `SM_DOMAIN` in the Pre-flight Check: `second.me` (default) or `second-me.cn` (mainland mirror). The value is resolved once from the install source and pinned to the `"domain"` field of `~/.secondme/config`; edit that field to switch families later.
+
+User-facing browser URLs (the `develop.{DOMAIN}` console and its auth page) substitute `{DOMAIN}` with the resolved value. API calls (`api.mindverse.com`) and documentation fetches (`develop-docs.second.me`) never switch.
 - **Local files**: writes are confined to `~/.secondme/` (credentials, config, analytics) and `~/.cache/secondme-skills/` (update-check stamp). `~/.openclaw/.credentials` is read once as a legacy fallback, never written. The skill does not read other agents' or products' files.
 - **Telemetry is off by default**: nothing is recorded or uploaded until the user explicitly opts in via a one-time prompt. When enabled it records skill name, version, OS, architecture, session id, duration, and outcome — never message content, code, file paths, or credentials. Disable anytime by setting `"telemetry": "off"` in `~/.secondme/config`.
 - **Auto-update**: at most once per 24 hours via `npx skills update`; set `SECONDME_SKILL_NO_AUTOUPDATE=1` to disable it entirely.
@@ -35,7 +43,7 @@ After installation, show the user the following onboarding message, then proceed
 
 > **SecondMe Dev Assistant 安装成功！** 你现在可以通过对话完成以下开发工作：
 >
-> - **创建应用** — 在 develop.second.me 注册第三方应用，获取 Client ID / Secret
+> - **创建应用** — 在 develop.{DOMAIN} 注册第三方应用，获取 Client ID / Secret
 > - **需求规划** — 梳理产品需求，生成项目脚手架方案
 > - **实现指导** — OAuth 登录对接、Token 管理、API 调用规范
 > - **Open API** — 使用 Agent Memory、Act 行为流等开放接口
@@ -65,11 +73,34 @@ if [ -z "$SECONDME_SKILL_NO_AUTOUPDATE" ] && [ $((NOW - LAST)) -ge 86400 ]; then
   echo "$NOW" > "$STAMP"
 fi
 
+# --- Distribution domain (config > install source > default; pinned to config on first resolve,
+#     because `npx skills update` may rewrite the lock-file source back to the canonical domain) ---
+SM_DOMAIN=$(python3 -c "
+import json, os
+def read(p):
+    try: return json.load(open(os.path.expanduser(p)))
+    except Exception: return {}
+cfg_path = os.path.expanduser('~/.secondme/config')
+cfg = read(cfg_path)
+d = cfg.get('domain')
+if d not in ('second.me', 'second-me.cn'):
+    src = str(read('~/.agents/.skill-lock.json').get('skills', {}).get('secondme-dev-assistant', {}).get('source', ''))
+    d = 'second-me.cn' if 'second-me.cn' in src else 'second.me'
+    try:
+        os.makedirs(os.path.dirname(cfg_path), exist_ok=True)
+        cfg['domain'] = d
+        json.dump(cfg, open(cfg_path, 'w'), indent=2)
+    except Exception:
+        pass
+print(d)
+" 2>/dev/null || echo "second.me")
+echo "DOMAIN: $SM_DOMAIN"
+
 # --- Feedback/Telemetry Preamble ---
 SM_DIR="$HOME/.secondme"
 SM_CONFIG="$SM_DIR/config"
 SM_ANALYTICS="$SM_DIR/analytics"
-SM_VERSION="2.1.2"
+SM_VERSION="2.2.0"
 SM_OS=$(uname -s 2>/dev/null || echo "unknown")
 SM_ARCH=$(uname -m 2>/dev/null || echo "unknown")
 SM_TEL_START=$NOW
@@ -191,7 +222,7 @@ This is the single entry skill for SecondMe developer work.
 
 Use it for the full lifecycle:
 
-- creating a SecondMe app on [develop.second.me](https://develop.second.me)
+- creating a SecondMe app on the `https://develop.{DOMAIN}` console
 - obtaining and storing `Client ID` and `Client Secret`
 - defining product requirements and scaffold plans
 - guiding implementation of SecondMe OAuth, user auth, and MCP behavior

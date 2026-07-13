@@ -58,9 +58,9 @@ Store `CODE_VERIFIER` in a local variable — it will be needed later for token 
 Tell the user to open the auth page in a browser. Append `?challenge=<CODE_CHALLENGE>` to the URL.
 Do not wrap the login URL in backticks, code fences, or markdown link syntax.
 
-Output only the raw URL on its own line:
+Output only the raw URL on its own line, substituting `{DOMAIN}` with the pre-flight `SM_DOMAIN` (`second.me` or `second-me.cn`, see SKILL.md → Distribution Domain):
 
-https://second.me/auth/skills?challenge=<CODE_CHALLENGE>
+https://{DOMAIN}/auth/skills?challenge=<CODE_CHALLENGE>
 
 Tell the user:
 
