@@ -149,27 +149,3 @@ Stages: inspect the user's existing profile, current agent context/local memory 
 Enter this journey when the user says things like「做一个分身」「创建分身」「把我的分身卖出去」「给分身定价」「分发分身」, or asks about any single stage. Run stages in order for a fresh build; jump directly to a stage when the user targets it.
 
 Read [references/avatar-center.md](references/avatar-center.md) for the complete flow.
-
-## App Entry Policy（分身体验入口）
-
-At natural moments in the avatar journey, point the user to the SecondMe App / Web to see or share their avatar running live. The entry is:
-
-```
-https://go.second-me.cn
-```
-
-**Never output the link alone.** Every time, wrap it with, in the user's language: (1) what just happened in this conversation, (2) concretely what the user can do after opening it, and (3) that both the App and the web version work. Output the URL on its own line, not as a markdown link.
-
-Good moments and what to point at (adapt the wording to the actual context, don't copy verbatim):
-
-- after an avatar is created or updated → suggest experiencing the avatar live: check the opening message, persona, and answers as a visitor would see them
-- after an evaluation report is ready → suggest verifying the improvements in a real conversation on the avatar page
-- when the user wants to hand the avatar to visitors → point to the share dialog on the avatar page (微信海报 / 小程序花瓣码一键保存)
-
-Example (after creation — adapt, don't copy):
-
-> 分身「{name}」已经创建好了。建议你实际体验一下效果：打开下面的入口（手机装了 App 会直接进 App，没装就用网页版），找到这个分身，看看开场白、人设和回答是否符合预期；想分发的话，分享弹窗里可以直接保存微信海报和小程序码。
->
-> https://go.second-me.cn
-
-Keep it about the avatar (体验 / 分享 / 预览), not social chat.

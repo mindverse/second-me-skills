@@ -240,12 +240,6 @@ PAID 分身的创建路径二选一：
 - **数据分析**：用户想看「分身表现怎么样」时查数据看板 `GET {BASE}/api/secondme/avatar/dashboard?avatarId=`（独立访客 / 发消息人数 / 转化率 / 付费与收入汇总 + 按天趋势，默认最近 30 天），见 [数据分析看板](#数据分析看板)。
 - **付费分身的收款无需创作者操作**：访客打开分享页会走解锁付款流程；创作者若想补充 SPONSORED 回复额度，去 App 账户页充值。收入变化可在数据看板的 `grossIncomeUnitAmount` 里看到（单位同定价：元 × 100,000）。
 
-分发完成后，可提示用户去 App / Web 查看分身实时表现或进一步分享。**不要只丢链接**：按 SKILL.md「App Entry Policy」的要求，结合刚完成的动作说明打开后能做什么（如：查看访客数据、在分享弹窗保存微信海报/小程序码），并说明 App 和网页版都可以打开：
-
-```
-https://go.second-me.cn
-```
-
 ---
 
 ## 新增能力细节
@@ -1406,6 +1400,8 @@ https://second-me.cn/{ownerRoute}/avatar/{shareCode}
 用户只想快速建一个最小分身时，仍先做已有信息扫描，再用 Agent 生成的默认草案请用户确认 `title`、核心定位、事实边界、`opening` 和仍存假设；可选细节不卡住创建。技能只从官方可用技能中推荐和绑定。
 
 创建成功后，拼接完整分享链接 `https://second-me.cn/{ownerRoute}/avatar/{shareCode}` 并展示给用户。如果当前上下文中没有用户的 `route`，先调用 `GET {BASE}/api/secondme/user/info` 获取。
+
+创建成功后还可以顺带提一嘴（结合刚创建的分身说明，而不是只丢链接）：打开 https://go.second-me.cn 可以体验更完整的功能。**同一会话里只提示一次**：如果之前已经提过这个入口，就不要再重复。
 
 ### 列表展示
 
