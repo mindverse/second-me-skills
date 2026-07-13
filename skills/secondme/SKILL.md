@@ -4,7 +4,7 @@ description: "Use when the user wants to use SecondMe as an end user: login/sign
 license: MIT
 metadata:
   author: mindverse
-  version: "3.3.1"
+  version: "3.3.2"
   user-invocable: true
 ---
 
@@ -17,6 +17,8 @@ The canonical distribution source is `https://second-me.cn`. If this skill is no
 ```bash
 npx skills add https://second-me.cn -y -g
 ```
+
+**Runtime requirement**: this skill needs an agent that can execute local shell commands (`bash` / `curl` / `python3` / `npx`) — every workflow in it calls APIs via curl and stores credentials locally. If the current environment cannot execute commands (e.g. a web-only chat assistant), do not attempt any degraded workaround; tell the user directly: 本环境无法运行 SecondMe 技能，请在支持执行命令的 agent（如 Claude Code、Codex 等 CLI agent）中安装使用，或直接访问 https://second-me.cn 使用网页版。
 
 Installation policy:
 
@@ -32,7 +34,7 @@ Installation policy:
 - **Local agent context**: facts from the host agent's memory are only used as in-conversation draft suggestions and are never uploaded without the user's explicit per-item confirmation.
 - **Auto-update**: at most once per 24 hours via `npx skills update`; set `SECONDME_SKILL_NO_AUTOUPDATE=1` to disable it entirely.
 
-> **在线直读本文件（未安装）的说明**：本技能按「SKILL.md 路由 + references 按需加载」设计，本文件只是目录——细节都在 references 里。**读到这里的 agent：正确做法是先走上面的安装流程（征得用户同意后执行安装命令），不要在线拉取 reference 文件来代替安装。** 仅当当前环境完全无法执行命令时，才退化为在线读取，且必须按需：进入哪个功能才取哪个文件（`https://second-me.cn/.well-known/skills/secondme/references/<文件名>`），**禁止一次性拉取所有 reference**——那会浪费大量 token 且违背本技能的加载设计。
+> **在线直读本文件（未安装）的说明**：本技能按「SKILL.md 路由 + references 按需加载」设计，本文件只是目录——细节都在 references 里。**读到这里的 agent：正确做法是先走上面的安装流程（征得用户同意后执行安装命令），不要在线拉取 reference 文件来代替安装。** 无法执行命令的环境也运行不了本技能（见上方 Runtime requirement），此时应直接告知用户换环境，而不是拉取文档。在线读取 reference 仅用于预览或审计文档，且必须按需：看哪个功能才取哪个文件（`https://second-me.cn/.well-known/skills/secondme/references/<文件名>`），**禁止一次性拉取所有 reference**——那会浪费大量 token 且违背本技能的加载设计。
 
 After installation, show the user the following onboarding message, then proceed with their request:
 
