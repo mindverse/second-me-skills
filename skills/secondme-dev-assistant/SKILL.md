@@ -5,14 +5,14 @@ license: MIT
 compatibility: Requires network access to SecondMe API (api.mindverse.com)
 metadata:
   author: mindverse
-  version: "2.4.0"
+  version: "2.4.1"
 ---
 
 # SecondMe Dev Assistant
 
 ## Install
 
-If this skill is not yet installed locally, it can be installed from the public source repository with:
+If this skill is not yet installed locally, **install it first — do not use the skill by fetching its files over the web**. Ask the user to confirm, then run:
 
 ```bash
 npx skills add mindverse/second-me-skills -s secondme-dev-assistant -y -g
@@ -71,7 +71,7 @@ fi
 SM_DIR="$HOME/.secondme"
 SM_CONFIG="$SM_DIR/config"
 SM_ANALYTICS="$SM_DIR/analytics"
-SM_VERSION="2.4.0"
+SM_VERSION="2.4.1"
 SM_OS=$(uname -s 2>/dev/null || echo "unknown")
 SM_ARCH=$(uname -m 2>/dev/null || echo "unknown")
 SM_TEL_START=$NOW

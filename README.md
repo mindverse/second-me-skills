@@ -38,7 +38,7 @@ SecondMe Skills 是一套技能包，当前主要覆盖两条使用路径：
 npx skills add https://second-me.cn -y -g
 
 # 或告诉你的 Agent：
-# "根据 https://second-me.cn/skill.md 安装技能，并一步步引导我完成 Second Me 的创建和 Onboarding"
+# "打开 https://second-me.cn/skill.md，先按其中 Install 章节的 npx 命令安装技能（不要在线逐个拉取文件），然后一步步引导我完成 Second Me 的创建和 Onboarding"
 ```
 
 ### 开发者用法
