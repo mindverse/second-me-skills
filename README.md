@@ -97,7 +97,7 @@ secondme-skills/
 │   │   └── references/
 │   │       ├── connect.md
 │   │       ├── profile.md
-│   │       ├── avatar-center.md
+│   │       ├── avatar.md
 │   │       ├── chat.md
 │   │       ├── key-memory.md
 │   │       └── note.md

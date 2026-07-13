@@ -168,4 +168,4 @@ fi
 
 当用户说「做一个分身」「创建分身」「把我的分身卖出去」「给分身定价」「分发分身」，或者询问其中任一阶段时，进入该流程。全新创建时按阶段顺序执行；用户明确指定某个阶段时，直接跳到该阶段。
 
-完整流程见 [references/avatar-center.md](references/avatar-center.md)。
+完整流程见 [references/avatar.md](references/avatar.md)。
