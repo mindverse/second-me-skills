@@ -1,6 +1,6 @@
 # Avatar Studio（分身工场）
 
-帮用户把 SecondMe 分身做成一个**可交付、可售卖、可分发的服务产品**。这不是一次性表单，而是一条端到端旅程：先查用户和 Agent 已经知道的信息，再逐轮补齐关键缺口 → 素材收集 → 建分身 → 定价收费 → 签约（付费必须）→ 评测 → 分发。本文件同时收录分身 CRUD、**官方技能**、API Key、交互记录等底层 API。当前版本不向用户透出、创建、查询或绑定自定义技能。
+帮用户把 SecondMe 分身做成一个**可交付、可售卖、可分发的服务产品**。这不是一次性表单，而是一条端到端旅程：先查用户和 Agent 已经知道的信息，再逐轮补齐关键缺口 → 素材收集 → 建分身 → 定价收费 → 签约（付费必须）→ 评测 → 分发。本文件同时收录分身 CRUD、**官方技能**、交互记录等底层 API。当前版本不向用户透出、创建、查询或绑定自定义技能。
 
 ## Table of Contents
 
@@ -20,7 +20,6 @@
   - [获取分身公开信息](#获取分身公开信息)
   - [获取交互记录](#获取交互记录)
   - [数据分析看板](#数据分析看板) / [导出聊天记录](#导出聊天记录异步任务) / [小程序花瓣码](#获取小程序花瓣码)
-  - [创建 API Key](#创建-api-key) / [列表](#获取-api-key-列表) / [更新](#更新-api-key) / [删除](#删除-api-key)
 - [Share Link](#share-link)
 - [Workflow Guidelines](#workflow-guidelines)
 
@@ -566,7 +565,7 @@ PAID 分身的创建路径二选一：
 | | `avatarId`（整数） | `shareCode`（随机串，如 `1cf5e7728beb`） |
 |---|---|---|
 | 本质 | 内部主键，连续递增、可枚举 | 公开分享句柄，不可枚举 |
-| 用于 | **管理面**：detail / update / delete / set-default / interactions / api-key / dashboard / 聊天记录导出 / wxapp-qrcode | **公开面**：public 公开信息、ws-chat/send 聊天、分享链接 `…/{route}/avatar/{shareCode}` |
+| 用于 | **管理面**：detail / update / delete / set-default / interactions / dashboard / 聊天记录导出 / wxapp-qrcode | **公开面**：public 公开信息、ws-chat/send 聊天、分享链接 `…/{route}/avatar/{shareCode}` |
 
 **双向转换**：
 
@@ -1232,162 +1231,6 @@ GET {BASE}/api/secondme/avatar/wxapp-qrcode?avatarId={avatarId}
 
 ---
 
-### 创建 API Key
-
-为指定分身创建 API Key。用于开放 API 分发，允许第三方通过 API Key 与分身对话。
-
-```
-POST {BASE}/api/secondme/avatar/api-key/create
-```
-
-#### 请求参数
-
-| 参数 | 类型 | 必需 | 说明 |
-|------|------|------|------|
-| avatarId | integer | 是 | 分身 ID |
-| name | string | 是 | 密钥备注名（最长 100 字符） |
-
-#### 请求示例
-
-```bash
-curl -X POST "{BASE}/api/secondme/avatar/api-key/create" \
-  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{ "avatarId": 2, "name": "接入官网" }'
-```
-
-#### 响应
-
-**成功 (200)**
-
-```json
-{
-  "code": 0,
-  "data": {
-    "keyId": 1,
-    "avatarId": 2,
-    "name": "接入官网",
-    "secretKey": "sk-e5443b6842d54208bc2c9a0bc2b65376",
-    "enabled": true
-  }
-}
-```
-
-> **Important**: `secretKey` 仅在创建时返回明文，之后不再展示。请提醒用户妥善保存。
-
----
-
-### 获取 API Key 列表
-
-获取指定分身的所有 API Key。
-
-```
-GET {BASE}/api/secondme/avatar/api-key/list
-```
-
-#### 查询参数
-
-| 参数 | 类型 | 必需 | 说明 |
-|------|------|------|------|
-| avatarId | integer | 是 | 分身 ID |
-
-#### 请求示例
-
-```bash
-curl -X GET "{BASE}/api/secondme/avatar/api-key/list?avatarId=2" \
-  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
-```
-
-#### 响应
-
-**成功 (200)**
-
-```json
-{
-  "code": 0,
-  "data": {
-    "list": [
-      {
-        "keyId": 1,
-        "avatarId": 2,
-        "name": "接入官网",
-        "enabled": true
-      }
-    ]
-  }
-}
-```
-
----
-
-### 更新 API Key
-
-更新 API Key 的名称或启停状态。
-
-```
-POST {BASE}/api/secondme/avatar/api-key/update
-```
-
-#### 请求参数
-
-| 参数 | 类型 | 必需 | 说明 |
-|------|------|------|------|
-| keyId | integer | 是 | 密钥 ID |
-| name | string | 否 | 新的备注名 |
-| enabled | boolean | 否 | 是否启用 |
-
-#### 请求示例
-
-```bash
-curl -X POST "{BASE}/api/secondme/avatar/api-key/update" \
-  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{ "keyId": 1, "enabled": false }'
-```
-
-#### 响应
-
-**成功 (200)**
-
-```json
-{ "code": 0, "data": null }
-```
-
----
-
-### 删除 API Key
-
-永久删除指定的 API Key。
-
-```
-POST {BASE}/api/secondme/avatar/api-key/delete
-```
-
-#### 请求参数
-
-| 参数 | 类型 | 必需 | 说明 |
-|------|------|------|------|
-| keyId | integer | 是 | 密钥 ID |
-
-#### 请求示例
-
-```bash
-curl -X POST "{BASE}/api/secondme/avatar/api-key/delete" \
-  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{ "keyId": 1 }'
-```
-
-#### 响应
-
-**成功 (200)**
-
-```json
-{ "code": 0, "data": null }
-```
-
----
-
 ## Error Codes
 
 | 错误码 | 说明 |
@@ -1398,7 +1241,6 @@ curl -X POST "{BASE}/api/secondme/avatar/api-key/delete" \
 | avatar.create.failed | 创建分身失败 |
 | avatar.update.failed | 更新分身失败 |
 | avatar.delete.failed | 删除分身失败 |
-| avatar.apikey.failed | API Key 操作失败 |
 | avatar.contract.status_failed | 签约状态查询失败；不要推断为已签约 |
 
 ---
@@ -1436,12 +1278,6 @@ https://second-me.cn/{ownerRoute}/avatar/{shareCode}
 - `type: "custom"` 是自定义分身，可以编辑和删除
 - 每个分身都应展示完整分享链接 `https://second-me.cn/{ownerRoute}/avatar/{shareCode}`
 
-### API Key 管理
-
-- 创建后 **立即** 展示 `secretKey` 并提醒用户保存（仅展示一次）
-- 发现用量异常时可以 disable 单个 Key，不影响其他 Key
-- 删除 API Key 前需要用户确认
-
 ### 删除确认
 
-删除分身或 API Key 前，展示即将删除的对象信息并要求用户明确确认。
+删除分身前，展示即将删除的对象信息并要求用户明确确认。
