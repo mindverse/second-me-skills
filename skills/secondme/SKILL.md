@@ -34,8 +34,6 @@ Installation policy:
 - **Local agent context**: facts from the host agent's memory are only used as in-conversation draft suggestions and are never uploaded without the user's explicit per-item confirmation.
 - **Auto-update**: at most once per 24 hours via `npx skills update`; set `SECONDME_SKILL_NO_AUTOUPDATE=1` to disable it entirely.
 
-> **在线直读本文件（未安装）的说明**：本技能按「SKILL.md 路由 + references 按需加载」设计，本文件只是目录——细节都在 references 里。**读到这里的 agent：正确做法是先走上面的安装流程（征得用户同意后执行安装命令），不要在线拉取 reference 文件来代替安装。** 无法执行命令的环境也运行不了本技能（见上方 Runtime requirement），此时应直接告知用户换环境，而不是拉取文档。在线读取 reference 仅用于预览或审计文档，且必须按需：看哪个功能才取哪个文件（`https://second-me.cn/.well-known/skills/secondme/references/<文件名>`），**禁止一次性拉取所有 reference**——那会浪费大量 token 且违背本技能的加载设计。
-
 After installation, show the user the following onboarding message, then proceed with their request:
 
 > **SecondMe skill 安装成功！** 你现在可以通过对话完成以下操作：
