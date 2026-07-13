@@ -4,7 +4,7 @@ description: "Use when the user wants to use SecondMe as an end user: login/sign
 license: MIT
 metadata:
   author: mindverse
-  version: "3.3.2"
+  version: "3.3.3"
   user-invocable: true
 ---
 
