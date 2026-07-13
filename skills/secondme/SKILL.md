@@ -4,7 +4,7 @@ description: "Use when the user wants to use SecondMe as an end user: login/sign
 license: MIT
 metadata:
   author: mindverse
-  version: "3.3.3"
+  version: "3.3.4"
   user-invocable: true
 ---
 
@@ -136,7 +136,7 @@ Read [references/note.md](references/note.md) for the complete flow.
 
 ## Chat
 
-Two chat targets: (1) the user's own SecondMe — the default, via streaming chat with session list and message history, supporting multi-modal images and web search; (2) someone's avatar — resolved from an avatar share link or shareCode, with server-side session find-or-create and synchronous replies. Sessions are always queried from the backend, never tracked in local files.
+One chat endpoint with two target semantics: the user's Personal Agent is the default for「我的 SecondMe」「我的主分身」「我的 Agent」and omits `shareCode`; another specified avatar uses its shareCode. Never query session lists or send, store, or manage `sessionId`.
 
 Read [references/chat.md](references/chat.md) for the complete flow.
 
