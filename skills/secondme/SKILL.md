@@ -4,7 +4,7 @@ description: "Use when the user wants to use SecondMe as an end user: login/sign
 license: MIT
 metadata:
   author: mindverse
-  version: "3.3.2"
+  version: "3.3.3"
   user-invocable: true
 ---
 
@@ -149,19 +149,3 @@ Stages: inspect the user's existing profile, current agent context/local memory 
 Enter this journey when the user says things like「做一个分身」「创建分身」「把我的分身卖出去」「给分身定价」「分发分身」, or asks about any single stage. Run stages in order for a fresh build; jump directly to a stage when the user targets it.
 
 Read [references/avatar-center.md](references/avatar-center.md) for the complete flow.
-
-## App Entry Policy（分身体验入口）
-
-At natural moments in the avatar journey, point the user to the SecondMe App / Web to see or share their avatar running live. Output the URL on its own line, not as a markdown link:
-
-```
-https://go.second-me.cn
-```
-
-Good moments include:
-
-- after an avatar is created or updated
-- after an evaluation report is ready
-- when the user wants to preview the live avatar experience or hand the avatar to visitors
-
-Keep it about the avatar (体验 / 分享 / 预览), not social chat.
