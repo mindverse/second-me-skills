@@ -4,7 +4,7 @@ description: "Use when the user wants to use SecondMe as an end user: login/sign
 license: MIT
 metadata:
   author: mindverse
-  version: "3.2.0"
+  version: "3.3.0"
   user-invocable: true
 ---
 
@@ -26,9 +26,9 @@ Installation policy:
 ## Security & Privacy Declaration
 
 - **Canonical source**: `https://second-me.cn` — `/.well-known/skills/index.json` lists every file of this skill for audit.
-- **Network endpoints**: the skill only calls `https://api.mindverse.com` (SecondMe API; opt-in telemetry). Pages the user opens in a browser (login, avatar share) live on `https://second-me.cn`. No other hosts are contacted.
-- **Local files**: writes are confined to `~/.secondme/` (credentials, config, analytics) and `~/.cache/secondme-skills/` (update-check stamp). `~/.openclaw/.credentials` is read once as a legacy fallback, never written. The skill does not read other agents' or products' files.
-- **Telemetry is off by default**: nothing is recorded or uploaded until the user explicitly opts in via a one-time prompt. When enabled it records skill name, version, OS, architecture, session id, duration, and outcome — never message content, code, file paths, or credentials. Disable anytime by setting `"telemetry": "off"` in `~/.secondme/config`.
+- **Network endpoints**: the skill only calls `https://api.mindverse.com` (SecondMe API). Pages the user opens in a browser (login, avatar share) live on `https://second-me.cn`. No other hosts are contacted.
+- **Local files**: writes are confined to `~/.secondme/` (credentials, config) and `~/.cache/secondme-skills/` (update-check stamp). `~/.openclaw/.credentials` is read once as a legacy fallback, never written. The skill does not read other agents' or products' files.
+- **No telemetry**: this skill does not record or upload any usage data.
 - **Local agent context**: facts from the host agent's memory are only used as in-conversation draft suggestions and are never uploaded without the user's explicit per-item confirmation.
 - **Auto-update**: at most once per 24 hours via `npx skills update`; set `SECONDME_SKILL_NO_AUTOUPDATE=1` to disable it entirely.
 
@@ -67,62 +67,6 @@ if [ -z "$SECONDME_SKILL_NO_AUTOUPDATE" ] && [ $((NOW - LAST)) -ge 86400 ]; then
   npx skills update secondme -y 2>&1 || true
   echo "$NOW" > "$STAMP"
 fi
-
-# --- Feedback/Telemetry Preamble ---
-SM_DIR="$HOME/.secondme"
-SM_CONFIG="$SM_DIR/config"
-SM_ANALYTICS="$SM_DIR/analytics"
-SM_VERSION="3.2.0"
-SM_OS=$(uname -s 2>/dev/null || echo "unknown")
-SM_ARCH=$(uname -m 2>/dev/null || echo "unknown")
-SM_TEL_START=$NOW
-SM_SESSION_ID="$$-$NOW"
-
-SM_TEL="off"
-if [ -f "$SM_CONFIG" ]; then
-  SM_TEL=$(python3 -c "
-import json
-try: d=json.load(open('$SM_CONFIG')); print(d.get('telemetry','off'))
-except: print('off')
-" 2>/dev/null || echo "off")
-fi
-
-SM_TEL_PROMPTED="no"
-[ -f "$SM_DIR/.feedback-prompted" ] && SM_TEL_PROMPTED="yes"
-
-echo "TELEMETRY: $SM_TEL"
-echo "TEL_PROMPTED: $SM_TEL_PROMPTED"
-
-# Log usage event (if telemetry not off)
-if [ "$SM_TEL" != "off" ]; then
-  mkdir -p "$SM_ANALYTICS"
-  SM_DEVICE_ID=""
-  [ "$SM_TEL" = "community" ] && [ -f "$SM_DIR/.device-id" ] && SM_DEVICE_ID=$(cat "$SM_DIR/.device-id" 2>/dev/null)
-  python3 -c "
-import json
-e={'skill':'secondme','ts':'$(date -u +%Y-%m-%dT%H:%M:%SZ)','session':'$SM_SESSION_ID','version':'$SM_VERSION','os':'$SM_OS','arch':'$SM_ARCH'}
-d='$SM_DEVICE_ID'
-if d: e['device_id']=d
-print(json.dumps(e))
-" >> "$SM_ANALYTICS/usage.jsonl" 2>/dev/null || true
-fi
-
-# --- Pending telemetry sync check ---
-SM_HAS_PENDING_SYNC="no"
-if [ "$SM_TEL" != "off" ] && [ -f "$SM_DIR/credentials" ]; then
-  for _f in "$SM_ANALYTICS/usage.jsonl" "$SM_ANALYTICS/feedback.jsonl"; do
-    if [ -f "$_f" ]; then
-      _FSIZE=$(wc -c < "$_f" 2>/dev/null || echo 0)
-      _SYNCED=$(python3 -c "
-import json
-try: print(json.load(open('$SM_ANALYTICS/.sync-offsets')).get('$(basename $_f | sed s/.jsonl//)_bytes',0))
-except: print(0)
-" 2>/dev/null || echo 0)
-      [ "$_FSIZE" -gt "$_SYNCED" ] 2>/dev/null && SM_HAS_PENDING_SYNC="yes"
-    fi
-  done
-fi
-echo "HAS_PENDING_SYNC: $SM_HAS_PENDING_SYNC"
 ```
 
 Rules:
@@ -130,24 +74,6 @@ Rules:
 - If the update finds changes, briefly inform the user that the skill was updated
 - If nothing changed or the check is throttled, proceed silently — do not mention the check to the user
 - Never let the update check block or delay the user's actual request
-
----
-
-## Feedback Preference
-
-If `TEL_PROMPTED` is `no`, read and follow the feedback prompt flow before continuing:
-
-Read [references/feedback-prompt.md](references/feedback-prompt.md)
-
-If `TEL_PROMPTED` is `yes`, skip this section entirely and proceed with the user's request.
-
----
-
-## Pending Telemetry Sync
-
-If `HAS_PENDING_SYNC` is `yes` from the pre-flight check, execute the background catchup sync to upload pending local analytics data. This must not block or delay the user's request.
-
-Read [references/telemetry-sync.md](references/telemetry-sync.md) — execute the "Background Catchup" section.
 
 ---
 
@@ -239,69 +165,3 @@ Good moments include:
 - when the user wants to preview the live avatar experience or hand the avatar to visitors
 
 Keep it about the avatar (体验 / 分享 / 预览), not social chat.
-
-## Post-Session Feedback (run before telemetry)
-
-After the skill workflow completes and before logging the session telemetry, run the feedback flow.
-
-This section is **required** — do not skip it even if the conversation seems finished.
-
-- **Always** captures session context (user intent, actions, phases used) silently.
-- **Only asks the user for feedback** when the outcome is `error` or `abort`. Successful sessions are recorded without interrupting the user.
-
-Read [references/session-feedback.md](references/session-feedback.md) for the complete flow.
-
----
-
-## Session Telemetry (run last)
-
-After the feedback flow completes, log a completion event if telemetry is not off.
-
-Determine the outcome and error fields according to the Completion Status protocol above. Reuse the `user_intent` and `phases_used` values captured during the feedback flow.
-
-```bash
-SM_DIR="$HOME/.secondme"
-SM_ANALYTICS="$SM_DIR/analytics"
-if [ "${SM_TEL:-off}" != "off" ]; then
-  SM_TEL_END=$(date +%s)
-  SM_TEL_DUR=$(( SM_TEL_END - ${SM_TEL_START:-$SM_TEL_END} ))
-  SM_DEVICE_ID=""
-  [ "$SM_TEL" = "community" ] && [ -f "$SM_DIR/.device-id" ] && SM_DEVICE_ID=$(cat "$SM_DIR/.device-id" 2>/dev/null)
-  python3 -c "
-import json
-e={
-  'skill':'secondme',
-  'ts':'$(date -u +%Y-%m-%dT%H:%M:%SZ)',
-  'event':'completion',
-  'session':'${SM_SESSION_ID:-unknown}',
-  'version':'${SM_VERSION:-unknown}',
-  'os':'${SM_OS:-unknown}',
-  'arch':'${SM_ARCH:-unknown}',
-  'duration_s':${SM_TEL_DUR:-0},
-  'outcome':'OUTCOME',
-  'error_class':ERROR_CLASS,
-  'error_message':ERROR_MESSAGE,
-  'user_intent':USER_INTENT,
-  'phases_used':PHASES_USED
-}
-d='$SM_DEVICE_ID'
-if d: e['device_id']=d
-print(json.dumps(e,ensure_ascii=False))
-" >> "$SM_ANALYTICS/usage.jsonl" 2>/dev/null || true
-fi
-```
-
-Replace the placeholders:
-- `OUTCOME`: `success`, `error`, or `abort` (use `unknown` if unclear)
-- `ERROR_CLASS`: `None` if success, otherwise one of `'auth_failure'`, `'api_error'`, `'network'`, `'validation'`, `'permission'`, `'unknown'`
-- `ERROR_MESSAGE`: `None` if success, otherwise a string with the first 200 chars of the error (e.g., `'Token expired at ...'`)
-- `USER_INTENT`: Python string from the feedback flow's session context (e.g., `'创建一个售后答疑分身'`), or `None` if not captured
-- `PHASES_USED`: Python list from the feedback flow (e.g., `['connect', 'avatar_studio']`), or `[]` if not captured
-
----
-
-## Telemetry Sync (run after session telemetry)
-
-After session telemetry is logged, attempt to sync all pending local analytics data (both usage and feedback) to the SecondMe backend. This runs in the foreground since the user's workflow is already complete.
-
-Read [references/telemetry-sync.md](references/telemetry-sync.md) — execute the "Post-Session Sync" section.

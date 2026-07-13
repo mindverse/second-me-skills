@@ -235,14 +235,20 @@ def build_uploads() -> tuple[list[Upload], list[str]]:
     dev_skill = ROOT / "skills" / "secondme-dev-assistant"
     uploads: list[Upload] = []
 
+    # the dev skill ships only via develop-well-known (and its raw skill/ path):
+    # the main well-known index drives `npx skills add https://second-me.cn`,
+    # which must install the user skill alone
+    user_skills = [skill_dir for skill_dir in skills if skill_dir != dev_skill]
+
     for skill_dir in skills:
         for file in sorted(path for path in skill_dir.rglob("*") if path.is_file()):
             relative = file.relative_to(skill_dir).as_posix()
             content_type = content_type_for(file)
             uploads.append(Upload(key=f"skill/{skill_dir.name}/{relative}", content_type=content_type, path=file))
-            uploads.append(
-                Upload(key=f".well-known/skills/{skill_dir.name}/{relative}", content_type=content_type, path=file)
-            )
+            if skill_dir != dev_skill:
+                uploads.append(
+                    Upload(key=f".well-known/skills/{skill_dir.name}/{relative}", content_type=content_type, path=file)
+                )
             if skill_dir == dev_skill:
                 uploads.append(
                     Upload(
@@ -252,7 +258,7 @@ def build_uploads() -> tuple[list[Upload], list[str]]:
                     )
                 )
 
-    uploads.append(Upload(key=".well-known/skills/index.json", content_type=JSON_TYPE, data=index_bytes(skills)))
+    uploads.append(Upload(key=".well-known/skills/index.json", content_type=JSON_TYPE, data=index_bytes(user_skills)))
     uploads.append(
         Upload(key="develop-well-known/skills/index.json", content_type=JSON_TYPE, data=index_bytes([dev_skill]))
     )

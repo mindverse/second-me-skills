@@ -34,6 +34,7 @@ SecondMe Skills 是一套技能包，当前主要覆盖两条使用路径：
 ### 安装
 
 ```bash
+# 用户技能（secondme，仅安装这一个）
 npx skills add https://second-me.cn -y -g
 
 # 或告诉你的 Agent：
@@ -41,6 +42,12 @@ npx skills add https://second-me.cn -y -g
 ```
 
 ### 开发者用法
+
+开发者技能单独安装：
+
+```bash
+npx skills add mindverse/second-me-skills -s secondme-dev-assistant -y -g
+```
 
 在 Claude Code 中，`secondme-dev-assistant` skill 会在你提到 SecondMe 应用开发、OAuth、MCP 集成等关键词时自动触发。
 

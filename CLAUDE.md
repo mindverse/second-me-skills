@@ -30,7 +30,8 @@ skills/
 ## 域名规范
 
 - **接口调用**（API、遥测上报等程序请求）一律用 `https://api.mindverse.com`，如 `{BASE} = https://api.mindverse.com/gate/lab`
-- **安装源**统一唯一入口 `https://second-me.cn`（well-known 分发），安装指引里不出现其他域名
+- **安装源**：用户技能 `secondme` 唯一入口 `https://second-me.cn`（well-known 分发，主索引只含 `secondme`）；开发者技能 `secondme-dev-assistant` 不进主索引，经 GitHub 安装：`npx skills add mindverse/second-me-skills -s secondme-dev-assistant -y -g`（GitHub 镜像需与 GitLab main 保持同步推送）
+- `secondme` 技能不含任何遥测/数据上报逻辑（2026-07 移除）；`secondme-dev-assistant` 保留 opt-in 遥测
 - **用户浏览器访问**统一 `*.second-me.cn` 域名家族：页面（登录/签约/协议/分享链接）`second-me.cn`，开发者控制台 `develop.second-me.cn`，文档站 `develop-docs.second-me.cn`，体验入口 `go.second-me.cn`，PRE 环境 `beta.second-me.cn`
 - `second.me` 与 `app.mindos.com` 不出现在技能文档中（`second.me` 域名家族仍在线服务旧安装的更新，但文档一律只写 `second-me.cn`；解析用户给的历史分享链接按路径末段处理即可，与域名无关）
 - `/contract/payment` 是协议文本页且必须带 `?tier=1|2|3`，不是收银台；实际付款在 App 账户页 / 分身分享页解锁流程
