@@ -1,24 +1,22 @@
 ---
 name: secondme-dev-assistant
-description: "Use when user wants to develop on the SecondMe platform (second.me, develop.second.me). Triggers: building SecondMe third-party apps (第三方应用/外部应用), SecondMe OAuth login integration (Client ID/Secret, token exchange), MCP integration for SecondMe, Agent Memory API, Act stream API, app scaffolding, review submission, or hackathon/黑客松 projects targeting SecondMe. Covers the full developer lifecycle from app creation and credentials to release. NOT for casual SecondMe usage like browsing profiles, adding friends, or social features — only for building and integrating with SecondMe as a developer platform."
+description: "Use when user wants to develop on the SecondMe platform (second-me.cn, develop.second-me.cn). Triggers: building SecondMe third-party apps (第三方应用/外部应用), SecondMe OAuth login integration (Client ID/Secret, token exchange), MCP integration for SecondMe, Agent Memory API, Act stream API, app scaffolding, review submission, or hackathon/黑客松 projects targeting SecondMe. Covers the full developer lifecycle from app creation and credentials to release. NOT for casual SecondMe usage like browsing profiles, adding friends, or social features — only for building and integrating with SecondMe as a developer platform."
 license: MIT
 compatibility: Requires network access to SecondMe API (api.mindverse.com)
 metadata:
   author: mindverse
-  version: "2.2.0"
+  version: "2.3.0"
 ---
 
 # SecondMe Dev Assistant
 
 ## Install
 
-The canonical distribution source is `https://second.me`. If this skill is not yet installed locally, it can be installed with:
+The canonical distribution source is `https://second-me.cn`. If this skill is not yet installed locally, it can be installed with:
 
 ```bash
-npx skills add https://second.me -y -g
+npx skills add https://second-me.cn -y -g
 ```
-
-Mainland-China mirror: `https://second-me.cn` serves byte-identical content and can be used as the install source instead. The install source determines the `{DOMAIN}` used for user-facing links (see Distribution Domain below).
 
 Installation policy:
 
@@ -27,14 +25,8 @@ Installation policy:
 
 ## Security & Privacy Declaration
 
-- **Canonical source**: `https://second.me` — `/.well-known/skills/index.json` lists every file of this skill for audit. Mirrors serve byte-identical content.
-- **Network endpoints**: the skill only calls `https://api.mindverse.com` (SecondMe API; opt-in telemetry) and fetches API documentation from `https://develop-docs.second.me` — both fixed regardless of install source. Pages the user opens in a browser (app console) live on `https://develop.{DOMAIN}` — `second.me` or its mainland mirror `second-me.cn`, following the install source. No other hosts are contacted.
-
-## Distribution Domain
-
-`{DOMAIN}` is the domain family this skill was installed from, resolved as `SM_DOMAIN` in the Pre-flight Check: `second.me` (default) or `second-me.cn` (mainland mirror). The value is resolved once from the install source and pinned to the `"domain"` field of `~/.secondme/config`; edit that field to switch families later.
-
-User-facing browser URLs (the `develop.{DOMAIN}` console and its auth page) substitute `{DOMAIN}` with the resolved value. API calls (`api.mindverse.com`) and documentation fetches (`develop-docs.second.me`) never switch.
+- **Canonical source**: `https://second-me.cn` — `/.well-known/skills/index.json` lists every file of this skill for audit.
+- **Network endpoints**: the skill only calls `https://api.mindverse.com` (SecondMe API; opt-in telemetry) and fetches API documentation from `https://develop-docs.second-me.cn`. Pages the user opens in a browser (app console) live on `https://develop.second-me.cn`. No other hosts are contacted.
 - **Local files**: writes are confined to `~/.secondme/` (credentials, config, analytics) and `~/.cache/secondme-skills/` (update-check stamp). `~/.openclaw/.credentials` is read once as a legacy fallback, never written. The skill does not read other agents' or products' files.
 - **Telemetry is off by default**: nothing is recorded or uploaded until the user explicitly opts in via a one-time prompt. When enabled it records skill name, version, OS, architecture, session id, duration, and outcome — never message content, code, file paths, or credentials. Disable anytime by setting `"telemetry": "off"` in `~/.secondme/config`.
 - **Auto-update**: at most once per 24 hours via `npx skills update`; set `SECONDME_SKILL_NO_AUTOUPDATE=1` to disable it entirely.
@@ -43,7 +35,7 @@ After installation, show the user the following onboarding message, then proceed
 
 > **SecondMe Dev Assistant 安装成功！** 你现在可以通过对话完成以下开发工作：
 >
-> - **创建应用** — 在 develop.{DOMAIN} 注册第三方应用，获取 Client ID / Secret
+> - **创建应用** — 在 develop.second-me.cn 注册第三方应用，获取 Client ID / Secret
 > - **需求规划** — 梳理产品需求，生成项目脚手架方案
 > - **实现指导** — OAuth 登录对接、Token 管理、API 调用规范
 > - **Open API** — 使用 Agent Memory、Act 行为流等开放接口
@@ -73,34 +65,11 @@ if [ -z "$SECONDME_SKILL_NO_AUTOUPDATE" ] && [ $((NOW - LAST)) -ge 86400 ]; then
   echo "$NOW" > "$STAMP"
 fi
 
-# --- Distribution domain (config > install source > default; pinned to config on first resolve,
-#     because `npx skills update` may rewrite the lock-file source back to the canonical domain) ---
-SM_DOMAIN=$(python3 -c "
-import json, os
-def read(p):
-    try: return json.load(open(os.path.expanduser(p)))
-    except Exception: return {}
-cfg_path = os.path.expanduser('~/.secondme/config')
-cfg = read(cfg_path)
-d = cfg.get('domain')
-if d not in ('second.me', 'second-me.cn'):
-    src = str(read('~/.agents/.skill-lock.json').get('skills', {}).get('secondme-dev-assistant', {}).get('source', ''))
-    d = 'second-me.cn' if 'second-me.cn' in src else 'second.me'
-    try:
-        os.makedirs(os.path.dirname(cfg_path), exist_ok=True)
-        cfg['domain'] = d
-        json.dump(cfg, open(cfg_path, 'w'), indent=2)
-    except Exception:
-        pass
-print(d)
-" 2>/dev/null || echo "second.me")
-echo "DOMAIN: $SM_DOMAIN"
-
 # --- Feedback/Telemetry Preamble ---
 SM_DIR="$HOME/.secondme"
 SM_CONFIG="$SM_DIR/config"
 SM_ANALYTICS="$SM_DIR/analytics"
-SM_VERSION="2.2.0"
+SM_VERSION="2.3.0"
 SM_OS=$(uname -s 2>/dev/null || echo "unknown")
 SM_ARCH=$(uname -m 2>/dev/null || echo "unknown")
 SM_TEL_START=$NOW
@@ -183,27 +152,27 @@ Read [references/telemetry-sync.md](references/telemetry-sync.md) — execute th
 
 API endpoint specifications (paths, parameters, response fields, error codes) are maintained on the documentation site:
 
-- Doc index: https://develop-docs.second.me/llms.txt
-- Full reference: https://develop-docs.second.me/llms-full.txt
+- Doc index: https://develop-docs.second-me.cn/llms.txt
+- Full reference: https://develop-docs.second-me.cn/llms-full.txt
 
 Per-feature doc pages (fetch the relevant page before implementing or troubleshooting any API call):
 
 | Feature | Doc URL |
 |---------|---------|
-| Quick Start | https://develop-docs.second.me/zh/docs |
-| Auth Overview | https://develop-docs.second.me/zh/docs/authentication |
-| OAuth2 Guide | https://develop-docs.second.me/zh/docs/authentication/oauth2 |
-| Error Codes | https://develop-docs.second.me/zh/docs/errors |
-| Agent Memory | https://develop-docs.second.me/zh/docs/secondme/agent-memory |
-| Act (Structured Action) | https://develop-docs.second.me/zh/docs/secondme/act |
-| Chat | https://develop-docs.second.me/zh/docs/secondme/chat |
-| Note | https://develop-docs.second.me/zh/docs/secondme/note |
-| Plaza | https://develop-docs.second.me/zh/docs/secondme/plaza |
-| TTS | https://develop-docs.second.me/zh/docs/secondme/tts |
-| User Info | https://develop-docs.second.me/zh/docs/secondme/user |
-| Visitor Chat | https://develop-docs.second.me/zh/docs/secondme/visitor-chat |
-| MCP Integration | https://develop-docs.second.me/zh/docs/mcp-integration |
-| Changelog | https://develop-docs.second.me/zh/docs/changelog |
+| Quick Start | https://develop-docs.second-me.cn/zh/docs |
+| Auth Overview | https://develop-docs.second-me.cn/zh/docs/authentication |
+| OAuth2 Guide | https://develop-docs.second-me.cn/zh/docs/authentication/oauth2 |
+| Error Codes | https://develop-docs.second-me.cn/zh/docs/errors |
+| Agent Memory | https://develop-docs.second-me.cn/zh/docs/secondme/agent-memory |
+| Act (Structured Action) | https://develop-docs.second-me.cn/zh/docs/secondme/act |
+| Chat | https://develop-docs.second-me.cn/zh/docs/secondme/chat |
+| Note | https://develop-docs.second-me.cn/zh/docs/secondme/note |
+| Plaza | https://develop-docs.second-me.cn/zh/docs/secondme/plaza |
+| TTS | https://develop-docs.second-me.cn/zh/docs/secondme/tts |
+| User Info | https://develop-docs.second-me.cn/zh/docs/secondme/user |
+| Visitor Chat | https://develop-docs.second-me.cn/zh/docs/secondme/visitor-chat |
+| MCP Integration | https://develop-docs.second-me.cn/zh/docs/mcp-integration |
+| Changelog | https://develop-docs.second-me.cn/zh/docs/changelog |
 
 Reference files in this skill contain behavioral rules (UX flows, implementation guidance, confirmation logic). For API call details, each reference file specifies which doc page to fetch.
 
@@ -222,7 +191,7 @@ This is the single entry skill for SecondMe developer work.
 
 Use it for the full lifecycle:
 
-- creating a SecondMe app on the `https://develop.{DOMAIN}` console
+- creating a SecondMe app on the `https://develop.second-me.cn` console
 - obtaining and storing `Client ID` and `Client Secret`
 - defining product requirements and scaffold plans
 - guiding implementation of SecondMe OAuth, user auth, and MCP behavior

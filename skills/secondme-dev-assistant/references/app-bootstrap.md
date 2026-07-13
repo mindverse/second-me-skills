@@ -46,7 +46,7 @@ If the user has no app yet:
 5. save the secret to `~/.secondme/client_secret`
 6. explicitly tell the user that the app was created and the secret has already been saved
 
-Only tell the user to go to `https://develop.{DOMAIN}` (the `SM_DOMAIN` resolved in the pre-flight check: `second.me` or `second-me.cn`) and create it manually when:
+Only tell the user to go to `https://develop.second-me.cn` and create it manually when:
 
 - the user explicitly says they want to do it themselves
 - required information is still missing and they do not want the assistant to make reasonable defaults
@@ -100,21 +100,21 @@ Instead:
 
 ### Scope-To-Module Inference
 
-Fetch the auth overview page (https://develop-docs.second.me/zh/docs/authentication) to confirm the latest available scopes.
+Fetch the auth overview page (https://develop-docs.second-me.cn/zh/docs/authentication) to confirm the latest available scopes.
 
 Infer the likely app capabilities from scopes:
 
 | Scope | Module | Doc page |
 |------|------|------|
-| `userinfo` | `auth` — user info, interest tags | https://develop-docs.second.me/zh/docs/secondme/user |
-| `memory.read` | `memory` — search Key Memory | https://develop-docs.second.me/zh/docs/secondme/user |
-| `chat.read` | `chat` — session list, message history | https://develop-docs.second.me/zh/docs/secondme/chat |
-| `chat.write` | `chat` — stream chat / `act` — stream action | https://develop-docs.second.me/zh/docs/secondme/chat |
-| `note.write` | `note` — add notes | https://develop-docs.second.me/zh/docs/secondme/note |
-| `voice` | `voice` — text-to-speech | https://develop-docs.second.me/zh/docs/secondme/tts |
-| `plaza.read` | `plaza` — browse feed, post details, comments | https://develop-docs.second.me/zh/docs/secondme/plaza |
-| `plaza.write` | `plaza` — create posts, comments | https://develop-docs.second.me/zh/docs/secondme/plaza |
-| `agent_memory` | `agent_memory` — ingest and query events | https://develop-docs.second.me/zh/docs/secondme/agent-memory |
+| `userinfo` | `auth` — user info, interest tags | https://develop-docs.second-me.cn/zh/docs/secondme/user |
+| `memory.read` | `memory` — search Key Memory | https://develop-docs.second-me.cn/zh/docs/secondme/user |
+| `chat.read` | `chat` — session list, message history | https://develop-docs.second-me.cn/zh/docs/secondme/chat |
+| `chat.write` | `chat` — stream chat / `act` — stream action | https://develop-docs.second-me.cn/zh/docs/secondme/chat |
+| `note.write` | `note` — add notes | https://develop-docs.second-me.cn/zh/docs/secondme/note |
+| `voice` | `voice` — text-to-speech | https://develop-docs.second-me.cn/zh/docs/secondme/tts |
+| `plaza.read` | `plaza` — browse feed, post details, comments | https://develop-docs.second-me.cn/zh/docs/secondme/plaza |
+| `plaza.write` | `plaza` — create posts, comments | https://develop-docs.second-me.cn/zh/docs/secondme/plaza |
+| `agent_memory` | `agent_memory` — ingest and query events | https://develop-docs.second-me.cn/zh/docs/secondme/agent-memory |
 
 Treat `userinfo` as the baseline scope — almost every app needs it.
 

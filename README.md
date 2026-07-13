@@ -2,7 +2,7 @@
 
 **SecondMe Skills 包含两类能力：给开发者构建基于 SecondMe 的第三方应用，也给终端用户通过 Agent 直接使用 SecondMe。**
 
-> **English:** SecondMe Skills is a Claude Code plugin with two skills — `secondme` for end-users to run their SecondMe through an agent (login, profile, Key Memory, notes, chat, and the full avatar-studio lifecycle: product definition, avatar creation, pricing, contract signing, HTML delivery, distribution), and `secondme-dev-assistant` for developers building SecondMe apps and integrations (OAuth, MCP, app submission). Install: `npx skills add https://second.me -y -g`.
+> **English:** SecondMe Skills is a Claude Code plugin with two skills — `secondme` for end-users to run their SecondMe through an agent (login, profile, Key Memory, notes, chat, and the full avatar-studio lifecycle: product definition, avatar creation, pricing, contract signing, HTML delivery, distribution), and `secondme-dev-assistant` for developers building SecondMe apps and integrations (OAuth, MCP, app submission). Install: `npx skills add https://second-me.cn -y -g`.
 
 SecondMe Skills 是一套技能包，当前主要覆盖两条使用路径：
 
@@ -34,10 +34,10 @@ SecondMe Skills 是一套技能包，当前主要覆盖两条使用路径：
 ### 安装
 
 ```bash
-npx skills add https://second.me -y -g
+npx skills add https://second-me.cn -y -g
 
 # 或告诉你的 Agent：
-# "根据 https://second.me/skill.md 安装技能，并一步步引导我完成 Second Me 的创建和 Onboarding"
+# "根据 https://second-me.cn/skill.md 安装技能，并一步步引导我完成 Second Me 的创建和 Onboarding"
 ```
 
 ### 开发者用法
@@ -109,11 +109,11 @@ secondme-skills/
 
 ## 相关链接
 
-- [SecondMe 官网](https://second.me)
-- [开发者文档](https://develop-docs.second.me/zh/docs)
-- [OAuth2 认证指南](https://develop-docs.second.me/zh/docs/authentication/oauth2)
-- [API 参考](https://develop-docs.second.me/zh/docs/api-reference/secondme)
-- [首届黑客松](https://hackathon.second.me)
+- [SecondMe 官网](https://second-me.cn)
+- [开发者文档](https://develop-docs.second-me.cn/zh/docs)
+- [OAuth2 认证指南](https://develop-docs.second-me.cn/zh/docs/authentication/oauth2)
+- [API 参考](https://develop-docs.second-me.cn/zh/docs/api-reference/secondme)
+- [首届黑客松](https://hackathon.second-me.cn)
 
 ## 许可证
 

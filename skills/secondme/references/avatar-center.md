@@ -2,8 +2,6 @@
 
 帮用户把 SecondMe 分身做成一个**可交付、可售卖、可分发的服务产品**。这不是一次性表单，而是一条端到端旅程：先查用户和 Agent 已经知道的信息，再逐轮补齐关键缺口 → 素材收集 → 建分身 → 定价收费 → 签约（付费必须）→ 评测 → 交付 HTML → 分发。本文件同时收录分身 CRUD、**官方技能**、API Key、交互记录等底层 API。当前版本不向用户透出、创建、查询或绑定自定义技能。
 
-本文中用户侧浏览器 URL 里的 `{DOMAIN}` 按 SKILL.md「Distribution Domain」规则解析为 `second.me` 或 `second-me.cn`（跟随安装来源）；解析访客提供的分享链接时两个域名都接受。
-
 ## Table of Contents
 
 - [Avatar Studio 旅程](#avatar-studio-旅程)（先读这里）
@@ -233,7 +231,7 @@ PAID 分身的创建路径二选一：
 
 让分身触达访客。默认动作 + 按需提示：
 
-1. **默认：给分享链接**——拼 `https://{DOMAIN}/{ownerRoute}/avatar/{shareCode}`，裸 URL 单独一行输出。访客打开即聊；付费分身的解锁付款也在这个页面自动发生。
+1. **默认：给分享链接**——拼 `https://second-me.cn/{ownerRoute}/avatar/{shareCode}`，裸 URL 单独一行输出。访客打开即聊；付费分身的解锁付款也在这个页面自动发生。
 2. **微信小程序花瓣码（可程序化获取）**：`GET {BASE}/api/secondme/avatar/wxapp-qrcode?avatarId=` 直接返回花瓣码图片 URL（见 [获取小程序花瓣码](#获取小程序花瓣码)），可以给用户下载、也可以嵌进交付页。码图异步生成，新建分身若暂未就绪稍后重试。
 3. **微信 Bot 海报（分享页保存）**：带分身头像的开聊海报只在分享页的「分享分身」弹窗里提供，提示用户打开分享链接、点分享按钮一键保存。skill 不要自行仿制。
 4. **交付 HTML 内嵌码**：仅当生成交付页（阶段 7）需要自包含访问码时，本地生成 H5 链接二维码（见 [二维码分发](#二维码分发)）；花瓣码 URL 也可直接嵌入。
@@ -245,7 +243,7 @@ PAID 分身的创建路径二选一：
 分发完成后，可提示用户去 App / Web 查看分身实时表现或进一步分享：
 
 ```
-https://go.{DOMAIN}
+https://go.second-me.cn
 ```
 
 ---
@@ -523,11 +521,11 @@ https://go.{DOMAIN}
 
 签约和付费**不是 REST 接口**，而是在浏览器里完成的网页流程，模式同登录：给用户一个 URL，让其打开完成，不要用 markdown 链接语法包裹。
 
-生产域名为 `{DOMAIN}`（`second.me` 或 `second-me.cn`，跟随安装来源；PRE 环境为 `beta.second.me`，与登录域名同源，按环境替换）：
+生产域名为 `second-me.cn`（PRE 环境为 `beta.second-me.cn`，与登录域名同源，按环境替换）：
 
 - **签约（开通付费能力）**：
   ```
-  https://{DOMAIN}/contract/addendum
+  https://second-me.cn/contract/addendum
   ```
   签约申请**审核需要时间**，所以话术按入口区分：
   - 提前申请（阶段 0.5）：「如果想做付费分身，需要先提交签约申请。申请审核要一些时间，建议现在先提，提交完回来我们同步创建分身，两边不耽误。」
@@ -535,7 +533,7 @@ https://go.{DOMAIN}
 
 - **付费服务协议（文本页，必须带 tier 参数）**：
   ```
-  https://{DOMAIN}/contract/payment?tier=1
+  https://second-me.cn/contract/payment?tier=1
   ```
   `tier=1/2/3` 对应三档付费方案；**不带 tier 裸打开是 404**。注意这是协议展示页、不是收银台——实际付款不在此页发生：创作者的回复额度充值在 App 账户页完成，访客为付费分身解锁付款在分身分享页内完成。
 
@@ -554,7 +552,7 @@ https://go.{DOMAIN}
   python3 -m pip install --quiet --user segno 2>/dev/null || pip3 install --quiet segno
   python3 - <<'PY'
   import segno
-  url = "https://{DOMAIN}/{ownerRoute}/avatar/{shareCode}"  # 替换为真实链接
+  url = "https://second-me.cn/{ownerRoute}/avatar/{shareCode}"  # 替换为真实链接
   qr = segno.make(url, error="m")
   qr.save("avatar-qr.png", scale=10, border=2)   # 独立图片，可直接发给用户
   print("data:image/png;base64 版本（内嵌交付 HTML 用）:")
@@ -1389,7 +1387,7 @@ curl -X POST "{BASE}/api/secondme/avatar/api-key/delete" \
 分身的分享链接格式：
 
 ```
-https://{DOMAIN}/{ownerRoute}/avatar/{shareCode}
+https://second-me.cn/{ownerRoute}/avatar/{shareCode}
 ```
 
 - `ownerRoute`: 用户的主页路由（从 `GET {BASE}/api/secondme/user/info` 响应的 `route` 字段获取）
@@ -1407,13 +1405,13 @@ https://{DOMAIN}/{ownerRoute}/avatar/{shareCode}
 
 用户只想快速建一个最小分身时，仍先做已有信息扫描，再用 Agent 生成的默认草案请用户确认 `title`、核心定位、事实边界、`opening` 和仍存假设；可选细节不卡住创建。技能只从官方可用技能中推荐和绑定。
 
-创建成功后，拼接完整分享链接 `https://{DOMAIN}/{ownerRoute}/avatar/{shareCode}` 并展示给用户。如果当前上下文中没有用户的 `route`，先调用 `GET {BASE}/api/secondme/user/info` 获取。
+创建成功后，拼接完整分享链接 `https://second-me.cn/{ownerRoute}/avatar/{shareCode}` 并展示给用户。如果当前上下文中没有用户的 `route`，先调用 `GET {BASE}/api/secondme/user/info` 获取。
 
 ### 列表展示
 
 - `type: "primary"` 是默认分身（每用户一个，不可删除），在列表中标注
 - `type: "custom"` 是自定义分身，可以编辑和删除
-- 每个分身都应展示完整分享链接 `https://{DOMAIN}/{ownerRoute}/avatar/{shareCode}`
+- 每个分身都应展示完整分享链接 `https://second-me.cn/{ownerRoute}/avatar/{shareCode}`
 
 ### API Key 管理
 

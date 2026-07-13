@@ -12,7 +12,7 @@ Do not rely on memorized or cached API specs — always fetch the latest docs be
 
 Third-party apps can ingest and query Agent Memory events on behalf of the authenticated user. These events feed into the CTA (Call-To-Action) orchestrator and build the user's activity graph.
 
-Fetch doc page: https://develop-docs.second.me/zh/docs/secondme/agent-memory
+Fetch doc page: https://develop-docs.second-me.cn/zh/docs/secondme/agent-memory
 
 Before implementing or troubleshooting Agent Memory API calls, fetch the doc page above to get the current:
 
@@ -34,7 +34,7 @@ Behavioral rules (apply regardless of API shape):
 
 The Act endpoint instructs the user's SecondMe to output a structured JSON judgment instead of freeform text. Use it when your app needs a machine-readable decision from the AI.
 
-Fetch doc page: https://develop-docs.second.me/zh/docs/secondme/act
+Fetch doc page: https://develop-docs.second-me.cn/zh/docs/secondme/act
 
 Before implementing or troubleshooting Act API calls, fetch the doc page above to get the current:
 
