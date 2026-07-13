@@ -2,7 +2,7 @@
 
 所有聊天统一走一个接口。Skill 只负责传递用户明确提供的 `shareCode`，不判断它属于主分身还是其他分身：
 
-- 用户说「和我的 SecondMe 聊」「和我主分身聊」「和我的 Agent 聊」「问问我的分身」，或没有指明对象和 shareCode：不传 `shareCode`。
+- 用户说「和我的小己聊」「和我的 Second Me 聊」「和我主分身聊」「和我的 Agent 聊」「问问我的分身」，或没有指明对象和 shareCode：不传 `shareCode`。
 - 用户明确提供分身分享链接或 shareCode：解析后原样传给后端。
 
 ## 聊天流程
@@ -75,7 +75,7 @@ curl -X POST "{BASE}/api/secondme/ws-chat/send" \
 
 ## Behavioral Rules
 
-- 「我的 SecondMe」「我的主分身」「我的 Agent」都是 Personal Agent 的同义表达，默认不传 `shareCode`。
+- 「我的小己」「我的 Second Me」「我的主分身」「我的 Agent」都是 Personal Agent 的同义表达，默认不传 `shareCode`。
 - 不查询或比较主分身 shareCode，不在 Skill 侧判断 shareCode 对应哪类分身。
 - 用户明确提供 shareCode 时原样传入，由后端决定聊天目标。
 - 聊天只调用 `POST {BASE}/api/secondme/ws-chat/send`，不再调用其他聊天接口。
