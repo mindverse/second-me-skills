@@ -136,7 +136,7 @@ Read [references/note.md](references/note.md) for the complete flow.
 
 ## Chat
 
-One chat endpoint with two target semantics: the user's Personal Agent is the default for「我的 SecondMe」「我的主分身」「我的 Agent」and omits `shareCode`; another specified avatar uses its shareCode. Never query session lists or send, store, or manage `sessionId`.
+One chat endpoint: omit `shareCode` when the user does not explicitly provide one; otherwise pass the supplied shareCode through unchanged. The backend resolves whether it represents the Personal Agent or another avatar. Never classify shareCodes, query session lists, or send, store, or manage `sessionId`.
 
 Read [references/chat.md](references/chat.md) for the complete flow.
 
