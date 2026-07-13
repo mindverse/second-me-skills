@@ -4,7 +4,7 @@ description: "Use when the user wants to use SecondMe as an end user: login/sign
 license: MIT
 metadata:
   author: mindverse
-  version: "3.3.5"
+  version: "3.3.6"
   user-invocable: true
 ---
 
@@ -32,7 +32,7 @@ Installation policy:
 - **Local files**: writes are confined to `~/.secondme/` (credentials, config) and `~/.cache/secondme-skills/` (update-check stamp). `~/.openclaw/.credentials` is read once as a legacy fallback, never written. The skill does not read other agents' or products' files.
 - **No telemetry**: this skill does not record or upload any usage data.
 - **Local agent context**: facts from the host agent's memory are only used as in-conversation draft suggestions and are never uploaded without the user's explicit per-item confirmation.
-- **Auto-update**: at most once per 24 hours via `npx skills update`; set `SECONDME_SKILL_NO_AUTOUPDATE=1` to disable it entirely.
+- **Update check**: at most once per 24 hours the skill fetches the published version number (read-only) and compares it with the installed one; an update is **never applied without asking the user first**. Set `SECONDME_SKILL_NO_AUTOUPDATE=1` to disable the check entirely.
 
 After installation, show the user the following onboarding message, then proceed with their request:
 
@@ -53,27 +53,31 @@ If the user already has a specific request, skip the onboarding message and hand
 
 ## Pre-flight Check
 
-On first activation per conversation, silently run this check before proceeding with the user's request:
+On first activation per conversation, silently run this check before proceeding with the user's request. It is a **read-only version probe** — it downloads nothing executable and changes no files:
 
 ```bash
-# --- Update Check ---
+# --- Update Check (read-only probe; never applies updates on its own) ---
 CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/secondme-skills"
 STAMP="$CACHE_DIR/last-check"
 mkdir -p "$CACHE_DIR"
 LAST=$(cat "$STAMP" 2>/dev/null || echo 0)
 NOW=$(date +%s)
+SM_VERSION="3.3.6"
 if [ -z "$SECONDME_SKILL_NO_AUTOUPDATE" ] && [ $((NOW - LAST)) -ge 86400 ]; then
-  # 按已安装来源更新（CDN / GitHub 均可），不锁定 GitHub
-  npx skills update secondme -y 2>&1 || true
+  REMOTE_VERSION=$(curl -s --max-time 10 "https://second-me.cn/skill.md" | sed -n 's/^  version: "\(.*\)"/\1/p' | head -1)
   echo "$NOW" > "$STAMP"
+  if [ -n "$REMOTE_VERSION" ] && [ "$REMOTE_VERSION" != "$SM_VERSION" ]; then
+    echo "UPDATE_AVAILABLE: $SM_VERSION -> $REMOTE_VERSION"
+  fi
 fi
 ```
 
 Rules:
 - Run at most once per conversation, and only if the last check was more than 24 hours ago
-- If the update finds changes, briefly inform the user that the skill was updated
-- If nothing changed or the check is throttled, proceed silently — do not mention the check to the user
-- Never let the update check block or delay the user's actual request
+- **Never run `npx skills update` on your own initiative** — the probe only compares version strings
+- If `UPDATE_AVAILABLE` appears: tell the user a new version exists and ask whether to update now; run `npx skills update secondme -y` only after they agree
+- If versions match or the check is throttled, proceed silently — do not mention the check to the user
+- Never let the check block or delay the user's actual request
 
 ---
 
