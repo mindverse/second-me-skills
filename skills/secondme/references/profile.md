@@ -1,10 +1,12 @@
-# Profile
+# 身份与形象（Profile）
+
+Profile 用于描述用户是谁，以及分身以什么形象和声音出现；资料（Note）用于保存用户想过、说过、写过的内容，两者不要混称为“资料”。Profile 的核心内容包括姓名、个人简介、封面人像、聊天头像和声音。姓名和个人简介应尽量包含用户常用的昵称、英文名、网名等称呼，帮助模型识别资料（Note）中哪些内容是用户本人表达的。分身未单独设置封面时，默认使用 Profile 中的封面人像。
 
 ## API Reference
 
 ### 获取用户信息
 
-获取授权用户的基本信息。
+获取授权用户的身份与形象。
 
 ```
 GET {BASE}/api/secondme/user/info
@@ -49,15 +51,15 @@ curl -X GET "{BASE}/api/secondme/user/info" \
 | userId | string | 用户 ID |
 | name | string | 用户姓名 |
 | email | string | 用户邮箱 |
-| avatar | string | 头像 URL |
+| avatar | string | 聊天头像 URL |
 | bio | string | 个人简介 |
 | selfIntroduction | string | 自我介绍 |
-| profileCompleteness | number | 资料完整度等级（0-10） |
+| profileCompleteness | number | 身份与形象完整度等级（0-10） |
 | route | string | 用户主页路由 |
-| cover | string | 主页封面图 URL |
+| cover | string | 封面人像 URL |
 | video | string | 主页视频 URL |
 | layout | string | 主页布局类型：`avatar`（头像）、`cover`（封面图）、`video`（视频） |
-| hasVoice | boolean | 是否配置了自定义语音 |
+| hasVoice | boolean | 是否已克隆录入声音 |
 | accountStatus | string | 账号信誉状态（如 `normal`、`warned`、`suspended`） |
 
 #### 错误码
@@ -68,157 +70,9 @@ curl -X GET "{BASE}/api/secondme/user/info" \
 
 ---
 
-### 获取用户兴趣标签
+### 更新用户身份与形象
 
-获取用户的兴趣标签（仅返回有公开内容的标签）。
-
-```
-GET {BASE}/api/secondme/user/shades
-```
-
-#### 请求示例
-
-```bash
-curl -X GET "{BASE}/api/secondme/user/shades" \
-  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
-```
-
-#### 响应
-
-**成功 (200)**
-
-```json
-{
-  "code": 0,
-  "data": {
-    "shades": [
-      {
-        "id": 123,
-        "shadeName": "科技爱好者",
-        "shadeIcon": "https://cdn.example.com/icon.png",
-        "confidenceLevel": "HIGH",
-        "shadeDescription": "热爱科技",
-        "shadeDescriptionThirdView": "他/她热爱科技",
-        "shadeContent": "喜欢编程和数码产品",
-        "shadeContentThirdView": "他/她喜欢编程和数码产品",
-        "sourceTopics": ["编程", "AI"],
-        "shadeNamePublic": "科技达人",
-        "shadeIconPublic": "https://cdn.example.com/public-icon.png",
-        "confidenceLevelPublic": "HIGH",
-        "shadeDescriptionPublic": "科技爱好者",
-        "shadeDescriptionThirdViewPublic": "一位科技爱好者",
-        "shadeContentPublic": "热爱科技",
-        "shadeContentThirdViewPublic": "他/她热爱科技",
-        "sourceTopicsPublic": ["科技"],
-        "hasPublicContent": true
-      }
-    ]
-  }
-}
-```
-
-#### 响应字段
-
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| shades | array | 兴趣标签列表 |
-| shades[].id | number | 标签 ID |
-| shades[].shadeName | string | 标签名称 |
-| shades[].shadeIcon | string | 标签图标 URL |
-| shades[].confidenceLevel | string | 置信度：`VERY_HIGH`、`HIGH`、`MEDIUM`、`LOW`、`VERY_LOW` |
-| shades[].shadeDescription | string | 标签描述 |
-| shades[].shadeDescriptionThirdView | string | 第三人称描述 |
-| shades[].shadeContent | string | 标签内容 |
-| shades[].shadeContentThirdView | string | 第三人称内容 |
-| shades[].sourceTopics | array | 来源主题 |
-| shades[].shadeNamePublic | string | 公开标签名称 |
-| shades[].shadeIconPublic | string | 公开图标 URL |
-| shades[].confidenceLevelPublic | string | 公开置信度 |
-| shades[].shadeDescriptionPublic | string | 公开描述 |
-| shades[].shadeDescriptionThirdViewPublic | string | 公开第三人称描述 |
-| shades[].shadeContentPublic | string | 公开内容 |
-| shades[].shadeContentThirdViewPublic | string | 公开第三人称内容 |
-| shades[].sourceTopicsPublic | array | 公开来源主题 |
-| shades[].hasPublicContent | boolean | 是否有公开内容 |
-
-#### 错误码
-
-| 错误码 | 说明 |
-|-------|------|
-| auth.token.invalid | Token 无效或已过期 |
-
----
-
-### 获取用户软记忆
-
-> **已弃用**: 此接口已被 `/api/secondme/memory/key/search` 替代，建议使用 Key Memory 搜索接口。本接口保留用于向后兼容。
-
-获取用户的软记忆数据（个人知识库），支持分页和搜索。
-
-```
-GET {BASE}/api/secondme/user/softmemory
-```
-
-#### 查询参数
-
-| 参数 | 类型 | 必需 | 说明 |
-|------|------|------|------|
-| keyword | string | 否 | 搜索关键词 |
-| pageNo | integer | 否 | 页码（默认: 1，最小: 1） |
-| pageSize | integer | 否 | 每页大小（默认: 20，最大: 100） |
-
-#### 请求示例
-
-```bash
-curl -X GET "{BASE}/api/secondme/user/softmemory?keyword=爱好&pageNo=1&pageSize=20" \
-  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
-```
-
-#### 响应
-
-**成功 (200)**
-
-```json
-{
-  "code": 0,
-  "data": {
-    "list": [
-      {
-        "id": 456,
-        "factObject": "兴趣爱好",
-        "factContent": "喜欢阅读科幻小说",
-        "createTime": 1705315800000,
-        "updateTime": 1705315800000
-      }
-    ],
-    "total": 100
-  }
-}
-```
-
-#### 响应字段
-
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| list | array | 软记忆列表 |
-| list[].id | number | 软记忆 ID |
-| list[].factObject | string | 事实对象/分类 |
-| list[].factContent | string | 事实内容 |
-| list[].createTime | number | 创建时间（毫秒时间戳） |
-| list[].updateTime | number | 更新时间（毫秒时间戳） |
-| total | number | 总数 |
-
-#### 错误码
-
-| 错误码 | 说明 |
-|-------|------|
-| auth.token.invalid | Token 无效或已过期 |
-
----
-
-### 更新用户资料
-
-更新当前用户的个人资料信息，支持部分更新。
+更新当前用户的身份与形象，支持部分更新。
 
 ```
 POST {BASE}/api/secondme/user/profile
@@ -229,7 +83,7 @@ POST {BASE}/api/secondme/user/profile
 | 参数 | 类型 | 必需 | 说明 |
 |------|------|------|------|
 | name | string | 否 | 用户姓名（最长 50 字符） |
-| avatar | string | 否 | 头像 URL（最长 2000 字符） |
+| avatar | string | 否 | 聊天头像 URL（最长 2000 字符） |
 | about_me | string | 否 | 自我介绍（最长 500 字符） |
 | origin_route | string | 否 | 用户主页路由，通常为字母和数字组成（最长 50 字符） |
 
@@ -267,7 +121,7 @@ curl -X POST "{BASE}/api/secondme/user/profile" \
 | 字段 | 类型 | 说明 |
 |------|------|------|
 | name | string | 更新后的用户姓名 |
-| avatar | string | 头像 URL |
+| avatar | string | 更新后的聊天头像 URL |
 | about_me | string | 自我介绍 |
 | origin_route | string | 用户主页路由 |
 | homepage | string | 用户主页完整 URL |
@@ -277,7 +131,7 @@ curl -X POST "{BASE}/api/secondme/user/profile" \
 | 错误码 | 说明 |
 |-------|------|
 | auth.token.invalid | Token 无效或已过期 |
-| user.profile.update_failed | 资料更新失败 |
+| user.profile.update_failed | 身份与形象更新失败 |
 
 ---
 
@@ -286,33 +140,41 @@ curl -X POST "{BASE}/api/secondme/user/profile" \
 - [Guided Profile Review](#guided-profile-review)
 - [Update Profile](#update-profile)
 - [Optional First-Run Handoff](#optional-first-run-handoff)
-- [Interest Tags (Shades)](#interest-tags-shades)
-- [Soft Memory](#soft-memory)
 
 ## Guided Profile Review
 
-When the user asks to view or review their personal information, also review the most relevant stable facts the assistant already knows about the user. Use those local memory facts to check whether the current SecondMe profile has anything worth updating or supplementing.
+When the user asks to view or review their identity and appearance, also review the most relevant stable facts the assistant already knows about the user. Use those local memory facts to check whether the current 小己（Second Me） profile has anything worth updating or supplementing.
 
-If the user is following the first-login guided path, first review the most relevant stable facts the assistant already knows about the user internally. Use those facts to decide whether the current SecondMe profile needs updates or supplements, but do not force a separate local-memory summary in the user-facing message.
+If the user is following the first-login guided path, first review the most relevant stable facts the assistant already knows about the user internally. Use those facts to decide whether the current 小己（Second Me） profile needs updates or supplements, but do not force a separate local-memory summary in the user-facing message.
 
 After reading the profile, focus on these key fields:
 
 - `name`
-- `aboutMe`
+- `bio` / `selfIntroduction` / `aboutMe`
+- `cover`
+- `avatar`
+- `hasVoice`
 - `originRoute`
 
-Explain `originRoute` as the route used in the user's SecondMe homepage, normally an alphanumeric identifier.
+Explain `originRoute` as the route used in the user's 小己（Second Me） homepage, normally an alphanumeric identifier.
 
-If all three fields are present and non-blank, first confirm the current values instead of drafting replacements. If local memory suggests useful additions or corrections, tell the user their profile is already quite complete, then briefly point out what could still be supplemented, and ask whether they want to update it.
+Treat `cover` as the large cover portrait used by the avatar and `avatar` as the small chat avatar shown in messages. If an avatar has no separate cover, explain that it uses this Profile's `cover` by default. Present `hasVoice` as whether the user has cloned and recorded their own voice.
+
+When reviewing or drafting `name` and the introduction, include the user's commonly used nicknames, English name, online handles, or other aliases when known and appropriate. This helps the model recognize which parts of the user's 资料（Note） were said or written by the user themself. Do not invent aliases.
+
+If `name`, the introduction, and `originRoute` are present and non-blank, first confirm the current values instead of drafting replacements. Also show the current cover portrait, chat avatar, and voice status; these may legitimately be unset. If local memory suggests useful additions or corrections, tell the user their profile is already quite complete, then briefly point out what could still be supplemented, and ask whether they want to update it.
 
 Present:
 
-> 我先帮你看了下资料：
+> 我先帮你看了下身份与形象：
 > - 姓名：{name}
 > - 自我介绍：{aboutMe}
+> - 封面人像：{cover / 未设置}
+> - 聊天头像：{avatar / 未设置}
+> - 声音：{已录入 / 未录入}
 > - 主页路由：{originRoute}
 >
-> `originRoute` 是你 SecondMe 个人主页地址里的路由，一般是字母和数字组成。
+> `originRoute` 是你的小己（Second Me）个人主页地址里的路由，一般是字母和数字组成。
 >
 > 这些内容目前已经比较完整了。
 >
@@ -327,20 +189,22 @@ Draft using:
 - current profile values
 - stable facts found in local memory
 - any stable information already known from the conversation
-- fallback `aboutMe`: `SecondMe 新用户，期待认识大家`
+- fallback `aboutMe`: `刚加入小己（Second Me），期待认识大家`
 - an `originRoute` draft only if you have enough context to propose a sensible alphanumeric value
 
 If there is not enough context for `originRoute`, ask the user for the route instead of inventing one.
 
 Present:
 
-> 你的 SecondMe 资料我先帮你拟了一版：
+> 你的小己（Second Me）身份与形象我先帮你拟了一版：
 > - 姓名：{name}
 > - 自我介绍：{aboutMe}
 > - 主页路由：{originRoute}
-> - 头像：{保留当前头像 / 默认头像}
+> - 封面人像：{保留当前封面人像 / 未设置}
+> - 聊天头像：{保留当前聊天头像 / 默认头像}
+> - 声音：{已录入 / 未录入}
 >
-> `originRoute` 是你 SecondMe 个人主页地址里的路由，一般是字母和数字组成。
+> `originRoute` 是你的小己（Second Me）个人主页地址里的路由，一般是字母和数字组成。
 >
 > 没问题就说「好」；如果想改，可以直接告诉我怎么改。
 
@@ -361,25 +225,14 @@ After success:
 
 If the user appears to be following the first-login guided path and has just completed or confirmed their profile setup, offer Key Memory sync as the next optional step:
 
-> 资料这边差不多了。我刚才也顺手参考了对你已有的了解。
+> 身份与形象这边差不多了。我刚才也顺手参考了对你已有的了解。
 >
-> 如果你愿意，我可以进一步把其中适合长期保留的记忆整理出来，再同步到 SecondMe。
+> 如果你愿意，我可以进一步把其中适合长期保留的记忆整理出来，再同步到小己（Second Me）。
 >
-> 这样通常能更快构建你自己的 SecondMe。
+> 这样通常能更快构建你自己的小己分身。
 >
 > 如果你想继续，我先整理一版给你确认；你也可以问问别的，或者告诉我你接下来想做什么。
 
 If the user accepts, continue with the Key Memory section below.
 
 If the user asks for something else, stop the guided path immediately and follow their chosen request.
-
-## Interest Tags (Shades)
-
-When presenting shades to the user, prefer the public-facing fields (`shadeNamePublic`, `shadeDescriptionPublic`, `shadeContentPublic`) when they are non-null.
-
-## Soft Memory
-
-Rules:
-
-- Do not merge soft memory results with local memory or Key Memory results unless the user explicitly asks for combined output
-- When the user asks about what SecondMe knows about them, soft memory is a good source to check alongside the profile

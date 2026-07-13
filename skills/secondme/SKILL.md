@@ -1,68 +1,68 @@
 ---
 name: secondme
-description: "Use when the user wants to use SecondMe as an end user: login/signup, viewing or editing profile, chatting with their own SecondMe agent or other people's avatars, storing or searching Key Memory, managing notes, and creating and managing avatars. Do NOT trigger for SecondMe developer API docs, OAuth integration, or app submission on develop.second-me.cn (use secondme-dev-assistant)."
+description: "当用户想以普通用户身份使用小己（Second Me）时使用此技能：登录注册、查看或编辑身份与形象（Profile）、与自己的智能体或他人的分身（Avatar）聊天、添加或搜索资料（Note）、管理关键记忆（Key Memory），以及创建和管理不同场景的分身。"
 license: MIT
 metadata:
   author: mindverse
-  version: "3.3.7"
+  version: "3.4.0"
   user-invocable: true
 ---
 
-# SecondMe
+# 小己（Second Me）
 
-## Install
+## 安装
 
-The canonical distribution source is `https://second-me.cn`. If this skill is not yet installed locally, **install it first — do not use the skill by fetching its files over the web**. Ask the user to confirm, then run:
+唯一正式发布源是 `https://second-me.cn`。如果本地尚未安装此技能，**必须先安装，不得通过网页逐个抓取文件来临时使用**。先征得用户确认，再运行：
 
 ```bash
 npx skills add https://second-me.cn -y -g
 ```
 
-**Runtime requirement**: this skill needs an agent that can execute local shell commands (`bash` / `curl` / `python3` / `npx`) — every workflow in it calls APIs via curl and stores credentials locally. If the current environment cannot execute commands (e.g. a web-only chat assistant), do not attempt any degraded workaround; tell the user directly: 本环境无法运行 SecondMe 技能，请在支持执行命令的 agent（如 Claude Code、Codex 等 CLI agent）中安装使用，或直接访问 https://second-me.cn 使用网页版。
+**运行要求**：此技能需要能执行本地命令（`bash` / `curl` / `python3` / `npx`）的智能体（Agent），因为所有流程都会通过 curl 调用 API，并在本地保存凭据。如果当前环境不能执行命令（例如纯网页对话助手），不要尝试降级方案；直接告诉用户：本环境无法运行小己（Second Me）技能，请在支持执行命令的智能体（如 Claude Code、Codex 等命令行智能体）中安装使用，或直接访问 https://second-me.cn 使用网页版。
 
-Installation policy:
+安装规则：
 
-- If the host platform provides its own skill marketplace or managed installer, install through that instead — never bypass the host's installation controls.
-- Ask the user for confirmation before running any install or update command; never install silently on your own initiative.
+- 如果宿主平台提供技能市场或托管安装器，优先通过平台安装，不得绕过宿主的安装控制。
+- 执行任何安装或更新命令前，必须征得用户确认；不得主动静默安装。
 
-## Security & Privacy Declaration
+## 安全与隐私声明
 
-- **Canonical source**: `https://second-me.cn` — `/.well-known/skills/index.json` lists every file of this skill for audit.
-- **Network endpoints**: the skill only calls `https://api.mindverse.com` (SecondMe API). Pages the user opens in a browser (login, avatar share) live on `https://second-me.cn`. No other hosts are contacted.
-- **Local files**: writes are confined to `~/.secondme/` (credentials, config) and `~/.cache/secondme-skills/` (update-check stamp). `~/.openclaw/.credentials` is read once as a legacy fallback, never written. The skill does not read other agents' or products' files.
-- **No telemetry**: this skill does not record or upload any usage data.
-- **Local agent context**: facts from the host agent's memory are only used as in-conversation draft suggestions and are never uploaded without the user's explicit per-item confirmation.
-- **Update check**: at most once per 24 hours the skill fetches the published version number (read-only) and compares it with the installed one; an update is **never applied without asking the user first**. Set `SECONDME_SKILL_NO_AUTOUPDATE=1` to disable the check entirely.
+- **正式发布源**：`https://second-me.cn`；`/.well-known/skills/index.json` 列出此技能的全部文件，便于审计。
+- **网络端点**：此技能只调用 `https://api.mindverse.com`（小己 API）。用户在浏览器中打开的登录页、分身分享页均位于 `https://second-me.cn`。不访问其他主机。
+- **本地文件**：只向 `~/.secondme/`（凭据、配置）和 `~/.cache/secondme-skills/`（更新检查时间戳）写入文件。`~/.openclaw/.credentials` 仅作为历史兼容路径读取一次，永不写入。不读取其他智能体或产品的文件。
+- **无遥测**：不记录、不上传任何使用数据。
+- **本地智能体上下文**：宿主智能体记忆中的事实只能作为当前对话的草案建议；未经用户逐条明确确认，不得上传。
+- **更新检查**：每 24 小时最多只读获取一次已发布版本号，并与当前安装版本比较；未经用户确认，**绝不自动执行更新**。设置 `SECONDME_SKILL_NO_AUTOUPDATE=1` 可完全关闭检查。
 
-After installation, show the user the following onboarding message, then proceed with their request:
+安装完成后，先向用户展示以下引导文案，然后继续处理用户的请求：
 
-> **SecondMe skill 安装成功！** 你现在可以通过对话完成以下操作：
+> **小己（Second Me）技能安装成功！** 你现在可以通过对话完成以下操作：
 >
-> - **登录 / 注册** — 连接你的 SecondMe 账号
-> - **个人资料** — 查看和编辑你的 Profile
-> - **Key Memory** — 存储和搜索你的关键记忆
-> - **笔记** — 收藏文本片段和链接，支持增删改查
-> - **聊天** — 和你的 SecondMe 对话
-> - **分身工场** — 从产品定义、素材收集、创建分身，到定价收费、签约、二维码分发和下载聊天记录的完整流程
+> - **登录 / 注册** — 连接你的小己（Second Me）账号
+> - **身份与形象（Profile）** — 查看和编辑你的姓名、个人简介、封面人像、聊天头像和声音
+> - **资料（Note）** — 保存和搜索你想过、说过、写过的内容
+> - **关键记忆（Key Memory）** — 存储和搜索你的关键记忆
+> - **聊天** — 和你的小己分身对话
+> - **分身（Avatar）** — 针对不同场景定义、创建和管理分身，并支持定价、签约、分发和导出聊天记录
 >
-> 试试说「帮我做一个分身」或「登录 SecondMe」开始吧！
+> 试试说「帮我做一个分身」或「登录小己」开始吧！
 
-If the user already has a specific request, skip the onboarding message and handle the request directly.
+如果用户已经提出明确请求，跳过引导文案，直接处理请求。
 
 ---
 
-## Pre-flight Check
+## 前置检查
 
-On first activation per conversation, silently run this check before proceeding with the user's request. It is a **read-only version probe** — it downloads nothing executable and changes no files:
+每次对话第一次激活此技能时，在处理用户请求前静默运行以下只读版本检查。该检查不会下载可执行内容，也不会修改文件：
 
 ```bash
-# --- Update Check (read-only probe; never applies updates on its own) ---
+# --- 只读更新检查；绝不自行执行更新 ---
 CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/secondme-skills"
 STAMP="$CACHE_DIR/last-check"
 mkdir -p "$CACHE_DIR"
 LAST=$(cat "$STAMP" 2>/dev/null || echo 0)
 NOW=$(date +%s)
-SM_VERSION="3.3.7"
+SM_VERSION="3.4.0"
 if [ -z "$SECONDME_SKILL_NO_AUTOUPDATE" ] && [ $((NOW - LAST)) -ge 86400 ]; then
   REMOTE_VERSION=$(curl -s --max-time 10 "https://second-me.cn/skill.md" | sed -n 's/^  version: "\(.*\)"/\1/p' | head -1)
   echo "$NOW" > "$STAMP"
@@ -72,84 +72,100 @@ if [ -z "$SECONDME_SKILL_NO_AUTOUPDATE" ] && [ $((NOW - LAST)) -ge 86400 ]; then
 fi
 ```
 
-Rules:
-- Run at most once per conversation, and only if the last check was more than 24 hours ago
-- **Never run `npx skills update` on your own initiative** — the probe only compares version strings
-- If `UPDATE_AVAILABLE` appears: tell the user a new version exists and ask whether to update now; run `npx skills update secondme -y` only after they agree
-- If versions match or the check is throttled, proceed silently — do not mention the check to the user
-- Never let the check block or delay the user's actual request
+规则：
+
+- 每次对话最多运行一次，且距上次检查超过 24 小时时才运行。
+- **不得主动运行 `npx skills update`**；该检查只比较版本号。
+- 如果输出 `UPDATE_AVAILABLE`，告诉用户存在新版本并询问是否现在更新；只有用户同意后才能运行 `npx skills update secondme -y`。
+- 如果版本一致或检查尚在限频期内，静默继续，不向用户提及此次检查。
+- 检查绝不得阻塞或延迟用户的实际请求。
 
 ---
 
-## API Base URL
+## API 基础地址
 
-All API endpoints in this skill use `{BASE}` as the base URL placeholder.
+此技能中的所有 API 端点都使用 `{BASE}` 作为基础地址占位符。
 
 `{BASE}` = `https://api.mindverse.com/gate/lab`
 
-This skill owns the SecondMe personal-account and avatar-studio workflow.
+此技能负责小己（Second Me）个人账号、记忆系统和分身（Avatar）的完整流程。
 
-It covers:
+### 记忆系统与分身
 
-- login, logout, re-login, and token storage
-- profile read and update
-- Key Memory insert and search
-- note add, search, list, update, and delete
-- chat with the user's own SecondMe
-- the **avatar studio lifecycle**: product definition → material gathering → avatar creation → pricing/monetization → paid-avatar contract signing → evaluation → QR-code distribution → chat-history export
+**记忆系统是分身的核心**，由三层组成：
 
-**Credentials file:** `~/.secondme/credentials`
+1. **资料（Note）**：关于用户的一切资料——用户想过、说过、写过的内容。分身对用户的理解从这里开始。
+2. **关键记忆（Key Memory）**：
+   - **事实型关键记忆**：记录用户的偏好、经历、习惯等关键事实，让分身更懂真实的用户。用户（主人）与分身对话时，系统会自动生成此类记忆。
+   - **风格型关键记忆**：记录用户的表达习惯和话题禁忌，让分身知道什么该说、什么不该说、应该怎么说。
+   - **关系型关键记忆**：记录用户与他人的关系和相处方式，让分身理解他们在用户生活中的角色。分身与他人对话时，系统会自动生成此类记忆。
+3. **内核（Core）**：用户为分身设定的共享底色。系统每晚会通过“做梦”根据新记忆更新内核。**当前 Skill 没有更新内核的接口**；如需查看或手动更新，请前往小己 App 内的「记忆-内核」Tab。
 
-## Shared Authentication Rules
+一个用户可以在同一个内核下创建多个分身。这些分身共享用户的记忆系统和内核，但分别面向不同场景，各自拥有独立的**分身定义**。`scenarioPrompt` 是分身定义的技术载体，只描述该分身在特定场景中的定位、任务、交互方式和边界，不是内核。
 
-Before any authenticated SecondMe operation:
+功能范围：
 
-1. Read `~/.secondme/credentials`
-2. If not found, fall back to `~/.openclaw/.credentials` (legacy path)
-3. If either contains valid JSON with `accessToken`, continue
-4. If it only contains legacy `access_token`, continue, but normalize future writes to `accessToken`
-5. If both files are missing, empty, or invalid, start the login flow in this same skill
+- 登录、退出登录、重新登录和令牌存储
+- 读取和更新身份与形象（Profile）
+- 新增、搜索、列出、更新和删除资料（Note）
+- 新增、批量创建、搜索、更新和删除关键记忆（Key Memory）
+- 与用户自己的智能体或他人的分身（Avatar）聊天
+- **分身全流程**：分身定义 → 资料收集 → 创建分身 → 定价与变现 → 付费分身签约 → 评测 → 二维码分发 → 导出聊天记录
 
-All writes go to `~/.secondme/credentials` only. Create the `~/.secondme/` directory if it does not exist.
+**凭据文件**：`~/.secondme/credentials`
 
-Use the resulting `accessToken` as the Bearer token for all authenticated requests below.
+## 共享鉴权规则
 
-## Connect
+执行任何需要鉴权的小己操作前：
 
-Login, logout, re-login, authorization code exchange, and first-login soft onboarding.
+1. 读取 `~/.secondme/credentials`。
+2. 如果未找到，则回退读取历史路径 `~/.openclaw/.credentials`。
+3. 如果任一文件包含有效 JSON 且存在 `accessToken`，继续执行。
+4. 如果只包含历史字段 `access_token`，仍可继续，但后续写入时统一改为 `accessToken`。
+5. 如果两个文件都不存在、为空或无效，在此技能内直接启动登录流程。
 
-Read [references/connect.md](references/connect.md) for the complete flow.
+所有写入都只能落到 `~/.secondme/credentials`。如果 `~/.secondme/` 目录不存在，先创建该目录。
 
-## Profile
+下文所有需要鉴权的请求，均使用获取到的 `accessToken` 作为 Bearer 令牌。
 
-Profile read, guided review with local memory integration, profile update, interest tags (shades), soft memory, and first-run handoff to Key Memory sync.
+## 连接与登录
 
-Read [references/profile.md](references/profile.md) for the complete flow.
+处理登录、退出登录、重新登录、授权码交换，以及首次登录的轻量引导。
 
-## Key Memory
+完整流程见 [references/connect.md](references/connect.md)。
 
-Insert, batch create, search, update, and delete SecondMe Key Memory entries. Includes guided memory sync from local memory.
+## 身份与形象（Profile）
 
-Read [references/key-memory.md](references/key-memory.md) for the complete flow.
+处理姓名、个人简介、封面人像、聊天头像和声音的查看与设置，并在首次使用时衔接到关键记忆。姓名和个人简介应尽量包含用户常用的昵称、英文名、网名等称呼，帮助模型识别资料（Note）中哪些内容是用户本人表达的。分身未单独设置封面时，默认使用这里的封面人像。
 
-## Note
+完整流程见 [references/profile.md](references/profile.md)。
 
-Add, search, list, update, and delete SecondMe notes. Supports TEXT notes and LINK notes, with attachments surfaced in list results.
+## 关键记忆（Key Memory）
 
-Read [references/note.md](references/note.md) for the complete flow.
+新增、批量创建、搜索、更新和删除小己的关键记忆，并支持从本地记忆引导用户同步。
 
-## Chat
+完整流程见 [references/key-memory.md](references/key-memory.md)。
 
-Use the presence of a user-provided shareCode to distinguish between chatting with the user’s agent and chatting with another avatar.
+## 资料（Note）
 
-Read [references/chat.md](references/chat.md) for the complete flow.
+资料是记忆系统的起点。新增、搜索、列出、更新和删除小己资料。支持文本（TEXT）和链接（LINK）两种资料类型，列表结果中需要同时展示附件。
 
-## Avatar Studio（分身工场）
+完整流程见 [references/note.md](references/note.md)。
 
-The core of this skill. A staged, end-to-end journey that helps the user turn their SecondMe into a deliverable, sellable, distributable avatar service — not just a create-and-forget form.
+## 聊天
 
-Stages: inspect the user's existing profile, current agent context/local memory when available, Key Memory, notes, and avatars → progressively fill only the missing product decisions → gather targeted material → create avatar → pricing & monetization → paid-avatar contract signing → evaluation → distribution (share link + QR code + chat-history export). Never ask the user to complete the whole avatar brief in one message: draft from existing evidence first, then ask only 1–2 high-impact questions per turn. Treat local-agent facts as draft candidates and never upload them without user confirmation. The skill never handles payments — visitor payments happen on the avatar share page, creator top-ups in the App. Also covers avatar CRUD, **official avatar skills only**, public share link, and interaction history. Do not expose, create, list, or bind custom avatar skills in this version.
+根据用户是否提供 `shareCode`，区分是与用户自己的智能体聊天，还是与他人的分身（Avatar）聊天。
 
-Enter this journey when the user says things like「做一个分身」「创建分身」「把我的分身卖出去」「给分身定价」「分发分身」, or asks about any single stage. Run stages in order for a fresh build; jump directly to a stage when the user targets it.
+完整流程见 [references/chat.md](references/chat.md)。
 
-Read [references/avatar-center.md](references/avatar-center.md) for the complete flow.
+## 分身（Avatar）
+
+通过分阶段的端到端流程，帮助用户在共享内核之上，为具体场景创建拥有独立分身定义的小己分身，并将其做成可交付、可售卖、可分发的服务。
+
+流程如下：检查用户已有的身份与形象、当前智能体上下文或本地记忆（若可用）、资料、关键记忆和现有分身 → 逐步补齐尚缺的分身定义 → 定向收集资料 → 创建分身 → 定价与变现 → 付费分身签约 → 评测 → 分发（分享链接、二维码、聊天记录导出）。
+
+不得要求用户在一条消息中填完整个分身需求；应先根据已有信息起草，再每轮只追问 1–2 个高影响缺口。本地智能体中的事实只能作为草案候选，未经用户确认不得上传。此技能不处理支付：访客在分身分享页完成付款，创作者在小己应用内完成充值。此处还覆盖分身的新增、查询、更新和删除（CRUD）、**仅限官方分身技能**、公开分享链接和交互记录。当前版本不展示、创建、列出或绑定自定义分身技能。
+
+当用户说「做一个分身」「创建分身」「把我的分身卖出去」「给分身定价」「分发分身」，或者询问其中任一阶段时，进入该流程。全新创建时按阶段顺序执行；用户明确指定某个阶段时，直接跳到该阶段。
+
+完整流程见 [references/avatar-center.md](references/avatar-center.md)。
