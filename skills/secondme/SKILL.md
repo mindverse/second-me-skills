@@ -4,7 +4,7 @@ description: "Use when the user wants to use SecondMe as an end user: login/sign
 license: MIT
 metadata:
   author: mindverse
-  version: "3.3.3"
+  version: "3.3.4"
   user-invocable: true
 ---
 
@@ -43,7 +43,7 @@ After installation, show the user the following onboarding message, then proceed
 > - **Key Memory** — 存储和搜索你的关键记忆
 > - **笔记** — 收藏文本片段和链接，支持增删改查
 > - **聊天** — 和你的 SecondMe 对话
-> - **分身工场** — 从产品定义、素材收集、创建分身，到定价收费、签约、生成交付页、二维码分发和下载聊天记录的完整流程
+> - **分身工场** — 从产品定义、素材收集、创建分身，到定价收费、签约、二维码分发和下载聊天记录的完整流程
 >
 > 试试说「帮我做一个分身」或「登录 SecondMe」开始吧！
 
@@ -92,7 +92,7 @@ It covers:
 - Key Memory insert and search
 - note add, search, list, update, and delete
 - chat with the user's own SecondMe
-- the **avatar studio lifecycle**: product definition → material gathering → avatar creation → pricing/monetization → paid-avatar contract signing → evaluation → HTML delivery page → QR-code distribution → chat-history export → API key distribution
+- the **avatar studio lifecycle**: product definition → material gathering → avatar creation → pricing/monetization → paid-avatar contract signing → evaluation → QR-code distribution → chat-history export → API key distribution
 
 **Credentials file:** `~/.secondme/credentials`
 
@@ -136,7 +136,7 @@ Read [references/note.md](references/note.md) for the complete flow.
 
 ## Chat
 
-Two chat targets: (1) the user's own SecondMe — the default, via streaming chat with session list and message history, supporting multi-modal images and web search; (2) someone's avatar — resolved from an avatar share link or shareCode, with server-side session find-or-create and synchronous replies. Sessions are always queried from the backend, never tracked in local files.
+Use the presence of a user-provided shareCode to distinguish between chatting with the user’s agent and chatting with another avatar.
 
 Read [references/chat.md](references/chat.md) for the complete flow.
 
@@ -144,7 +144,7 @@ Read [references/chat.md](references/chat.md) for the complete flow.
 
 The core of this skill. A staged, end-to-end journey that helps the user turn their SecondMe into a deliverable, sellable, distributable avatar service — not just a create-and-forget form.
 
-Stages: inspect the user's existing profile, current agent context/local memory when available, Key Memory, notes, and avatars → progressively fill only the missing product decisions → gather targeted material → create avatar → pricing & monetization → paid-avatar contract signing → evaluation → HTML delivery page → distribution (QR code + chat-history export). Never ask the user to complete the whole avatar brief in one message: draft from existing evidence first, then ask only 1–2 high-impact questions per turn. Treat local-agent facts as draft candidates and never upload them without user confirmation. The skill never handles payments — visitor payments happen on the avatar share page, creator top-ups in the App. Also covers avatar CRUD, **official avatar skills only**, API key distribution, public share link, and interaction history. Do not expose, create, list, or bind custom avatar skills in this version.
+Stages: inspect the user's existing profile, current agent context/local memory when available, Key Memory, notes, and avatars → progressively fill only the missing product decisions → gather targeted material → create avatar → pricing & monetization → paid-avatar contract signing → evaluation → distribution (share link + QR code + chat-history export). Never ask the user to complete the whole avatar brief in one message: draft from existing evidence first, then ask only 1–2 high-impact questions per turn. Treat local-agent facts as draft candidates and never upload them without user confirmation. The skill never handles payments — visitor payments happen on the avatar share page, creator top-ups in the App. Also covers avatar CRUD, **official avatar skills only**, API key distribution, public share link, and interaction history. Do not expose, create, list, or bind custom avatar skills in this version.
 
 Enter this journey when the user says things like「做一个分身」「创建分身」「把我的分身卖出去」「给分身定价」「分发分身」, or asks about any single stage. Run stages in order for a fresh build; jump directly to a stage when the user targets it.
 
