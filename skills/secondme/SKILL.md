@@ -136,7 +136,7 @@ Read [references/note.md](references/note.md) for the complete flow.
 
 ## Chat
 
-One chat endpoint: omit `shareCode` when the user does not explicitly provide one; otherwise pass the supplied shareCode through unchanged. The backend resolves whether it represents the Personal Agent or another avatar. Never classify shareCodes, query session lists, or send, store, or manage `sessionId`.
+Use the presence of a user-provided shareCode to distinguish between chatting with the user’s agent and chatting with another avatar.
 
 Read [references/chat.md](references/chat.md) for the complete flow.
 
