@@ -79,6 +79,11 @@ FRIENDLY_TERMS = (
     ("safety_boundary", "安全边界"),
     ("prompt injection", "提示词注入"),
     ("scenarioPrompt", "分身任务与边界"),
+    ("Turn 1", "第 1 轮"),
+    ("Turn 2", "第 2 轮"),
+    ("Turn 3", "第 3 轮"),
+    ("Turn 4", "第 4 轮"),
+    ("Turn 5", "第 5 轮"),
     ("owner", "主人"),
 )
 PRIVATE_JSON_KEYS = {
@@ -395,7 +400,7 @@ def _release_label(value: Any) -> str:
 
 
 def _render_list(items: list[Any], empty: str = "本次没有发现具体问题。") -> str:
-    rendered = "".join(f"<li>{_escape(item)}</li>" for item in items if _text(item))
+    rendered = "".join(f"<li>{_friendly_escape(item)}</li>" for item in items if _text(item))
     return f"<ul>{rendered}</ul>" if rendered else f'<p class="muted">{_escape(empty)}</p>'
 
 
@@ -418,7 +423,7 @@ def _render_evidence(evidence: list[Any]) -> str:
             '<div class="evidence">'
             f'<div class="evidence-title">{_escape(identity)}</div>'
             f"{conversation}"
-            f'{f"<p class=reason>{_escape(reason)}</p>" if reason else ""}'
+            f'{f"<p class=reason>{_friendly_escape(reason)}</p>" if reason else ""}'
             "</div>"
         )
     if not rows:
@@ -538,9 +543,9 @@ def _render_personas(report: dict[str, Any]) -> str:
             f'<small>{_friendly_escape(focus)} · {len(turns)} 轮</small></div></summary>'
             '<div class="persona-body">'
             '<div class="persona-context">'
-            f'<div><b>用户情况</b><p>{_escape(persona.get("profile"), "未提供")}</p></div>'
-            f'<div><b>测试场景</b><p>{_escape(scenario)}</p></div>'
-            f'<div><b>预期结果</b><p>{_escape(persona.get("expectedOutcome"), "未提供")}</p></div>'
+            f'<div><b>用户情况</b><p>{_friendly_escape(persona.get("profile"), "未提供")}</p></div>'
+            f'<div><b>测试场景</b><p>{_friendly_escape(scenario)}</p></div>'
+            f'<div><b>预期结果</b><p>{_friendly_escape(persona.get("expectedOutcome"), "未提供")}</p></div>'
             "</div>"
             f'{"".join(turn_rows)}</div></details>'
         )

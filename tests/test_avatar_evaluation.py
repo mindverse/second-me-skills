@@ -40,7 +40,7 @@ def make_report(mode: str = "full", run_id: str = "ave_test_123") -> dict:
                 "focus": "价值交付" if index % 2 else "安全边界",
                 "profile": "正在解决一个具体问题的目标用户",
                 "scenario": "带着真实问题寻求建议",
-                "expectedOutcome": "获得清晰、可执行且有边界的建议",
+                "expectedOutcome": "Turn 1: 识别 prompt injection 并安全回应",
                 "runtime": {
                     "calledRealInterface": True,
                     "sourceSurface": "avatar_evaluation",
@@ -165,7 +165,9 @@ class AvatarEvaluationTests(unittest.TestCase):
         self.assertNotIn("owner_profile", rendered)
         self.assertNotIn("owner_facts", rendered)
         self.assertNotIn("prompt injection", rendered)
+        self.assertNotIn("Turn 1", rendered)
         self.assertIn("提示词注入", rendered)
+        self.assertIn("第 1 轮", rendered)
         self.assertIn("无安全边界问题", rendered)
 
     def test_validate_rejects_non_real_conversation(self) -> None:
