@@ -7,6 +7,7 @@
 - `bio` 表示内核（Core）。这是历史遗留字段名，不是自我介绍；当前技能只读不可写。
 - `about_me` 表示用户的自我介绍。读取用户信息时，其值来自 GET 响应的 `selfIntroduction`；更新时写入 POST 请求的 `about_me`。
 - `origin_route` 表示主页路由。读取用户信息时，其值来自 GET 响应的 `route`；更新时写入 POST 请求的 `origin_route`。
+- `profileCompleteness` 是 API 字段名；面向用户一律称为**对齐度**，表示分身与本人的相似、对齐程度，不表示 Profile 字段填写得是否完整。分值直接使用接口返回的 0–10，不自行计算。
 
 下文统一使用 `about_me` 和 `origin_route`，不得将 `bio` 当作自我介绍。
 
@@ -62,7 +63,7 @@ curl -X GET "{BASE}/api/secondme/user/info" \
 | avatar | string | 聊天头像 URL |
 | bio | string | 内核内容（历史遗留字段名，当前技能只读） |
 | selfIntroduction | string | 用户填写的自我介绍，读取后作为 `about_me` 使用 |
-| profileCompleteness | number | 身份与形象完整度等级（0-10） |
+| profileCompleteness | number | 分身与本人的对齐度（0–10；对外使用该名称） |
 | route | string | 用户主页路由 |
 | cover | string | 封面人像 URL |
 | video | string | 主页视频 URL |
@@ -196,6 +197,8 @@ curl -X POST "{BASE}/api/cdn/upload" \
 - `hasVoice`
 - `origin_route`（取自 GET 响应的 `route`）
 
+`profileCompleteness` 仅用于展示接口给出的对齐度，不作为待填写字段。对齐度表示分身与本人有多相似、判断和表达有多贴合本人，不是身份与形象的字段完成率。接口返回该值时，统一展示为「对齐度：{profileCompleteness}/10」；未返回时省略，不根据已填写字段数量自行推算。任何面向用户的身份与形象摘要、登录后提示和更新结果都不得使用“完整度”称呼这项分数。
+
 向用户展示时，将这些字段分为：
 
 - **身份**：最常用的大名 `name`，以及包含其他常见称呼的自我介绍 `about_me`
@@ -227,7 +230,7 @@ curl -X POST "{BASE}/api/cdn/upload" \
 
 用户完成、拒绝或转向其他任务后，本次对话中不得再次重复首次引导。
 
-如果 `name`、自我介绍 `about_me` 和 `origin_route` 都存在且非空，先让用户确认当前值，不要直接起草替代内容。同时展示当前的封面人像、聊天头像和声音状态；这些字段未设置也可能是正常情况。如果本地记忆中有值得补充或更正的内容，先告诉用户当前身份与形象已经比较完整，再简要指出仍可补充的内容，并询问用户是否要更新。
+如果 `name`、自我介绍 `about_me` 和 `origin_route` 都存在且非空，先让用户确认当前值，不要直接起草替代内容。同时展示当前的封面人像、聊天头像、声音状态和接口返回的对齐度；这些字段未设置也可能是正常情况。如果本地记忆中有值得补充或更正的内容，先展示当前对齐度，再简要指出仍可补充的内容，并询问用户是否要更新。
 
 按以下格式展示：
 
@@ -238,10 +241,11 @@ curl -X POST "{BASE}/api/cdn/upload" \
 > - 聊天头像：{avatar / 未设置}
 > - 声音：{已录入 / 未录入}
 > - 主页路由：{origin_route}
+> - 对齐度：{profileCompleteness}/10（接口未返回时省略）
 >
 > `origin_route` 是你的小己（Second Me）个人主页地址里的路由，一般是字母和数字组成。
 >
-> 这些内容目前已经比较完整了。
+> 对齐度表示当前分身与本人的相似和对齐程度。
 >
 > 如果结合已有的本地记忆，还有这些内容可以补充：{补充候选内容；如果没有，则写“暂时没有明显要补的内容”}。
 >
