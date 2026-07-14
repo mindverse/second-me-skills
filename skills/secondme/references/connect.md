@@ -1,68 +1,47 @@
-# Connect
+# 连接与登录
 
-## Contents
+本文件负责登录、退出登录、重新登录、授权码交换和令牌持久化。
 
-- [Overview](#overview)
-- [Logout / Re-login](#logout--re-login)
-- [Login Flow](#login-flow)
-- [Exchange Code For Token](#exchange-code-for-token)
-- [First-Login Soft Onboarding](#first-login-soft-onboarding)
+当用户说「登录小己」「登录 Second Me」「登入 second me」「login second me」「连上小己」，或索要登录授权地址时，立即进入登录流程；缺少凭据时直接提供浏览器授权地址。
 
-## Overview
+全局产品介绍、安装成功文案和首次使用路线由 [SKILL.md](../SKILL.md) 统一负责。本文件不得重复展示功能清单；进入本文件后，只处理登录、退出、授权和登录后的必要衔接。
 
-This section owns login, logout, re-login, code exchange, and token persistence.
+如果用户已经提出查看身份与形象、创建分身或搜索记忆等明确任务，不要再展示通用能力介绍。直接处理该请求；未登录时只完成继续该任务所必需的最小登录步骤。
 
-If the user says things like `登录小己`, `登录 Second Me`, `登入 second me`, `login second me`, `连上小己`, or asks for the auth/login URL, immediately handle the login flow and give the browser auth address when credentials are missing.
+## 退出与重新登录
 
-If the user is invoking this skill for the first time in the conversation and does not give a clear task, first introduce what the skill can do, then make it clear that all of those actions require login before use, then continue into the login flow.
+当用户说「退出登录」「重新登录」「logout」「re-login」，或要求切换账号时：
 
-Use a short introduction like:
+1. 删除 `~/.secondme/credentials`。
+2. 如果 `~/.openclaw/.credentials` 也存在，一并删除。
+3. 丢弃本次对话中已读取的上一账号用户信息。
+4. 告诉用户：`已退出登录，下次用的时候重新登录就行。`
+5. 如果用户要求重新登录，继续执行下方登录流程。
 
-> 我可以帮你用小己（Second Me）做这些事：
-> - 查看和更新身份与形象
-> - 把适合长期保存的记忆存进小己，快速塑造自己的分身
-> - 添加、搜索和管理资料
-> - 和你的小己分身聊天
-> - **分身**：针对不同场景定义、创建和管理分身，并支持定价、签约、分发和下载聊天记录
->
-> 这些能力都要先登录才能用。我先带你登录，登录完再继续。
+## 登录流程
 
-If the user has already given a clear task such as viewing profile, creating an avatar, or searching memory, do not give the generic capability introduction. Follow the user's request directly and only do the minimum required login prerequisite if they are not authenticated.
+如果凭据缺失或无效，标记 `firstTimeLocalConnect = true`。
 
-## Logout / Re-login
+### 步骤一：生成 PKCE 参数
 
-When the user says `退出登录`, `重新登录`, `logout`, `re-login`, or wants to switch account:
-
-1. Delete `~/.secondme/credentials`
-2. If `~/.openclaw/.credentials` also exists, delete it as well
-3. Tell: `已退出登录，下次用的时候重新登录就行。`
-4. If re-login was requested, continue with the login flow below
-
-## Login Flow
-
-If credentials are missing or invalid, mark this as `firstTimeLocalConnect = true`.
-
-### Step 1: Generate PKCE Parameters
-
-Before showing the auth URL, generate PKCE parameters locally:
+展示授权地址前，先在本地生成 PKCE 参数：
 
 ```bash
 CODE_VERIFIER=$(python3 -c "import secrets; print(secrets.token_urlsafe(32))")
 CODE_CHALLENGE=$(printf '%s' "$CODE_VERIFIER" | openssl dgst -sha256 -binary | openssl base64 -A | tr '+/' '-_' | tr -d '=')
 ```
 
-Store `CODE_VERIFIER` in a local variable — it will be needed later for token exchange.
+将 `CODE_VERIFIER` 保存在本地变量中，稍后交换令牌时还要使用。
 
-### Step 2: Show Auth URL
+### 步骤二：展示授权地址
 
-Tell the user to open the auth page in a browser. Append `?challenge=<CODE_CHALLENGE>` to the URL.
-Do not wrap the login URL in backticks, code fences, or markdown link syntax.
+让用户在浏览器中打开授权页面，并在地址后附加 `?challenge=<CODE_CHALLENGE>`。登录地址不得使用反引号、代码块或 Markdown 链接包装。
 
-Output only the raw URL on its own line:
+只输出原始地址，并让它单独占一行：
 
 https://second-me.cn/auth/skills?challenge=<CODE_CHALLENGE>
 
-Tell the user:
+告诉用户：
 
 > 你还没有登录小己（Second Me），点这个链接登录一下：
 >
@@ -71,16 +50,16 @@ Tell the user:
 > 登录完把页面上的授权码发给我，格式像 lba_ac_xxxxxxxxxxxx。
 
 注意：
-- This page handles 小己（Second Me） Web login or registration first
-- After login, the page generates a one-time authorization code (lba_ac_ prefix)
-- The code is valid for 5 minutes and single-use
-- The code is bound to the PKCE challenge — only the original code_verifier can exchange it
+- 该页面会先处理小己（Second Me）网页版的登录或注册。
+- 登录后，页面会生成一个以 `lba_ac_` 开头的一次性授权码。
+- 授权码有效期为 5 分钟，并且只能使用一次。
+- 授权码与 PKCE challenge 绑定，只有原始 `code_verifier` 可以用它交换令牌。
 
-Then STOP and wait for the user to reply with the authorization code.
+到此停止，等待用户回复授权码。
 
-## Exchange Code For Token
+## 用授权码换取令牌
 
-When the user sends `lba_ac_...`:
+当用户发来 `lba_ac_...` 时，运行：
 
 ```bash
 curl -s -X POST {BASE}/api/auth/skills/token \
@@ -88,16 +67,17 @@ curl -s -X POST {BASE}/api/auth/skills/token \
   -d "{\"code\": \"<lba_ac_...>\", \"codeVerifier\": \"$CODE_VERIFIER\"}"
 ```
 
-Rules:
-- Verify `response.code == 0`
-- Verify `response.data.accessToken` exists
-- `lba_at_...` is the token used by all other 小己（Second Me） flows
-- `codeVerifier` must match the `CODE_VERIFIER` generated in Step 1
+规则：
 
-After success:
+- 确认 `response.code == 0`。
+- 确认 `response.data.accessToken` 存在。
+- `lba_at_...` 是后续所有小己（Second Me）流程使用的令牌。
+- `codeVerifier` 必须与步骤一生成的 `CODE_VERIFIER` 一致。
 
-1. Create `~/.secondme/` directory if it does not exist
-2. Write `~/.secondme/credentials`:
+成功后：
+
+1. 如果 `~/.secondme/` 目录不存在，先创建该目录。
+2. 写入 `~/.secondme/credentials`：
    ```json
    {
     "accessToken": "<data.accessToken>",
@@ -105,26 +85,11 @@ After success:
    }
    ```
 
-Tell the user:
-- 登录成功，token 已保存。
+登录成功后，先按 [SKILL.md 的用户信息读取与复用规则](../SKILL.md#用户信息读取与复用) 调用一次 `GET {BASE}/api/secondme/user/info`。这一步对所有登录入口都执行，不因用户已有明确任务而跳过。
 
-## First-Login Soft Onboarding
+Profile 初始化完成后，按以下规则交接：
 
-Only run this section if `firstTimeLocalConnect = true`.
+- 如果登录只是某项明确请求的前置条件，读取用户信息时保持静默；告诉用户 `登录成功，token 已保存。`，然后立即继续原请求。
+- 如果用户是从安装引导进入登录，或登录前没有其他明确任务，不要在本文件中继续设计首次使用引导，也不要单独发送登录成功消息。将 `firstTimeLocalConnect`、登录入口上下文和已读取的用户信息交给 [profile.md](profile.md#guided-profile-review)，由身份与形象流程输出第一条登录成功消息并继续引导。
 
-After the success message, offer an optional guided path:
-
-> 这是你第一次连上小己（Second Me）。
->
-> 如果你愿意，我建议先这样试一遍：
-> - 看看你在小己（Second Me）上的身份与形象有没有什么需要补充
-> - 基于我对你的了解，把你的关键记忆同步进小己
-> - 然后我帮你做出第一个分身
->
-> 你也可以不按这个来。可以问问别的，或者告诉我你接下来想做什么。
-
-If the user says `好`、`来吧`、`先看身份与形象`, or otherwise accepts the suggested path, first review local memory internally, use it to judge whether the current 小己（Second Me） profile needs updates or supplements, then continue with the profile section below.
-
-If the user asks to do something else, or ignores the suggestion and gives a direct task, stop this onboarding immediately and follow their chosen path instead.
-
-Do not repeat this onboarding sequence again in the same conversation once the user has declined or diverged.
+完成上述交接后，本文件流程结束。
