@@ -180,7 +180,7 @@
 按用户需求继续：
 
 - 快速浏览访客会话：读取 `/avatar/{avatarId}/interactions` 的会话级摘要。
-- 获取全量聊天：创建 `/avatar/conversations/export` 异步任务，每 2–3 秒轮询，成功后尽快下载约 30 分钟有效的 CSV 链接。
+- 导出最近 30 天聊天记录：创建 `/avatar/conversations/export` 异步任务，每 2–3 秒轮询，成功后尽快下载约 30 分钟有效的 CSV 链接。导出范围固定，不支持自定义时间。
 - 分析表现：读取 `/avatar/dashboard` 的访客、消息、转化、付费、收入和趋势数据。
 
 ## 分身定义（scenarioPrompt）有效原则
@@ -337,7 +337,7 @@ https://second-me.cn/contract/payment?tier=1
 | 获取公开信息 | `GET /avatar/public/{shareCode}` | `shareCode` |
 | 获取交互摘要 | `GET /avatar/{avatarId}/interactions` | `avatarId` |
 | 获取数据看板 | `GET /avatar/dashboard` | `avatarId` |
-| 创建聊天记录导出任务 | `POST /avatar/conversations/export` | `avatarId` |
+| 创建最近 30 天聊天记录导出任务 | `POST /avatar/conversations/export` | `avatarId` |
 | 查询导出任务 | `GET /avatar/conversations/export/{jobId}` | `jobId` |
 | 获取微信小程序二维码 | `GET /avatar/wxapp-qrcode` | `avatarId` |
 
@@ -500,7 +500,7 @@ GET /avatar/public/{shareCode}
 GET /avatar/{avatarId}/interactions
 ```
 
-`data[]` 为会话级摘要，常用字段：`id`、`visitorName`、`messageCount`、`durationSeconds`、`summary`、`createdAt`。需要完整消息原文时使用异步导出，不要把摘要当作全量聊天记录。
+`data[]` 为会话级摘要，常用字段：`id`、`visitorName`、`messageCount`、`durationSeconds`、`summary`、`createdAt`。需要最近 30 天的完整消息原文时使用异步导出，不要把摘要当作完整聊天记录。
 
 #### 获取数据看板
 
@@ -520,7 +520,7 @@ GET /avatar/dashboard?avatarId={avatarId}&from={ms}&to={ms}&interval=auto
 - `messageConversionRateBp` 是万分比。
 - `grossIncomeUnitAmount` 的单位与定价相同：元 × 100,000。
 
-#### 导出完整聊天记录
+#### 导出最近 30 天聊天记录
 
 创建任务：
 
@@ -533,7 +533,9 @@ POST /avatar/conversations/export
 }
 ```
 
-只有 `avatarId` 必需；响应返回 `data.jobId`。然后轮询：
+导出范围固定为任务创建时向前最近 30 天，不支持自定义起止时间。接口不接受 `from`、`to` 或其他时间范围参数，不要询问用户导出区间，也不要描述为全量历史聊天记录。
+
+只有 `avatarId` 必需；`appLanguage` 和 `timezone` 可选，响应返回 `data.jobId`。然后轮询：
 
 ```text
 GET /avatar/conversations/export/{jobId}
