@@ -84,7 +84,7 @@ def _api_request(
     headers = {
         "Accept": "application/json",
         "Authorization": f"Bearer {token}",
-        "User-Agent": "secondme-skill-avatar-evaluation/3.6.1",
+        "User-Agent": "secondme-skill-avatar-evaluation/3.6.2",
     }
     if payload is not None:
         body = json.dumps(payload, ensure_ascii=False).encode("utf-8")

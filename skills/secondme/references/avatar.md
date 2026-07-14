@@ -126,11 +126,11 @@
 
 默认调用 `/avatar/create`。只有按需分支已确认启用官方能力时，才调用 `/avatar/skill-create` 并在 `skills` 中传 `officialSkillKeys`；只有用户已主动提出收费需求时，才附带 `monetization`。
 
-成功后保留返回的 `avatarId` 和 `shareCode`，获取 `ownerRoute` 并输出完整分享链接，然后只询问一次：
+创建成功后保留返回的 `avatarId` 和 `shareCode`，获取 `ownerRoute`，并按[创建或更新成功后的链接交付](#创建或更新成功后的链接交付)输出两个链接。然后只询问一次是否运行评测：
 
 > 分身已经创建好了。要现在开始评测吗？系统会让 10 类可能使用这个分身的用户与它进行真实多轮对话，检查是否有用、是否像你、是否安全有边界。评测会在后台进行，不会出现在你的聊天记录里。
 
-用户确认后，直接复用本次 `avatarId` 按阶段 6 运行评测，不重新查询分身或询问模式；用户暂不评测则结束创建流程，并说明之后说“测试我的分身”即可继续。不得未经确认自动创建评测任务。
+用户确认后，直接复用本次 `avatarId` 按阶段 6 运行评测，不重新查询分身或询问模式；用户暂不评测则结束创建流程，并说明之后说“评测我的分身”即可继续。不得未经确认自动创建评测任务。
 
 ### 按需分支 A：官方能力
 
@@ -170,12 +170,12 @@
 
 ### 阶段 7：分发与运营
 
-创建成功后的默认交付：
+创建或更新成功时已经默认交付测试链接和对外分享链接。用户要求分发物料时提供：
 
-1. 完整分享链接。
-2. `/avatar/wxapp-qrcode` 返回的微信小程序花瓣码图片 URL；新建后未就绪则稍后重试。
+1. 完整的对外分享链接。
+2. `/avatar/wxapp-qrcode` 返回的微信小程序二维码图片 URL；新建后未就绪则稍后重试。
 
-微信 Bot 海报只在分享页的“分享分身”弹窗中提供，提示用户在那里保存，不自行仿制。不要调用受白名单保护的 `/api/qrlink/create-bind`，也不要本地生成二维码。
+微信 Bot 海报只在分享页的“分享分身”弹窗中提供，提示用户在那里保存，不自行仿制。面向用户始终称“微信小程序的二维码”，不使用其他产品昵称。不要调用受白名单保护的 `/api/qrlink/create-bind`，也不要本地生成二维码。
 
 按用户需求继续：
 
@@ -279,7 +279,7 @@ https://second-me.cn/contract/payment?tier=1
 | | `avatarId` | `shareCode` |
 |---|---|---|
 | 性质 | 本人管理面内部整数主键，可枚举 | 公开随机句柄，不可枚举 |
-| 用途 | detail、update、delete、set-default、interactions、dashboard、导出、花瓣码 | public、聊天、分享链接 |
+| 用途 | detail、update、delete、set-default、interactions、dashboard、导出、微信小程序二维码 | public、聊天、测试链接、对外分享链接 |
 
 转换方法：
 
@@ -292,10 +292,22 @@ https://second-me.cn/contract/payment?tier=1
 1. 用户给分享链接或 `shareCode`，做公开信息或聊天时直接用；做本人管理或数据操作时先转成 `avatarId` 并验证权限。
 2. 用户给 `avatarId`，管理时直接用；生成分享物料或聊天时先转成 `shareCode`。
 3. 他人分身通常只有公开入口；无法用他人的 `avatarId` 管理是正常权限设计。
-4. 分享链接固定为 `https://second-me.cn/{ownerRoute}/avatar/{shareCode}`。缺少 `ownerRoute` 时读取 `/user/info` 的 `route`。
-5. 列表展示每个分身的完整分享链接，不只展示 `shareCode`。
+4. 创作者测试链接固定为 `https://second-me.cn/{ownerRoute}/avatar/{shareCode}/test`；它让作者模拟匿名访客，仅供本人测试，不适合对外分享。
+5. 对外分享链接固定为 `https://second-me.cn/{ownerRoute}/avatar/{shareCode}`。缺少 `ownerRoute` 时读取 `/user/info` 的 `route`。
+6. 列表展示每个分身的完整对外分享链接，不只展示 `shareCode`。
 
 删除前必须展示目标并取得用户明确确认；`primary` 分身不可删除。
+
+### 创建或更新成功后的链接交付
+
+每次创建或更新成功后，都按以下顺序展示：
+
+1. **创作者测试链接**：`https://second-me.cn/{ownerRoute}/avatar/{shareCode}/test`。
+2. 紧跟测试链接明确提示：“这是仅供你本人模拟匿名访客体验分身的测试链接，不适合作为对外分享链接，请不要转发。”
+3. **对外分享链接**：`https://second-me.cn/{ownerRoute}/avatar/{shareCode}`，明确说明可以把它发给访客。
+4. 最后提示：“之后你随时可以让我再次获取对外分享链接和微信小程序的二维码。”
+
+两个链接都使用完整裸 URL，不只展示 `shareCode`，也不要用含混的“分身链接”混称。创建或更新后不必立刻请求微信小程序二维码；用户需要时再调用对应接口。
 
 ## API 参考
 
@@ -327,7 +339,7 @@ https://second-me.cn/contract/payment?tier=1
 | 获取数据看板 | `GET /avatar/dashboard` | `avatarId` |
 | 创建聊天记录导出任务 | `POST /avatar/conversations/export` | `avatarId` |
 | 查询导出任务 | `GET /avatar/conversations/export/{jobId}` | `jobId` |
-| 获取小程序花瓣码 | `GET /avatar/wxapp-qrcode` | `avatarId` |
+| 获取微信小程序二维码 | `GET /avatar/wxapp-qrcode` | `avatarId` |
 
 以下路径均省略共同前缀 `{BASE}/api/secondme`。
 
@@ -383,6 +395,8 @@ POST /avatar/update
 | `skillKeys` | string[] | 否 | 仅使用可用官方技能接口返回并经用户确认的 key |
 
 成功时 `data` 返回更新后的分身。PAID 请求若被后端以签约相关状态拒绝，按前文的按需错误处理执行。
+
+更新成功后，从返回数据保留 `avatarId` 和 `shareCode`，复用本次对话缓存的 `ownerRoute`；缺少时读取 `/user/info` 的 `route`。随后按[创建或更新成功后的链接交付](#创建或更新成功后的链接交付)展示测试链接、对外分享链接和固定提示。若本次属于重要修改，再询问一次是否运行评测；不得把打开测试链接与后台评测混为一件事。
 
 #### 删除分身
 
@@ -527,7 +541,7 @@ GET /avatar/conversations/export/{jobId}
 
 直到 `data.status = SUCCEEDED`。成功结果包含 `downloadUrl`、`expiresAt`、`fileName`、`truncated`、`messageCount`。建议每 2–3 秒轮询；下载链接约 30 分钟失效，获取后尽快下载。
 
-#### 获取小程序花瓣码
+#### 获取微信小程序二维码
 
 ```text
 GET /avatar/wxapp-qrcode?avatarId={avatarId}

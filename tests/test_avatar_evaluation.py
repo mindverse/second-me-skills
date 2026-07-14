@@ -185,7 +185,7 @@ class AvatarEvaluationTests(unittest.TestCase):
         )
         self.assertTrue(
             all(
-                value == "secondme-skill-avatar-evaluation/3.6.1"
+                value == "secondme-skill-avatar-evaluation/3.6.2"
                 for value in state["user_agents"]
             )
         )

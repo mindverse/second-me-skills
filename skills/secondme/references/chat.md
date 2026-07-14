@@ -10,7 +10,7 @@
 ### 1. 组装参数
 
 - 用户没有明确提供 shareCode：只传 `message`。
-- 用户给出分享链接：取路径末段作为 shareCode（例如 `https://second-me.cn/daihaochen/avatar/1cf5e7728beb` → `1cf5e7728beb`）。
+- 用户给出对外分享链接或创作者测试链接：取 `/avatar/` 后的第一段作为 `shareCode`，忽略测试链接末尾的 `/test`（例如 `https://second-me.cn/daihaochen/avatar/1cf5e7728beb/test` → `1cf5e7728beb`）。
 - 用户直接给出 shareCode：将其原样传入。
 
 ### 2. 发送消息
