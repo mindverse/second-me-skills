@@ -161,11 +161,12 @@
 分身创建或重要修改后，先征得用户确认，再通过 Labs OAuth 运行真实多轮评测：
 
 1. 快速验证运行 `smoke`（3 个任务自适应画像）；发布、售卖或正式分发前可运行 `full`（10 个任务）。
-2. 必须使用主 `SKILL.md` 指定的 `scripts/avatar_evaluation.py`；创建后台任务后保存 `runId` 并轮询，不重复创建任务。
-3. 报告只回答“是否交付价值、是否像本人、是否安全有边界”，结论须关联对话证据；本人资料不足时明确写“暂时无法判断”。
-4. 根据报告起草字段级修改，用户确认后更新，再按 `smoke` → `full` 复测。
+2. 必须使用主 `SKILL.md` 指定的 `scripts/avatar_evaluation.py`；脚本只创建后台任务并返回评测网页地址，不轮询、不读取报告、不生成本地文件。
+3. 直接把网页地址交给主人。网页使用 Second Me 登录态持续展示运行进度，完成后在同一地址展示完整报告。
+4. 报告只回答“是否交付价值、是否像本人、是否安全有边界”，结论须关联对话证据；本人资料不足时明确写“暂时无法判断”。
+5. 主人根据网页报告确认修改方向后，再起草字段级修改；用户确认后更新，并按 `smoke` → `full` 复测。
 
-只传 Labs OAuth Bearer，不传 owner user ID 或主站 token。先展示三个核心答案和最高优先级行动，再提供 HTML 报告；不展示 Core、模型、token、run 版本或原始 JSON。完整规则见 [avatar-evaluation.md](avatar-evaluation.md)。
+只传 Labs OAuth Bearer，不传 owner user ID 或主站 token。Skill 只展示“评测已开始”和评测网页地址，不展示 Core、模型、token、run 版本或原始 JSON。完整规则见 [avatar-evaluation.md](avatar-evaluation.md)。
 
 ### 阶段 7：分发与运营
 

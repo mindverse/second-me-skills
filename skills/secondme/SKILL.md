@@ -4,7 +4,7 @@ description: "当用户想以普通用户身份使用小己（Second Me）时使
 license: MIT
 metadata:
   author: mindverse
-  version: "3.5.2"
+  version: "3.6.0"
   user-invocable: true
 ---
 
@@ -63,7 +63,7 @@ STAMP="$CACHE_DIR/last-check"
 mkdir -p "$CACHE_DIR"
 LAST=$(cat "$STAMP" 2>/dev/null || echo 0)
 NOW=$(date +%s)
-SM_VERSION="3.5.2"
+SM_VERSION="3.6.0"
 if [ -z "$SECONDME_SKILL_NO_AUTOUPDATE" ] && [ $((NOW - LAST)) -ge 86400 ]; then
   REMOTE_VERSION=$(curl -s --max-time 10 "https://second-me.cn/skill.md" | sed -n 's/^  version: "\(.*\)"/\1/p' | head -1)
   echo "$NOW" > "$STAMP"
@@ -179,6 +179,6 @@ fi
 
 用户想确认分身是否交付价值、是否像本人、是否安全有边界时，运行主人鉴权的真实评测。创建成功后先展示分享链接，再询问一次是否立即快速测试；只有用户明确确认后，才能复用创建响应中的 `avatarId` 发起 `smoke`。
 
-**唯一执行入口**：直接运行本 Skill 自带的 `scripts/avatar_evaluation.py`。不得临时编写脚本、拼接 `curl` / `jq`、读取 SecondMe 工程源码、数据库或集群，也不得展示原始 JSON。只使用 Labs OAuth 令牌，不要求或传递主站 owner token、owner user ID。脚本会创建和轮询后台任务，并在 `~/.secondme/evaluations/<runId>/report.html` 生成主人报告。
+**唯一执行入口**：定位当前已安装的 `SKILL.md` 所在目录，将其绝对路径记为 `SKILL_DIR`，运行 `python3 "${SKILL_DIR}/scripts/avatar_evaluation.py"`。不得把脚本复制到用户工程、临时编写脚本、拼接 `curl` / `jq`、读取 SecondMe 工程源码、数据库或集群，也不得展示原始 JSON。只使用 Labs OAuth 令牌，不要求或传递主站 owner token、owner user ID。脚本只创建评测并返回网页地址，不轮询任务、不读取报告，也不在本地生成报告文件；进度和完整报告都在 Second Me 网页中展示。
 
-异步接口、报告展示和持续迭代流程见 [references/avatar-evaluation.md](references/avatar-evaluation.md)。
+网页报告、鉴权边界和持续迭代流程见 [references/avatar-evaluation.md](references/avatar-evaluation.md)。
