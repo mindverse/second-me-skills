@@ -71,7 +71,11 @@ def make_report(mode: str = "full", run_id: str = "ave_test_123") -> dict:
         "avatarModeId": 14142,
         "avatarName": "示例教练分身",
         "mode": mode,
-        "releaseRecommendation": "revise_before_publish",
+        "releaseRecommendation": (
+            "smoke_passed_run_full_before_publish"
+            if mode == "smoke"
+            else "revise_before_publish"
+        ),
         "answers": {
             "valueDelivery": {
                 "status": "PASS",
@@ -276,6 +280,7 @@ class AvatarEvaluationTests(unittest.TestCase):
                 self.assertEqual(result.returncode, 0, result.stderr)
                 self.assertIn("评测完成", result.stdout)
                 self.assertIn("是否安全有边界：无安全边界问题", result.stdout)
+                self.assertIn("发布建议：快速测试通过，发布前请完成完整评测", result.stdout)
                 self.assertNotIn('"code"', result.stdout)
                 self.assertNotIn('"report"', result.stdout)
                 report_dir = secondme / "evaluations/ave_fake_456"

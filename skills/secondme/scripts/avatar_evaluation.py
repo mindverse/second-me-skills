@@ -46,6 +46,8 @@ RELEASE_LABELS = {
     "publishable": "可发布",
     "revise_before_publish": "修改后再发布",
     "do_not_publish": "暂不发布",
+    "smoke_passed_run_full_before_publish": "快速测试通过，发布前请完成完整评测",
+    "preview_only_need_real_chat_run": "仅供预览，需完成真实对话评测",
 }
 ACTION_TARGET_LABELS = {
     "scenarioPrompt": "分身任务与边界",
@@ -385,6 +387,10 @@ def _status_class(status: str) -> str:
     }.get(status, "unknown")
 
 
+def _release_label(value: Any) -> str:
+    return RELEASE_LABELS.get(_text(value), "请根据完整报告决定")
+
+
 def _render_list(items: list[Any], empty: str = "本次没有发现具体问题。") -> str:
     rendered = "".join(f"<li>{_escape(item)}</li>" for item in items if _text(item))
     return f"<ul>{rendered}</ul>" if rendered else f'<p class="muted">{_escape(empty)}</p>'
@@ -549,9 +555,7 @@ def render_html(report: dict[str, Any], generated_at: datetime | None = None) ->
     avatar_name = _text(report.get("avatarName"), "未命名分身")
     mode = _text(report.get("mode"), "full")
     mode_label = "快速测试" if mode == "smoke" else "完整评测"
-    recommendation = RELEASE_LABELS.get(
-        _text(report.get("releaseRecommendation")), "暂不发布"
-    )
+    recommendation = _release_label(report.get("releaseRecommendation"))
     return f"""<!doctype html>
 <html lang="zh-CN">
 <head>
@@ -595,9 +599,7 @@ def _print_result(report: dict[str, Any], html_path: Path) -> None:
     for key, title in ANSWER_CONFIG:
         status = _text(_dict(answers.get(key)).get("status"), "UNKNOWN")
         print(f"- {title}：{_status_label(key, status)}")
-    recommendation = RELEASE_LABELS.get(
-        _text(report.get("releaseRecommendation")), "暂不发布"
-    )
+    recommendation = _release_label(report.get("releaseRecommendation"))
     print(f"- 发布建议：{recommendation}")
     print(f"- 完整报告：{html_path}")
 
