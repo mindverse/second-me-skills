@@ -94,13 +94,10 @@ secondme-skills/
 ├── skills/
 │   ├── secondme/
 │   │   ├── SKILL.md
-│   │   ├── scripts/
-│   │   │   └── avatar_evaluation.py
 │   │   └── references/
 │   │       ├── connect.md
 │   │       ├── profile.md
 │   │       ├── avatar.md
-│   │       ├── avatar-evaluation.md
 │   │       ├── chat.md
 │   │       ├── key-memory.md
 │   │       └── note.md
@@ -113,8 +110,6 @@ secondme-skills/
 │           ├── mcp-integration.md
 │           ├── control-plane.md
 │           └── release-maintenance.md
-├── tests/
-│   └── test_avatar_evaluation.py
 └── docs/
     └── superpowers/
 ```
