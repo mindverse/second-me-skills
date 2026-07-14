@@ -84,8 +84,11 @@ POST {BASE}/api/secondme/user/profile
 |------|------|------|------|
 | name | string | 否 | 用户姓名（最长 50 字符） |
 | avatar | string | 否 | 聊天头像 URL（最长 2000 字符） |
+| cover | string | 否 | 封面人像 URL（最长 2000 字符）；传空字符串 `""` 可清空封面 |
 | about_me | string | 否 | 自我介绍（最长 500 字符） |
 | origin_route | string | 否 | 用户主页路由，通常为字母和数字组成（最长 50 字符） |
+
+所有字段均可选，未传字段保持原值。多字段更新在服务端为多步执行、**非原子**：如果某一步失败，已成功更新的字段不会回滚；收到失败响应后，先调用 `GET {BASE}/api/secondme/user/info` 确认最终状态，再决定是否重试。
 
 #### 请求示例
 
@@ -103,12 +106,15 @@ curl -X POST "{BASE}/api/secondme/user/profile" \
 
 **成功 (200)**
 
+`data` 只包含本次请求中成功更新的字段，不代表完整用户资料。
+
 ```json
 {
   "code": 0,
   "data": {
     "name": "新用户名",
     "avatar": "https://cdn.example.com/avatar.jpg",
+    "cover": "https://cdn.example.com/cover.jpg",
     "about_me": "热爱技术，喜欢探索新事物",
     "origin_route": "username",
     "homepage": "https://second-me.cn/username"
@@ -122,6 +128,7 @@ curl -X POST "{BASE}/api/secondme/user/profile" \
 |------|------|------|
 | name | string | 更新后的用户姓名 |
 | avatar | string | 更新后的聊天头像 URL |
+| cover | string | 更新后的封面人像 URL（清空时为空字符串） |
 | about_me | string | 自我介绍 |
 | origin_route | string | 用户主页路由 |
 | homepage | string | 用户主页完整 URL |
@@ -137,7 +144,7 @@ curl -X POST "{BASE}/api/secondme/user/profile" \
 
 ### 上传图片到 CDN
 
-将本地图片文件上传到 CDN，返回可公开访问的 URL。身份与形象中需要图片 URL 的字段（如聊天头像 `avatar`），用户提供本地文件时，先调用本接口拿到 CDN URL，再把返回的 `data.url` 写入对应字段。
+将本地图片文件上传到 CDN，返回可公开访问的 URL。身份与形象中需要图片 URL 的字段（如聊天头像 `avatar`、封面人像 `cover`），用户提供本地文件时，先调用本接口拿到 CDN URL，再把返回的 `data.url` 写入对应字段。
 
 ```
 POST {BASE}/api/cdn/upload
@@ -265,14 +272,15 @@ Then wait for confirmation or edits.
 
 Rules:
 - Omit any field the user did not ask to change
-- Only send `avatar` if the user explicitly provides a new avatar (a public URL or a local image file) or asks to clear or replace it
+- Only send `avatar` or `cover` if the user explicitly provides a new image (a public URL or a local image file) or asks to clear or replace it
 - If the user just says `好`, send the drafted values for the missing or edited fields
 
-Image field handling (e.g. `avatar`):
+Image field handling (`avatar` and `cover`):
 - If the user provides a public URL, use it directly
 - If the user provides a local image file, upload it first via the [上传图片到 CDN](#上传图片到-cdn) API, then write the returned `data.url` into the field
 - Never write a local file path into a profile field; if the upload fails, report the error and do not update the field
-- `cover`（封面人像）无法通过本技能的接口设置——更新接口会静默忽略 `cover` 参数；用户想更换封面人像时，引导其前往小己 App 内设置
+- To clear the cover portrait, send `"cover": ""`; confirm with the user before clearing
+- If a multi-field update fails partway, already-updated fields are not rolled back — re-read the profile via `GET {BASE}/api/secondme/user/info` to confirm the final state before retrying
 
 After success:
 - Show the latest profile summary

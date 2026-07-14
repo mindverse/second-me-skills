@@ -4,7 +4,7 @@ description: "当用户想以普通用户身份使用小己（Second Me）时使
 license: MIT
 metadata:
   author: mindverse
-  version: "3.4.1"
+  version: "3.4.2"
   user-invocable: true
 ---
 
@@ -62,7 +62,7 @@ STAMP="$CACHE_DIR/last-check"
 mkdir -p "$CACHE_DIR"
 LAST=$(cat "$STAMP" 2>/dev/null || echo 0)
 NOW=$(date +%s)
-SM_VERSION="3.4.1"
+SM_VERSION="3.4.2"
 if [ -z "$SECONDME_SKILL_NO_AUTOUPDATE" ] && [ $((NOW - LAST)) -ge 86400 ]; then
   REMOTE_VERSION=$(curl -s --max-time 10 "https://second-me.cn/skill.md" | sed -n 's/^  version: "\(.*\)"/\1/p' | head -1)
   echo "$NOW" > "$STAMP"
