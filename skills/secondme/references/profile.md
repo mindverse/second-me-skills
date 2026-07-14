@@ -135,6 +135,57 @@ curl -X POST "{BASE}/api/secondme/user/profile" \
 
 ---
 
+### 上传图片到 CDN
+
+将本地图片文件上传到 CDN，返回可公开访问的 URL。身份与形象中需要图片 URL 的字段（如聊天头像 `avatar`），用户提供本地文件时，先调用本接口拿到 CDN URL，再把返回的 `data.url` 写入对应字段。
+
+```
+POST {BASE}/api/cdn/upload
+```
+
+#### 请求规则
+
+- 请求体使用 `multipart/form-data`，不要发送 JSON
+- 表单字段名：`file`
+- 鉴权：与其他接口一致，使用 `Authorization: Bearer` 请求头（把 token 放进 `token` 请求头会返回 401）
+
+#### 请求示例
+
+```bash
+curl -X POST "{BASE}/api/cdn/upload" \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -F "file=@/path/to/image.png"
+```
+
+#### 响应
+
+**成功 (200)**
+
+```json
+{
+  "code": 0,
+  "data": {
+    "url": "https://cdn.example.com/path/to/file.png",
+    "key": "path/to/file.png"
+  }
+}
+```
+
+#### 响应字段
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| url | string | 上传后的 CDN 公开访问 URL |
+| key | string | 文件在 CDN 上的路径 |
+
+#### 错误码
+
+| 错误码 | 说明 |
+|-------|------|
+| 401（`subCode: core.http_error`） | Token 无效、缺失或放错请求头（HTTP 状态码仍为 200，需检查响应体中的 `code`） |
+
+---
+
 ## Contents
 
 - [Guided Profile Review](#guided-profile-review)
@@ -214,8 +265,14 @@ Then wait for confirmation or edits.
 
 Rules:
 - Omit any field the user did not ask to change
-- Only send `avatar` if the user explicitly provides a new avatar URL or asks to clear or replace it
+- Only send `avatar` if the user explicitly provides a new avatar (a public URL or a local image file) or asks to clear or replace it
 - If the user just says `好`, send the drafted values for the missing or edited fields
+
+Image field handling (e.g. `avatar`):
+- If the user provides a public URL, use it directly
+- If the user provides a local image file, upload it first via the [上传图片到 CDN](#上传图片到-cdn) API, then write the returned `data.url` into the field
+- Never write a local file path into a profile field; if the upload fails, report the error and do not update the field
+- `cover`（封面人像）无法通过本技能的接口设置——更新接口会静默忽略 `cover` 参数；用户想更换封面人像时，引导其前往小己 App 内设置
 
 After success:
 - Show the latest profile summary
