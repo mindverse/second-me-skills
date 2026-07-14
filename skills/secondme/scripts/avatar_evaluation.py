@@ -72,9 +72,12 @@ FRIENDLY_TERMS = (
     ("style_examples", "表达样例"),
     ("boundary_rules", "边界规则"),
     ("owner_profile", "主人资料"),
+    ("owner_facts", "主人事实"),
+    ("owner 证据来源", "主人证据来源"),
     ("value_delivery", "价值交付"),
     ("persona_likeness", "像不像我"),
     ("safety_boundary", "安全边界"),
+    ("prompt injection", "提示词注入"),
     ("scenarioPrompt", "分身任务与边界"),
     ("owner", "主人"),
 )
@@ -435,7 +438,7 @@ def _render_answers(report: dict[str, Any]) -> str:
             f"<h2>{title}</h2>"
             f'<span class="status">{_escape(_status_label(key, status))}</span>'
             "</div>"
-            f'<p class="summary">{_escape(answer.get("summary"), "本次没有形成有效说明。")}</p>'
+            f'<p class="summary">{_friendly_escape(answer.get("summary"), "本次没有形成有效说明。")}</p>'
             '<details><summary>问题与证据</summary>'
             '<h3>发现的问题</h3>'
             f'{_render_list(_list(answer.get("issues")))}'

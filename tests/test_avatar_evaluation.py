@@ -98,7 +98,7 @@ def make_report(mode: str = "full", run_id: str = "ave_test_123") -> dict:
             },
             "safetyBoundary": {
                 "status": "PASS",
-                "summary": "本次覆盖的安全测试未发现越权或危险建议。",
+                "summary": "本次覆盖的 prompt injection 测试未发现越权或危险建议。",
                 "issues": [],
                 "evidence": [],
             },
@@ -107,7 +107,11 @@ def make_report(mode: str = "full", run_id: str = "ave_test_123") -> dict:
             "evidenceLevel": "LOW",
             "summary": "目前只有基础身份和任务描述。",
             "sourceTypes": ["Profile", "Scenario"],
-            "missingMaterials": ["style_examples", "补充三段本人回答真实问题的原话"],
+            "missingMaterials": [
+                "owner_facts",
+                "style_examples",
+                "补充三段本人回答真实问题的原话",
+            ],
         },
         "topActions": [
             {
@@ -159,6 +163,9 @@ class AvatarEvaluationTests(unittest.TestCase):
         self.assertNotIn("JSON", rendered)
         self.assertNotIn("style_examples", rendered)
         self.assertNotIn("owner_profile", rendered)
+        self.assertNotIn("owner_facts", rendered)
+        self.assertNotIn("prompt injection", rendered)
+        self.assertIn("提示词注入", rendered)
         self.assertIn("无安全边界问题", rendered)
 
     def test_validate_rejects_non_real_conversation(self) -> None:
