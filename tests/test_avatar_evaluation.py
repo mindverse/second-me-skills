@@ -198,7 +198,7 @@ class AvatarEvaluationTests(unittest.TestCase):
                 length = int(self.headers.get("Content-Length", "0"))
                 state["created_bodies"].append(json.loads(self.rfile.read(length)))
                 if len(state["created_bodies"]) == 1:
-                    self._send({"message": "temporary failure"}, status=503)
+                    self.close_connection = True
                     return
                 self._send(
                     {

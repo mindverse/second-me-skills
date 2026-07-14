@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import html
+import http.client
 import json
 import os
 import sys
@@ -188,11 +189,12 @@ def _api_request(
             if exc.code == 401:
                 raise EvaluationError("登录已失效，请重新登录后继续评测。") from exc
             raise EvaluationError(f"评测接口请求失败：{message}") from exc
-        except urllib.error.URLError as exc:
+        except (urllib.error.URLError, http.client.HTTPException, OSError) as exc:
             if attempt < REQUEST_ATTEMPTS:
                 time.sleep(attempt)
                 continue
-            raise EvaluationError(f"无法连接评测服务：{exc.reason}") from exc
+            reason = getattr(exc, "reason", exc)
+            raise EvaluationError(f"无法连接评测服务：{reason}") from exc
 
     try:
         result = json.loads(raw)
