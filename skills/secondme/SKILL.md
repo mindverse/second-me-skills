@@ -1,10 +1,10 @@
 ---
 name: secondme
-description: "当用户想以普通用户身份使用小己（Second Me）时使用此技能：登录注册、查看或编辑身份与形象（Profile）、与自己的智能体或他人的分身（Avatar）聊天、添加或搜索资料（Note）、管理关键记忆（Key Memory），以及创建和管理不同场景的分身。"
+description: "当用户想以普通用户身份使用小己（Second Me）时使用此技能：登录注册、查看或编辑身份与形象（Profile）、与自己的智能体或他人的分身（Avatar）聊天、添加或搜索资料（Note）、管理关键记忆（Key Memory），以及创建、评测和管理不同场景的分身。"
 license: MIT
 metadata:
   author: mindverse
-  version: "3.4.0"
+  version: "3.5.1"
   user-invocable: true
 ---
 
@@ -107,7 +107,7 @@ fi
 功能范围：
 
 - 登录、退出登录、重新登录和令牌存储
-- 读取和更新身份与形象（Profile）
+- 读取和更新身份与形象（Profile）；图片字段支持公开 URL 或先上传到 CDN 的本地图片
 - 新增、搜索、列出、更新和删除资料（Note）
 - 新增、批量创建、搜索、更新和删除关键记忆（Key Memory）
 - 与用户自己的智能体或他人的分身（Avatar）聊天
@@ -141,7 +141,7 @@ fi
 
 ## 身份与形象（Profile）
 
-负责读取和刷新用户信息，并在登录成功且没有明确待办时接管首次引导；检查并补全姓名、自我介绍、主页路由和聊天头像，并检查封面人像和声音是否已设置。当前 API 无法更新封面人像或录入声音时，明确引导用户前往小己 App 完成。`name` 只填写用户最常用的大名；昵称、英文名和网名等其他称呼写入 `about_me`，共同帮助系统从资料（Note）中识别与用户相关的内容和用户本人所说的话。读取用户信息时，`about_me` 取自 GET 响应的 `selfIntroduction`，`origin_route` 取自 `route`；更新时直接写入 POST 请求的同名字段。分身未单独设置封面时，默认使用这里的封面人像。
+负责读取和刷新用户信息，并在登录成功且没有明确待办时接管首次引导。`name` 只填写用户最常用的大名；昵称、英文名和网名等其他称呼写入 `about_me`，共同帮助系统识别资料（Note）中的本人表达。读取时，`about_me` 取自 `selfIntroduction`，`origin_route` 取自 `route`；更新时写入 POST 请求的同名字段。`avatar` 和 `cover` 可使用公开 URL；用户提供本地图片时，先上传到 CDN 再写入返回 URL。声音仍需前往小己 App 录入。分身未单独设置封面时，默认使用 Profile 的封面人像。
 
 完整流程见 [references/profile.md](references/profile.md)。
 
@@ -174,3 +174,11 @@ fi
 当用户说「做一个分身」「创建分身」「把我的分身卖出去」「给分身定价」「分发分身」，或者询问其中任一阶段时，进入该流程。全新创建时按阶段顺序执行；用户明确指定某个阶段时，直接跳到该阶段。
 
 创建访谈、分身定义、定价、签约、评测、分发、管理决策和精简 API 参考均见 [references/avatar.md](references/avatar.md)。普通创建讨论优先读取流程与原则；需要调用具体接口时，再定位到其中的 API 参考章节。
+
+## 分身评测
+
+用户想确认分身是否交付价值、是否像本人、是否安全有边界时，运行主人鉴权的真实评测。创建成功后先展示分享链接，再询问一次是否立即快速测试；只有用户明确确认后，才能复用创建响应中的 `avatarId` 发起 `smoke`。
+
+**唯一执行入口**：直接运行本 Skill 自带的 `scripts/avatar_evaluation.py`。不得临时编写脚本、拼接 `curl` / `jq`、读取 SecondMe 工程源码、数据库或集群，也不得展示原始 JSON。只使用 Labs OAuth 令牌，不要求或传递主站 owner token、owner user ID。脚本会创建和轮询后台任务，并在 `~/.secondme/evaluations/<runId>/report.html` 生成主人报告。
+
+异步接口、报告展示和持续迭代流程见 [references/avatar-evaluation.md](references/avatar-evaluation.md)。

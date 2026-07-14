@@ -92,8 +92,11 @@ POST {BASE}/api/secondme/user/profile
 |------|------|------|------|
 | name | string | 否 | 用户姓名（最长 50 字符） |
 | avatar | string | 否 | 聊天头像 URL（最长 2000 字符） |
+| cover | string | 否 | 封面人像 URL（最长 2000 字符）；`""` 表示清空 |
 | about_me | string | 否 | 自我介绍（最长 500 字符） |
 | origin_route | string | 否 | 用户主页路由，通常为字母和数字组成（最长 50 字符） |
+
+所有字段均可选，未传字段保持原值。多字段更新不是原子操作；失败时先重新获取用户信息，确认哪些字段已更新，再决定是否重试。
 
 #### 请求示例
 
@@ -117,6 +120,7 @@ curl -X POST "{BASE}/api/secondme/user/profile" \
   "data": {
     "name": "新用户名",
     "avatar": "https://cdn.example.com/avatar.jpg",
+    "cover": "https://cdn.example.com/cover.jpg",
     "about_me": "热爱技术，喜欢探索新事物",
     "origin_route": "username",
     "homepage": "https://second-me.cn/username"
@@ -130,6 +134,7 @@ curl -X POST "{BASE}/api/secondme/user/profile" \
 |------|------|------|
 | name | string | 更新后的用户姓名 |
 | avatar | string | 更新后的聊天头像 URL |
+| cover | string | 更新后的封面人像 URL（清空时为空字符串） |
 | about_me | string | 自我介绍 |
 | origin_route | string | 用户主页路由 |
 | homepage | string | 用户主页完整 URL |
@@ -140,6 +145,26 @@ curl -X POST "{BASE}/api/secondme/user/profile" \
 |-------|------|
 | auth.token.invalid | Token 无效或已过期 |
 | user.profile.update_failed | 身份与形象更新失败 |
+
+---
+
+### 上传图片到 CDN
+
+用户为 `avatar` 或 `cover` 提供本地图片时，先上传并把返回的 `data.url` 写入 Profile；不得把本地路径直接写入字段。
+
+```text
+POST {BASE}/api/cdn/upload
+```
+
+请求体使用 `multipart/form-data`，字段名为 `file`，鉴权仍放在 `Authorization: Bearer`：
+
+```bash
+curl -X POST "{BASE}/api/cdn/upload" \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -F "file=@/path/to/image.png"
+```
+
+成功响应的 `data.url` 是公开 URL，`data.key` 是 CDN 路径。HTTP 状态可能仍为 200，需同时检查响应体 `code`；上传失败时不得继续更新对应图片字段。
 
 ---
 
@@ -238,8 +263,8 @@ curl -X POST "{BASE}/api/secondme/user/profile" \
 
    > 你希望个人主页地址用什么英文或数字标识？例如 `linzhou` 或 `alex2026`。
 
-4. **聊天头像**：当前 API 只能保存可公开访问的图片 URL。请用户提供一个图片 URL，或告诉用户前往小己应用设置聊天头像。
-5. **封面人像**：当前技能 API 只能检查此字段。明确告诉用户前往小己应用设置封面人像，然后请用户回复 `设置好了`，以便重新获取身份与形象。
+4. **聊天头像**：请用户提供公开图片 URL 或本地图片；本地图片先上传到 CDN。
+5. **封面人像**：处理方式同聊天头像；清空时发送 `"cover": ""`，并先取得用户确认。
 6. **声音**：当前技能 API 只能检查 `hasVoice`。明确告诉用户前往小己应用录入或克隆声音，然后请用户回复 `录好了`，以便重新获取状态。
 
 每轮只问一个问题，允许用户回复 `跳过`。如果用户一次提供多个名字，这仍视为同一个身份问题；主姓名不明确时只追问主姓名。收集完成后，仅展示将发生变化的字段并等待确认，其中 `name` 只含一个大名，其他称呼位于 `about_me`。
@@ -251,8 +276,15 @@ curl -X POST "{BASE}/api/secondme/user/profile" \
 规则：
 
 - 省略用户未要求更改的所有字段
-- 只有当用户明确提供新的头像 URL，或要求清空或替换头像时，才发送 `avatar`
+- 只有用户明确提供公开 URL、本地图片，或要求清空、替换时，才发送 `avatar` / `cover`
 - 如果用户只回复 `好`，则发送为缺失字段或已编辑字段起草的值
+
+图片字段处理：
+
+- 公开 URL 直接使用；本地图片先通过[上传图片到 CDN](#上传图片到-cdn)，再写入 `data.url`
+- 上传失败时报告错误，不更新该字段；不得写入本地文件路径
+- 清空 `cover` 前确认，再发送 `"cover": ""`
+- 多字段更新失败后，重新读取 Profile 确认最终状态
 
 更新成功后：
 
