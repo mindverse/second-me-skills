@@ -1,10 +1,10 @@
 ---
 name: secondme
-description: "当用户想以普通用户身份使用小己（Second Me）时使用此技能：登录注册、查看或编辑身份与形象（Profile）、与自己的智能体或他人的分身（Avatar）聊天、添加或搜索资料（Note）、管理关键记忆（Key Memory），以及创建和管理不同场景的分身。"
+description: "当用户想以普通用户身份使用小己（Second Me）时使用此技能：登录注册、查看或编辑身份与形象（Profile）、与自己的智能体或他人的分身（Avatar）聊天、添加或搜索资料（Note）、管理关键记忆（Key Memory），以及创建、评测和管理不同场景的分身。"
 license: MIT
 metadata:
   author: mindverse
-  version: "3.4.0"
+  version: "3.5.1"
   user-invocable: true
 ---
 
@@ -28,8 +28,8 @@ npx skills add https://second-me.cn -y -g
 ## 安全与隐私声明
 
 - **正式发布源**：`https://second-me.cn`；`/.well-known/skills/index.json` 列出此技能的全部文件，便于审计。
-- **网络端点**：此技能只调用 `https://api.mindverse.com`（小己 API）。用户在浏览器中打开的登录页、分身分享页均位于 `https://second-me.cn`。不访问其他主机。
-- **本地文件**：只向 `~/.secondme/`（凭据、配置）和 `~/.cache/secondme-skills/`（更新检查时间戳）写入文件。`~/.openclaw/.credentials` 仅作为历史兼容路径读取一次，永不写入。不读取其他智能体或产品的文件。
+- **网络端点**：正式使用只调用 `https://api.mindverse.com`（小己 API）；`https://mindos-prek8s.mindverse.ai` 仅供明确指定的内部预发布验证。用户在浏览器中打开的登录页、分身分享页均位于 `https://second-me.cn`。不访问其他主机。
+- **本地文件**：只向 `~/.secondme/`（凭据、配置、评测报告）和 `~/.cache/secondme-skills/`（更新检查时间戳）写入文件。`~/.openclaw/.credentials` 仅作为历史兼容路径读取一次，永不写入。不读取其他智能体、产品或工程仓库的文件。
 - **无遥测**：不记录、不上传任何使用数据。
 - **本地智能体上下文**：宿主智能体记忆中的事实只能作为当前对话的草案建议；未经用户逐条明确确认，不得上传。
 - **更新检查**：每 24 小时最多只读获取一次已发布版本号，并与当前安装版本比较；未经用户确认，**绝不自动执行更新**。设置 `SECONDME_SKILL_NO_AUTOUPDATE=1` 可完全关闭检查。
@@ -43,7 +43,7 @@ npx skills add https://second-me.cn -y -g
 > - **资料（Note）** — 保存和搜索你想过、说过、写过的内容
 > - **关键记忆（Key Memory）** — 存储和搜索你的关键记忆
 > - **聊天** — 和你的小己分身对话
-> - **分身（Avatar）** — 针对不同场景定义、创建和管理分身，并支持定价、签约、分发和导出聊天记录
+> - **分身（Avatar）** — 针对不同场景定义、创建、评测和管理分身，并支持定价、签约、分发和导出聊天记录
 >
 > 试试说「帮我做一个分身」或「登录小己」开始吧！
 
@@ -62,7 +62,7 @@ STAMP="$CACHE_DIR/last-check"
 mkdir -p "$CACHE_DIR"
 LAST=$(cat "$STAMP" 2>/dev/null || echo 0)
 NOW=$(date +%s)
-SM_VERSION="3.4.0"
+SM_VERSION="3.5.1"
 if [ -z "$SECONDME_SKILL_NO_AUTOUPDATE" ] && [ $((NOW - LAST)) -ge 86400 ]; then
   REMOTE_VERSION=$(curl -s --max-time 10 "https://second-me.cn/skill.md" | sed -n 's/^  version: "\(.*\)"/\1/p' | head -1)
   echo "$NOW" > "$STAMP"
@@ -169,3 +169,13 @@ fi
 当用户说「做一个分身」「创建分身」「把我的分身卖出去」「给分身定价」「分发分身」，或者询问其中任一阶段时，进入该流程。全新创建时按阶段顺序执行；用户明确指定某个阶段时，直接跳到该阶段。
 
 完整流程见 [references/avatar.md](references/avatar.md)。
+
+## 分身评测
+
+当用户想确认分身是否交付价值、是否像主人、是否安全有边界时，运行主人鉴权的真实评测。评测会根据具体分身生成任务自适应的用户画像，通过真实分身接口进行多轮对话，并返回面向主人的结构化报告。只使用 Labs OAuth 令牌，不得要求或传递主站 owner token、owner user ID。
+
+分身创建成功后，先展示分享链接，再询问一次主人是否立即快速测试。只有用户明确确认后，才能复用创建响应中的 `avatarId` 发起 `smoke`；不得自动创建评测任务。
+
+**唯一执行入口**：必须直接运行本 Skill 自带的 `scripts/avatar_evaluation.py`。不得临时编写 shell/Python 脚本，不得自行拼接 `curl`/`jq`，不得读取 SecondMe 工程源码、数据库或集群，也不得把接口原始 JSON 直接展示给用户。脚本会创建后台任务、轮询进度、校验完整报告，并在 `~/.secondme/evaluations/<runId>/report.html` 生成主人可读报告。
+
+异步接口、报告展示和持续迭代流程见 [references/avatar-evaluation.md](references/avatar-evaluation.md)。
