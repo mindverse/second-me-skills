@@ -18,9 +18,9 @@
 
 分身刚创建成功时，使用下面的话术获得一次明确确认：
 
-> 分身已经创建好了。要现在开始快速测试吗？系统会让 3 类可能使用这个分身的用户与它进行真实多轮对话，检查是否有用、是否像你、是否安全有边界。测试不会出现在你的聊天记录里。
+> 分身已经创建好了。要现在开始评测吗？系统会让 10 类可能使用这个分身的用户与它进行真实多轮对话，检查是否有用、是否像你、是否安全有边界。评测不会出现在你的聊天记录里。
 
-用户确认后直接使用创建响应里的 `avatarId` 运行 `smoke`；用户拒绝或跳过时不创建评测。用户稍后单独提出测试请求时，再通过分身列表确定目标。
+用户确认后直接使用创建响应里的 `avatarId` 运行评测；用户拒绝或跳过时不创建评测。用户稍后单独提出测试请求时，再通过分身列表确定目标。
 
 评测面向分身主人，不是公开评分榜。它只回答三个问题：
 
@@ -63,18 +63,9 @@ GET {BASE}/api/secondme/avatar/list?pageNo=1&pageSize=100
 
 若用户没有明确指出分身，只展示名称让用户选择。后续创建接口使用列表返回的 `avatarId` 作为 `avatarModeId`。
 
-### 2. 选择模式
+### 2. 固定评测范围
 
-- 新建或刚修改的分身在用户确认后默认跑 `smoke`。
-- `smoke` 通过后，发布、售卖或正式交付前运行 `full`。
-- 用户明确说「完整评测」时可直接跑 `full`。
-
-| 模式 | 用户画像 | 用途 |
-|---|---:|---|
-| `smoke` | 3 | 快速确认任务、对话和判断链路 |
-| `full` | 10 | 生成正式主人报告 |
-
-每个画像由系统根据分身任务生成，每段对话为 2 至 5 轮，不假设固定三轮。
+用户不选择评测模式。每次评测固定生成 10 个与分身任务相关的用户画像，每段对话为 2 至 5 轮，不假设固定三轮。
 
 ### 3. 创建评测
 
@@ -87,7 +78,7 @@ GET {BASE}/api/secondme/avatar/list?pageNo=1&pageSize=100
 创建成功后，脚本立即结束，只输出：
 
 ```text
-快速测试已开始。
+分身评测已开始。
 评测进度和完整报告将在网页中更新：
 https://second-me.cn/avatars/evaluations/<runId>
 ```
@@ -100,19 +91,11 @@ https://second-me.cn/avatars/evaluations/<runId>
 
 ## 执行命令
 
-快速测试：
-
 ```bash
-python3 "${SKILL_DIR}/scripts/avatar_evaluation.py" run --avatar-id <avatarId> --mode smoke
+python3 "${SKILL_DIR}/scripts/avatar_evaluation.py" run --avatar-id <avatarId>
 ```
 
-完整评测：
-
-```bash
-python3 "${SKILL_DIR}/scripts/avatar_evaluation.py" run --avatar-id <avatarId> --mode full
-```
-
-脚本没有 `resume` 命令，也没有轮询间隔、等待超时或本地输出目录参数。
+脚本没有模式选项、`resume` 命令、轮询间隔、等待超时或本地输出目录参数。
 
 ## 创建接口
 
@@ -128,7 +111,7 @@ Content-Type: application/json
 
 ```json
 {
-  "mode": "smoke",
+  "mode": "full",
   "triggerType": "owner_manual",
   "idempotencyKey": "6fcd763e-b4cc-4b8a-a79b-2b3f3fe16e83"
 }
@@ -142,7 +125,7 @@ Content-Type: application/json
   "data": {
     "runId": "ave_20260714_abcd1234",
     "status": "PENDING",
-    "mode": "smoke",
+    "mode": "full",
     "evaluationUrl": "https://second-me.cn/avatars/evaluations/ave_20260714_abcd1234"
   }
 }
@@ -156,7 +139,7 @@ PRE 环境返回 `https://beta.second-me.cn/...`，生产环境返回 `https://s
 
 面向主人的页面顺序：
 
-1. 分身名称、评测时间、模式和总体发布建议。
+1. 分身名称、评测时间和总体发布建议。
 2. 三个核心答案，每个答案包含结论、摘要、问题和证据入口。
 3. 主人资料充分度：展示基础事实、表达样例、判断案例和边界规则的数量，以及缺失项。
 4. 优先改进动作：说明改什么、为什么改和建议文本。
@@ -165,7 +148,7 @@ PRE 环境返回 `https://beta.second-me.cn/...`，生产环境返回 `https://s
 
 展示规则：
 
-- `full` 报告展示全部 10 个画像和全部真实 `turns`。
+- 报告展示全部 10 个画像和全部真实 `turns`。
 - 运行中的页面展示异步阶段、画像进度和对话轮数。
 - 不显示对话来源、模型、prompt label、运行版本、owner user id、token、内部地址或原始日志。
 - 不把页面做成分数仪表盘；结论和证据优先。
@@ -205,7 +188,7 @@ PRE 环境返回 `https://beta.second-me.cn/...`，生产环境返回 `https://s
 | 像不像存在冲突 | `scenarioPrompt` 的判断方式、语言范例和人格边界 |
 | 安全边界问题 | `scenarioPrompt` 的禁止事项、转人工条件、隐私和现实承诺边界 |
 
-不得根据 URL 或未完成状态自行生成修改建议。主人提供网页中的问题和证据后，先生成字段级修改草案，获得确认后再调用分身更新接口。修改后先跑 `smoke`，通过后再跑 `full`。
+不得根据 URL 或未完成状态自行生成修改建议。主人提供网页中的问题和证据后，先生成字段级修改草案，获得确认后再调用分身更新接口。修改后重新运行评测。
 
 ## 异常处理
 

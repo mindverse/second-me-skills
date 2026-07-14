@@ -65,6 +65,17 @@ class AvatarEvaluationTests(unittest.TestCase):
                 "https://example.com/avatars/evaluations/ave-123"
             )
 
+    def test_cli_does_not_expose_a_mode_choice(self) -> None:
+        result = subprocess.run(
+            [sys.executable, str(SCRIPT), "run", "--help"],
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertNotIn("--mode", result.stdout)
+
     def test_cli_creates_once_and_prints_web_url_without_polling(self) -> None:
         state = {
             "authorization": [],
@@ -97,7 +108,7 @@ class AvatarEvaluationTests(unittest.TestCase):
                     {
                         "runId": "ave_fake_456",
                         "avatarModeId": 14142,
-                        "mode": "smoke",
+                        "mode": "full",
                         "status": "PENDING",
                         "progress": {"stage": "QUEUED", "percent": 0},
                         "evaluationUrl": (
@@ -139,8 +150,6 @@ class AvatarEvaluationTests(unittest.TestCase):
                         "run",
                         "--avatar-id",
                         "14142",
-                        "--mode",
-                        "smoke",
                     ],
                     env=env,
                     text=True,
@@ -149,7 +158,7 @@ class AvatarEvaluationTests(unittest.TestCase):
                 )
 
                 self.assertEqual(result.returncode, 0, result.stderr)
-                self.assertIn("快速测试已开始", result.stdout)
+                self.assertIn("分身评测已开始", result.stdout)
                 self.assertIn(
                     "/avatars/evaluations/ave_fake_456", result.stdout
                 )
@@ -164,7 +173,7 @@ class AvatarEvaluationTests(unittest.TestCase):
         self.assertEqual(len(state["created_bodies"]), 2)
         first_body = state["created_bodies"][0]
         second_body = state["created_bodies"][1]
-        self.assertEqual(first_body["mode"], "smoke")
+        self.assertEqual(first_body["mode"], "full")
         self.assertEqual(first_body["triggerType"], "owner_manual")
         self.assertTrue(first_body["idempotencyKey"])
         self.assertEqual(
@@ -176,7 +185,7 @@ class AvatarEvaluationTests(unittest.TestCase):
         )
         self.assertTrue(
             all(
-                value == "secondme-skill-avatar-evaluation/3.6.0"
+                value == "secondme-skill-avatar-evaluation/3.6.1"
                 for value in state["user_agents"]
             )
         )

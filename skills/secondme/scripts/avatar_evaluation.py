@@ -22,6 +22,7 @@ BASE_URLS = {
     "pre": "https://mindos-prek8s.mindverse.ai/gate/lab",
 }
 REQUEST_ATTEMPTS = 3
+EVALUATION_MODE = "full"
 
 
 class EvaluationError(RuntimeError):
@@ -83,7 +84,7 @@ def _api_request(
     headers = {
         "Accept": "application/json",
         "Authorization": f"Bearer {token}",
-        "User-Agent": "secondme-skill-avatar-evaluation/3.6.0",
+        "User-Agent": "secondme-skill-avatar-evaluation/3.6.1",
     }
     if payload is not None:
         body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
@@ -151,20 +152,19 @@ def _run(args: argparse.Namespace) -> None:
     base_url = _base_url(args.environment)
     token = _read_access_token(args.credentials)
     idempotency_key = str(uuid.uuid4())
-    mode_label = "快速测试" if args.mode == "smoke" else "完整评测"
     created = _api_request(
         "POST",
         f"{base_url}/api/secondme/avatar/{args.avatar_id}/evaluations",
         token,
         {
-            "mode": args.mode,
+            "mode": EVALUATION_MODE,
             "triggerType": "owner_manual",
             "idempotencyKey": idempotency_key,
         },
     )
     evaluation_url = _validate_evaluation_url(created.get("evaluationUrl"))
 
-    print(f"{mode_label}已开始。")
+    print("分身评测已开始。")
     print("评测进度和完整报告将在网页中更新：")
     print(evaluation_url)
 
@@ -175,7 +175,6 @@ def _parser() -> argparse.ArgumentParser:
         "run", help="创建一份新评测"
     )
     run.add_argument("--avatar-id", type=int, required=True)
-    run.add_argument("--mode", choices=("smoke", "full"), default="smoke")
     run.add_argument(
         "--environment",
         choices=sorted(BASE_URLS),
