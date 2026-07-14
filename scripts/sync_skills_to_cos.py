@@ -207,8 +207,12 @@ def extract_description(skill_md: Path) -> str:
     return ""
 
 
-def markdown_files(skill_dir: Path) -> list[str]:
-    return sorted(path.relative_to(skill_dir).as_posix() for path in skill_dir.rglob("*.md"))
+def skill_files(skill_dir: Path) -> list[str]:
+    return sorted(
+        path.relative_to(skill_dir).as_posix()
+        for path in skill_dir.rglob("*")
+        if path.is_file()
+    )
 
 
 def index_bytes(skills: list[Path]) -> bytes:
@@ -217,7 +221,7 @@ def index_bytes(skills: list[Path]) -> bytes:
             {
                 "name": skill_dir.name,
                 "description": extract_description(skill_dir / "SKILL.md"),
-                "files": markdown_files(skill_dir),
+                "files": skill_files(skill_dir),
             }
             for skill_dir in skills
         ]
