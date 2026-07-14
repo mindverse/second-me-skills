@@ -4,7 +4,7 @@ description: "当用户想以普通用户身份使用小己（Second Me）时使
 license: MIT
 metadata:
   author: mindverse
-  version: "3.4.0"
+  version: "3.4.2"
   user-invocable: true
 ---
 
@@ -62,7 +62,7 @@ STAMP="$CACHE_DIR/last-check"
 mkdir -p "$CACHE_DIR"
 LAST=$(cat "$STAMP" 2>/dev/null || echo 0)
 NOW=$(date +%s)
-SM_VERSION="3.4.0"
+SM_VERSION="3.4.2"
 if [ -z "$SECONDME_SKILL_NO_AUTOUPDATE" ] && [ $((NOW - LAST)) -ge 86400 ]; then
   REMOTE_VERSION=$(curl -s --max-time 10 "https://second-me.cn/skill.md" | sed -n 's/^  version: "\(.*\)"/\1/p' | head -1)
   echo "$NOW" > "$STAMP"
@@ -106,7 +106,7 @@ fi
 功能范围：
 
 - 登录、退出登录、重新登录和令牌存储
-- 读取和更新身份与形象（Profile）
+- 读取和更新身份与形象（Profile），图片字段支持公开 URL 或本地图片（本地图片先上传到 CDN）
 - 新增、搜索、列出、更新和删除资料（Note）
 - 新增、批量创建、搜索、更新和删除关键记忆（Key Memory）
 - 与用户自己的智能体或他人的分身（Avatar）聊天
@@ -136,7 +136,7 @@ fi
 
 ## 身份与形象（Profile）
 
-处理姓名、个人简介、封面人像、聊天头像和声音的查看与设置，并在首次使用时衔接到关键记忆。姓名和个人简介应尽量包含用户常用的昵称、英文名、网名等称呼，帮助模型识别资料（Note）中哪些内容是用户本人表达的。分身未单独设置封面时，默认使用这里的封面人像。
+处理姓名、个人简介、封面人像、聊天头像和声音的查看与设置，并在首次使用时衔接到关键记忆。设置图片类字段时，用户可以直接给公开 URL，也可以提供本地图片文件，由技能先上传到 CDN 再写入返回的链接。姓名和个人简介应尽量包含用户常用的昵称、英文名、网名等称呼，帮助模型识别资料（Note）中哪些内容是用户本人表达的。分身未单独设置封面时，默认使用这里的封面人像。
 
 完整流程见 [references/profile.md](references/profile.md)。
 
