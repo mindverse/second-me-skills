@@ -1,10 +1,10 @@
 ---
 name: secondme
-description: "当用户想以普通用户身份使用小己（Second Me）时使用此技能：登录注册、查看或编辑身份与形象（Profile）、与自己的智能体或他人的分身（Avatar）聊天、添加或搜索资料（Note）、管理关键记忆（Key Memory），以及创建、评测和管理不同场景的分身。"
+description: "当用户提到“分身”，或提出任何与分身相关的请求时，使用此技能：创建、查看、编辑、删除、评测、分享和运营分身（Avatar），与自己或他人的分身聊天；也用于登录注册、管理身份与形象（Profile）、资料（Note）和关键记忆（Key Memory）等小己（Second Me）普通用户操作。"
 license: MIT
 metadata:
   author: mindverse
-  version: "3.6.4"
+  version: "3.6.5"
   user-invocable: true
 ---
 
@@ -63,7 +63,7 @@ STAMP="$CACHE_DIR/last-check"
 mkdir -p "$CACHE_DIR"
 LAST=$(cat "$STAMP" 2>/dev/null || echo 0)
 NOW=$(date +%s)
-SM_VERSION="3.6.4"
+SM_VERSION="3.6.5"
 if [ -z "$SECONDME_SKILL_NO_AUTOUPDATE" ] && [ $((NOW - LAST)) -ge 86400 ]; then
   REMOTE_VERSION=$(curl -s --max-time 10 "https://second-me.cn/skill.md" | sed -n 's/^  version: "\(.*\)"/\1/p' | head -1)
   echo "$NOW" > "$STAMP"
