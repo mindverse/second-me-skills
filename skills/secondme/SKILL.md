@@ -4,7 +4,7 @@ description: "当用户提到“分身”，或提出任何与分身相关的请
 license: MIT
 metadata:
   author: mindverse
-  version: "3.6.7"
+  version: "3.6.8"
   user-invocable: true
 ---
 
@@ -12,10 +12,10 @@ metadata:
 
 ## 安装
 
-唯一正式发布源是 `https://second-me.cn`。如果本地尚未安装此技能，**必须先安装，不得通过网页逐个抓取文件来临时使用**。先征得用户确认，再运行：
+唯一正式发布域名是 `https://second-me.cn`。如果本地尚未安装此技能，**必须先安装，不得通过网页逐个抓取文件来临时使用**。先征得用户确认，再从官方最新版入口安装：
 
 ```bash
-npx skills add https://second-me.cn -y -g
+npx skills add https://second-me.cn
 ```
 
 **运行要求**：此技能需要能执行本地命令（`bash` / `curl` / `python3` / `npx`）的智能体（Agent），因为所有流程都会通过 curl 调用 API，并在本地保存凭据。如果当前环境不能执行命令（例如纯网页对话助手），不要尝试降级方案；直接告诉用户：本环境无法运行小己（Second Me）技能，请在支持执行命令的智能体（如 Claude Code、Codex、WorkBuddy 等命令行智能体）中安装使用，或直接访问 https://second-me.cn 使用网页版。
@@ -24,12 +24,14 @@ npx skills add https://second-me.cn -y -g
 
 - 如果宿主平台提供技能市场或托管安装器，优先通过平台安装，不得绕过宿主的安装控制。
 - 执行任何安装或更新命令前，必须征得用户确认；不得主动静默安装。
+- 默认保留安装器交互并安装到当前项目，不得添加 `-y`。只有用户明确要求跨项目使用、且再次确认全局影响范围后，才能添加 `-g`。
+- 用户安装命令始终使用官方根入口，由根索引解析当前最新版；不得在面向用户的安装命令中固定技能版本。
 
 ## 安全与隐私声明
 
-- **正式发布源**：`https://second-me.cn`；`/.well-known/skills/index.json` 列出此技能的全部文件，便于审计。
+- **正式发布源**：`https://second-me.cn`；根入口通过 `/.well-known/agent-skills/index.json` 指向当前最新版的版本化归档及其 SHA-256 摘要，`/.well-known/skills/index.json` 列出可逐个公开审计的全部文件。
 - **网络端点**：此技能只调用 `https://api.mindverse.com`（小己 API）。用户在浏览器中打开的登录页、分身分享页均位于 `https://second-me.cn`。不访问其他主机。
-- **本地文件**：只向 `~/.secondme/`（凭据、配置）和 `~/.cache/secondme-skills/`（更新检查时间戳）写入文件。`~/.openclaw/.credentials` 仅作为历史兼容路径读取一次，永不写入。不读取其他智能体或产品的文件。
+- **本地文件**：只读取或写入 `~/.secondme/`（凭据、配置），并向 `~/.cache/secondme-skills/` 写入更新检查时间戳。不读取其他智能体或产品的文件。
 - **无遥测**：不记录、不上传任何使用数据。
 - **本地智能体上下文**：宿主智能体记忆中的事实只能作为当前对话的草案建议；未经用户逐条明确确认，不得上传。
 - **更新检查**：每 24 小时最多只读获取一次已发布版本号，并与当前安装版本比较；未经用户确认，**绝不自动执行更新**。设置 `SECONDME_SKILL_NO_AUTOUPDATE=1` 可完全关闭检查。
@@ -63,12 +65,14 @@ STAMP="$CACHE_DIR/last-check"
 mkdir -p "$CACHE_DIR"
 LAST=$(cat "$STAMP" 2>/dev/null || echo 0)
 NOW=$(date +%s)
-SM_VERSION="3.6.7"
+SM_VERSION="3.6.8"
 if [ -z "$SECONDME_SKILL_NO_AUTOUPDATE" ] && [ $((NOW - LAST)) -ge 86400 ]; then
   REMOTE_VERSION=$(curl -s --max-time 10 "https://second-me.cn/skill.md" | sed -n 's/^  version: "\(.*\)"/\1/p' | head -1)
   echo "$NOW" > "$STAMP"
-  if [ -n "$REMOTE_VERSION" ] && [ "$REMOTE_VERSION" != "$SM_VERSION" ]; then
-    echo "UPDATE_AVAILABLE: $SM_VERSION -> $REMOTE_VERSION"
+  if printf '%s' "$REMOTE_VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+    if [ "$REMOTE_VERSION" != "$SM_VERSION" ]; then
+      echo "UPDATE_AVAILABLE: $SM_VERSION -> $REMOTE_VERSION"
+    fi
   fi
 fi
 ```
@@ -76,8 +80,9 @@ fi
 规则：
 
 - 每次对话最多运行一次，且距上次检查超过 24 小时时才运行。
-- **不得主动运行 `npx skills update`**；该检查只比较版本号。
-- 如果输出 `UPDATE_AVAILABLE`，告诉用户存在新版本并询问是否现在更新；只有用户同意后才能运行 `npx skills update secondme -y`。
+- **不得主动运行 `npx skills update`**；该检查只比较经过格式校验的版本号。
+- 如果输出 `UPDATE_AVAILABLE`，告诉用户存在新版本并询问是否现在更新。宿主平台托管安装时使用宿主更新器；否则只有用户同意后才能从官方最新版入口重新安装：`npx skills add https://second-me.cn`。
+- 更新默认保留安装器交互并沿用当前项目范围；只有用户再次确认全局更新时才能添加 `-g`，不得添加 `-y`。
 - 如果版本一致或检查尚在限频期内，静默继续，不向用户提及此次检查。
 - 检查绝不得阻塞或延迟用户的实际请求。
 
@@ -120,12 +125,11 @@ fi
 执行任何需要鉴权的小己操作前：
 
 1. 读取 `~/.secondme/credentials`。
-2. 如果未找到，则回退读取历史路径 `~/.openclaw/.credentials`。
-3. 如果任一文件包含有效 JSON 且存在 `accessToken`，继续执行。
-4. 如果只包含历史字段 `access_token`，仍可继续，但后续写入时统一改为 `accessToken`。
-5. 如果两个文件都不存在、为空或无效，在此技能内直接启动登录流程。
+2. 如果该文件包含有效 JSON 且存在 `accessToken`，继续执行。
+3. 如果只包含历史字段 `access_token`，仍可继续，但后续写入时统一改为 `accessToken`。
+4. 如果该文件不存在、为空或无效，在此技能内直接启动登录流程；不得搜索或读取其他产品的凭据文件。
 
-`~/.secondme/credentials` 只保存鉴权字段 `accessToken` 和 `tokenType`，不得写入姓名、主页路由、Profile、资料或分身等业务数据。如果目录不存在，先创建 `~/.secondme/`。历史凭据中即使存在业务字段，也不得把它们当作当前数据源；下次写入凭据时只保留鉴权字段。
+`~/.secondme/credentials` 只保存鉴权字段 `accessToken` 和 `tokenType`，不得写入姓名、主页路由、Profile、资料或分身等业务数据。如果目录不存在，先创建 `~/.secondme/`。凭据文件中即使存在业务字段，也不得把它们当作当前数据源；下次写入凭据时只保留鉴权字段。
 
 下文所有需要鉴权的请求，均使用获取到的 `accessToken` 作为 Bearer 令牌。
 
