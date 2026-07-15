@@ -74,6 +74,27 @@ class SkillSecurityTests(unittest.TestCase):
             self.assertNotIn(" -g", command_lines[0])
             self.assertNotIn(" -y", command_lines[0])
 
+    def test_update_policy_is_atomic_and_managed(self) -> None:
+        text = (USER_SKILL / "SKILL.md").read_text(encoding="utf-8")
+
+        self.assertIn("作为不可拆分的更新单位", text)
+        self.assertIn("`secondme.files` 完全一致", text)
+        self.assertIn("不得运行 `npx skills update`", text)
+        self.assertIn('STAMP="$SECONDME_DIR/skill-update-last-check"', text)
+        self.assertIn("umask 077", text)
+        self.assertNotIn(".cache/secondme-skills", text)
+        self.assertNotRegex(text, r"curl[^\n]*(?:>|tee)[^\n]*SKILL\.md")
+
+    def test_probe_version_matches_release_version(self) -> None:
+        text = (USER_SKILL / "SKILL.md").read_text(encoding="utf-8")
+        match = re.search(r'^SM_VERSION="([0-9]+\.[0-9]+\.[0-9]+)"$', text, re.M)
+
+        self.assertIsNotNone(match)
+        self.assertEqual(
+            match.group(1),
+            sync_skills_to_cos.extract_version(USER_SKILL / "SKILL.md"),
+        )
+
     def test_public_entry_links_are_auditable_without_changing_package_links(self) -> None:
         local = (USER_SKILL / "SKILL.md").read_text(encoding="utf-8")
         public = self.by_key["skill/secondme/SKILL.md"].body().decode()

@@ -4,7 +4,7 @@ description: "当用户提到“分身”，或提出任何与分身相关的请
 license: MIT
 metadata:
   author: mindverse
-  version: "3.6.8"
+  version: "3.6.9"
   user-invocable: true
 ---
 
@@ -27,11 +27,17 @@ npx skills add https://second-me.cn
 - 默认保留安装器交互并安装到当前项目，不得添加 `-y`。只有用户明确要求跨项目使用、且再次确认全局影响范围后，才能添加 `-g`。
 - 用户安装命令始终使用官方根入口，由根索引解析当前最新版；不得在面向用户的安装命令中固定技能版本。
 
+### 更新
+
+1. 用 `npx skills list --json` 和 `npx skills list -g --json` 确认并沿用现有安装范围。宿主托管的技能使用宿主更新器；CLI 项目级使用上面的安装命令，全局级经用户确认后添加 `-g`。不得运行 `npx skills update`，也不得添加 `-y`。
+2. 把完整 `secondme/` 目录（`SKILL.md` 和全部 `references/`）作为不可拆分的更新单位。`https://second-me.cn/skill.md` 只用于版本探测和公开审计，不是安装载荷；仅允许安装器写入技能目录，不得用 `curl`、`cp`、编辑器或逐文件下载来覆盖、更新或补齐技能。
+3. 仅当安装器成功、本地版本等于远端版本，且本地文件集合与 `https://second-me.cn/.well-known/skills/index.json` 中的 `secondme.files` 完全一致时，报告更新成功；否则报告更新失败并停止，不得降级处理。成功后重新加载技能；宿主不能重新加载时，请用户开启新对话。
+
 ## 安全与隐私声明
 
 - **正式发布源**：`https://second-me.cn`；根入口通过 `/.well-known/agent-skills/index.json` 指向当前最新版的版本化归档及其 SHA-256 摘要，`/.well-known/skills/index.json` 列出可逐个公开审计的全部文件。
 - **网络端点**：此技能只调用 `https://api.mindverse.com`（小己 API）。用户在浏览器中打开的登录页、分身分享页均位于 `https://second-me.cn`。不访问其他主机。
-- **本地文件**：只读取或写入 `~/.secondme/`（凭据、配置），并向 `~/.cache/secondme-skills/` 写入更新检查时间戳。不读取其他智能体或产品的文件。
+- **本地文件**：本技能自身只读取或写入 `~/.secondme/`（凭据、配置和更新检查时间戳）。不读取其他智能体或产品的文件。
 - **无遥测**：不记录、不上传任何使用数据。
 - **本地智能体上下文**：宿主智能体记忆中的事实只能作为当前对话的草案建议；未经用户逐条明确确认，不得上传。
 - **更新检查**：每 24 小时最多只读获取一次已发布版本号，并与当前安装版本比较；未经用户确认，**绝不自动执行更新**。设置 `SECONDME_SKILL_NO_AUTOUPDATE=1` 可完全关闭检查。
@@ -56,21 +62,28 @@ npx skills add https://second-me.cn
 
 ## 前置检查
 
-每次对话第一次激活此技能时，在处理用户请求前静默运行以下只读版本检查。该检查不会下载可执行内容，也不会修改文件：
+每次对话第一次激活此技能时，在处理用户请求前静默检查版本。该检查不下载可执行内容，也不修改技能或业务数据，只写入本地检查时间戳：
 
 ```bash
-# --- 只读更新检查；绝不自行执行更新 ---
-CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/secondme-skills"
-STAMP="$CACHE_DIR/last-check"
-mkdir -p "$CACHE_DIR"
+# --- 版本检查；绝不自行更新 ---
+SECONDME_DIR="$HOME/.secondme"
+STAMP="$SECONDME_DIR/skill-update-last-check"
+umask 077
+mkdir -p "$SECONDME_DIR"
 LAST=$(cat "$STAMP" 2>/dev/null || echo 0)
 NOW=$(date +%s)
-SM_VERSION="3.6.8"
+SM_VERSION="3.6.9"
 if [ -z "$SECONDME_SKILL_NO_AUTOUPDATE" ] && [ $((NOW - LAST)) -ge 86400 ]; then
-  REMOTE_VERSION=$(curl -s --max-time 10 "https://second-me.cn/skill.md" | sed -n 's/^  version: "\(.*\)"/\1/p' | head -1)
-  echo "$NOW" > "$STAMP"
+  REMOTE_VERSION=$(curl -fsS --max-time 10 "https://second-me.cn/skill.md" 2>/dev/null | sed -n 's/^  version: "\(.*\)"/\1/p' | head -1)
   if printf '%s' "$REMOTE_VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
-    if [ "$REMOTE_VERSION" != "$SM_VERSION" ]; then
+    echo "$NOW" > "$STAMP"
+    if python3 - "$SM_VERSION" "$REMOTE_VERSION" <<'PY'
+import sys
+local = tuple(map(int, sys.argv[1].split(".")))
+remote = tuple(map(int, sys.argv[2].split(".")))
+raise SystemExit(0 if remote > local else 1)
+PY
+    then
       echo "UPDATE_AVAILABLE: $SM_VERSION -> $REMOTE_VERSION"
     fi
   fi
@@ -80,11 +93,9 @@ fi
 规则：
 
 - 每次对话最多运行一次，且距上次检查超过 24 小时时才运行。
-- **不得主动运行 `npx skills update`**；该检查只比较经过格式校验的版本号。
-- 如果输出 `UPDATE_AVAILABLE`，告诉用户存在新版本并询问是否现在更新。宿主平台托管安装时使用宿主更新器；否则只有用户同意后才能从官方最新版入口重新安装：`npx skills add https://second-me.cn`。
-- 更新默认保留安装器交互并沿用当前项目范围；只有用户再次确认全局更新时才能添加 `-g`，不得添加 `-y`。
-- 如果版本一致或检查尚在限频期内，静默继续，不向用户提及此次检查。
-- 检查绝不得阻塞或延迟用户的实际请求。
+- 远端 `skill.md` 只允许在管道中提取版本号，不得保存正文。只有获取并校验合法版本号后才更新时间戳；网络或格式错误时不进入 24 小时限频。
+- 输出 `UPDATE_AVAILABLE` 后，按“更新”流程处理。
+- 版本一致、检查尚在限频期内或检查失败时静默继续，不得阻塞用户的实际请求。
 
 ---
 
