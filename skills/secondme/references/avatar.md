@@ -296,7 +296,7 @@ https://second-me.cn/contract/payment?tier=1
 
 操作规则：
 
-1. 用户给分享链接或 `shareCode`，做公开信息或聊天时直接用；做本人管理或数据操作时先转成 `avatarId` 并验证权限。
+1. 用户给分享链接或 `shareCode`：查询公开展示信息时调用 `/avatar/public/{shareCode}`；聊天或生成分享链接时直接使用 `shareCode`；只有本人管理或数据操作需要 `avatarId` 时，才读取 `data.id` 并验证权限。
 2. 用户给 `avatarId`，管理时直接用；生成分享物料或聊天时先转成 `shareCode`。
 3. 他人分身通常只有公开入口；无法用他人的 `avatarId` 管理是正常权限设计。
 4. 创作者测试链接固定为 `https://second-me.cn/{ownerRoute}/avatar/{shareCode}/test`；它让作者模拟匿名访客，仅供本人测试，不适合对外分享。
@@ -341,7 +341,7 @@ https://second-me.cn/contract/payment?tier=1
 | 创建分身评测 | `POST /avatar/{avatarId}/evaluations` | `avatarId` |
 | 更新分身 | `POST /avatar/update` | `avatarId` |
 | 删除分身 | `POST /avatar/delete` | `avatarId` |
-| 获取公开信息 | `GET /avatar/public/{shareCode}` | `shareCode` |
+| 通过 `shareCode` 查询公开分身信息 | `GET /avatar/public/{shareCode}` | `shareCode` |
 | 获取交互摘要 | `GET /avatar/{avatarId}/interactions` | `avatarId` |
 | 获取数据看板 | `GET /avatar/dashboard` | `avatarId` |
 | 创建最近 30 天聊天记录导出任务 | `POST /avatar/conversations/export` | `avatarId` |
@@ -483,15 +483,15 @@ POST /avatar/skill-create
 
 ### 公开信息与运营数据
 
-#### 获取公开信息
+#### 通过 `shareCode` 查询公开分身信息
 
 ```text
 GET /avatar/public/{shareCode}
 ```
 
-`data` 常用字段：`id`、`shareCode`、`name`、`modes`、`interactionCount`、`viewCount`、`createdAt`、`ownerUserId`、`ownerRoute`、`ownerUsername`、`ownerAvatar`。
+`data` 返回分享页所需的公开展示信息，包括分身名称、封面、开场白、公开介绍，Owner 名称、头像和 `ownerRoute`，以及收费配置、认证信息、交互模式、视频通话状态和互动数据；`id`（`avatarId`）只是其中一个返回字段。
 
-此接口可把 `shareCode` 转成 `avatarId`（`data.id`），但管理他人分身仍会被权限控制。
+本技能仅在用户提供 `shareCode` 或分享链接、且后续本人管理操作需要 `avatarId` 时读取 `data.id`；聊天或生成分享链接已有 `shareCode` 时不调用。公开响应不代表管理权限，管理前仍须验证归属。
 
 #### 获取交互摘要
 
