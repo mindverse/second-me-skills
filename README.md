@@ -2,7 +2,7 @@
 
 **SecondMe Skills 包含两类能力：给开发者构建基于 SecondMe 的第三方应用，也给终端用户通过 Agent 直接使用 SecondMe。**
 
-> **English:** SecondMe Skills is a Claude Code plugin with two skills — `secondme` for end-users to run their SecondMe through an agent (login, profile, Key Memory, notes, chat, and the full avatar lifecycle: definition, creation, pricing, contract signing, evaluation, distribution), and `secondme-dev-assistant` for developers building SecondMe apps and integrations (OAuth, MCP, app submission). Install: `npx skills add https://second-me.cn -y -g`.
+> **English:** SecondMe Skills is a Claude Code plugin with two skills — `secondme` for end-users to run their SecondMe through an agent (login, profile, Key Memory, notes, chat, and the full avatar lifecycle: definition, creation, pricing, contract signing, evaluation, distribution), and `secondme-dev-assistant` for developers building SecondMe apps and integrations (OAuth, MCP, app submission). Install the latest user release with `npx skills add https://second-me.cn`.
 
 SecondMe Skills 是一套技能包，当前主要覆盖两条使用路径：
 
@@ -34,12 +34,14 @@ SecondMe Skills 是一套技能包，当前主要覆盖两条使用路径：
 ### 安装
 
 ```bash
-# 用户技能（secondme，仅安装这一个）
-npx skills add https://second-me.cn -y -g
+# 用户技能（secondme，仅安装这一个；默认安装到当前项目）
+npx skills add https://second-me.cn
 
 # 或告诉你的 Agent：
 # "打开 https://second-me.cn/skill.md，先按其中 Install 章节的 npx 命令安装技能（不要在线逐个拉取文件），然后一步步引导我完成 Second Me 的创建和 Onboarding"
 ```
+
+安装器会显示目标 Agent 和安装范围并要求确认。只有确实需要跨项目使用时才在用户再次确认后添加 `-g`；不要添加 `-y`。`https://second-me.cn` 根入口始终解析当前最新版，实际发布包仍使用版本化地址和 SHA-256 校验。
 
 ### 开发者用法
 
@@ -110,6 +112,8 @@ secondme-skills/
 │           ├── mcp-integration.md
 │           ├── control-plane.md
 │           └── release-maintenance.md
+├── tests/
+│   └── test_skill_security.py
 └── docs/
     └── superpowers/
 ```

@@ -2,10 +2,9 @@
 name: secondme-dev-assistant
 description: "Use when user wants to develop on the SecondMe platform (second-me.cn, develop.second-me.cn). Triggers: building SecondMe third-party apps (第三方应用/外部应用), SecondMe OAuth login integration (Client ID/Secret, token exchange), MCP integration for SecondMe, Agent Memory API, Act stream API, app scaffolding, review submission, or hackathon/黑客松 projects targeting SecondMe. Covers the full developer lifecycle from app creation and credentials to release. NOT for casual SecondMe usage like browsing profiles, adding friends, or social features — only for building and integrating with SecondMe as a developer platform."
 license: MIT
-compatibility: Requires network access to SecondMe API (api.mindverse.com)
 metadata:
   author: mindverse
-  version: "2.4.1"
+  version: "2.4.2"
 ---
 
 # SecondMe Dev Assistant
@@ -29,7 +28,7 @@ Installation policy:
 
 - **Canonical source**: `https://github.com/mindverse/second-me-skills` (`skills/secondme-dev-assistant/`) — full source for audit.
 - **Network endpoints**: the skill only calls `https://api.mindverse.com` (SecondMe API; opt-in telemetry) and fetches API documentation from `https://develop-docs.second-me.cn`. Pages the user opens in a browser (app console) live on `https://develop.second-me.cn`. No other hosts are contacted.
-- **Local files**: writes are confined to `~/.secondme/` (credentials, config, analytics) and `~/.cache/secondme-skills/` (update-check stamp). `~/.openclaw/.credentials` is read once as a legacy fallback, never written. The skill does not read other agents' or products' files.
+- **Local files**: reads and writes are confined to `~/.secondme/` (credentials, config, analytics), with the update-check stamp stored under `~/.cache/secondme-skills/`. The skill does not read other agents' or products' files.
 - **Telemetry is off by default**: nothing is recorded or uploaded until the user explicitly opts in via a one-time prompt. When enabled it records skill name, version, OS, architecture, session id, duration, and outcome — never message content, code, file paths, or credentials. Disable anytime by setting `"telemetry": "off"` in `~/.secondme/config`.
 - **Auto-update**: at most once per 24 hours via `npx skills update`; set `SECONDME_SKILL_NO_AUTOUPDATE=1` to disable it entirely.
 
@@ -71,7 +70,7 @@ fi
 SM_DIR="$HOME/.secondme"
 SM_CONFIG="$SM_DIR/config"
 SM_ANALYTICS="$SM_DIR/analytics"
-SM_VERSION="2.4.1"
+SM_VERSION="2.4.2"
 SM_OS=$(uname -s 2>/dev/null || echo "unknown")
 SM_ARCH=$(uname -m 2>/dev/null || echo "unknown")
 SM_TEL_START=$NOW

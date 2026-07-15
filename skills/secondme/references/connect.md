@@ -13,7 +13,7 @@
 当用户说「退出登录」「重新登录」「logout」「re-login」，或要求切换账号时：
 
 1. 删除 `~/.secondme/credentials`。
-2. 如果 `~/.openclaw/.credentials` 也存在，一并删除。
+2. 不搜索、读取或删除其他产品的凭据文件。
 3. 丢弃本次对话中已读取的上一账号用户信息。
 4. 告诉用户：`已退出登录，下次用的时候重新登录就行。`
 5. 如果用户要求重新登录，继续执行下方登录流程。
@@ -76,7 +76,7 @@ curl -s -X POST {BASE}/api/auth/skills/token \
 
 成功后：
 
-1. 如果 `~/.secondme/` 目录不存在，先创建该目录。
+1. 执行 `umask 077`，如果 `~/.secondme/` 目录不存在则创建，并确保该目录仅当前用户可访问。
 2. 写入 `~/.secondme/credentials`：
    ```json
    {
@@ -84,6 +84,7 @@ curl -s -X POST {BASE}/api/auth/skills/token \
     "tokenType": "<data.tokenType>"
    }
    ```
+3. 确保凭据文件权限为 `0600`。
 
 登录成功后，先按 [SKILL.md 的用户信息读取与复用规则](../SKILL.md#用户信息读取与复用) 调用一次 `GET {BASE}/api/secondme/user/info`。这一步对所有登录入口都执行，不因用户已有明确任务而跳过。
 
