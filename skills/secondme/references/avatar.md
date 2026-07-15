@@ -286,7 +286,7 @@ https://second-me.cn/contract/payment?tier=1
 | | `avatarId` | `shareCode` |
 |---|---|---|
 | 性质 | 本人管理面内部整数主键，可枚举 | 公开随机句柄，不可枚举 |
-| 用途 | detail、update、delete、set-default、interactions、dashboard、导出、微信小程序二维码 | public、聊天、测试链接、对外分享链接 |
+| 用途 | detail、update、delete、interactions、dashboard、导出、微信小程序二维码 | public、聊天、测试链接、对外分享链接 |
 
 转换方法：
 
@@ -341,7 +341,6 @@ https://second-me.cn/contract/payment?tier=1
 | 创建分身评测 | `POST /avatar/{avatarId}/evaluations` | `avatarId` |
 | 更新分身 | `POST /avatar/update` | `avatarId` |
 | 删除分身 | `POST /avatar/delete` | `avatarId` |
-| 设置默认分身 | `POST /avatar/{avatarId}/set-default` | `avatarId` |
 | 获取公开信息 | `GET /avatar/public/{shareCode}` | `shareCode` |
 | 获取交互摘要 | `GET /avatar/{avatarId}/interactions` | `avatarId` |
 | 获取数据看板 | `GET /avatar/dashboard` | `avatarId` |
@@ -372,7 +371,7 @@ GET /avatar/list?pageNo=1&pageSize=20
 - `modes`、`distribution`
 - `usageCount`、`viewCount`、`createdAt`
 
-`primary` 是默认分身，不可删除；`custom` 可编辑和删除。
+`primary` 是系统主分身，不可删除；`custom` 是用户创建的场景分身，可编辑和删除。
 
 #### 获取本人分身详情
 
@@ -414,14 +413,6 @@ POST /avatar/delete
 ```
 
 只能删除 `custom` 分身。调用前必须向用户展示目标并取得明确确认。成功时 `data` 通常为 `null`。
-
-#### 设置默认分身
-
-```text
-POST /avatar/{avatarId}/set-default
-```
-
-成功时 `data` 通常为 `null`。
 
 ### 创建与可选能力
 

@@ -4,7 +4,7 @@ description: "当用户想以普通用户身份使用小己（Second Me）时使
 license: MIT
 metadata:
   author: mindverse
-  version: "3.6.3"
+  version: "3.6.4"
   user-invocable: true
 ---
 
@@ -63,7 +63,7 @@ STAMP="$CACHE_DIR/last-check"
 mkdir -p "$CACHE_DIR"
 LAST=$(cat "$STAMP" 2>/dev/null || echo 0)
 NOW=$(date +%s)
-SM_VERSION="3.6.3"
+SM_VERSION="3.6.4"
 if [ -z "$SECONDME_SKILL_NO_AUTOUPDATE" ] && [ $((NOW - LAST)) -ge 86400 ]; then
   REMOTE_VERSION=$(curl -s --max-time 10 "https://second-me.cn/skill.md" | sed -n 's/^  version: "\(.*\)"/\1/p' | head -1)
   echo "$NOW" > "$STAMP"
@@ -141,7 +141,7 @@ fi
 
 ## 身份与形象（Profile）
 
-负责读取和刷新用户信息，并在登录成功且没有明确待办时接管首次引导。`name` 只填写用户最常用的大名；昵称、英文名和网名等其他称呼写入 `about_me`，共同帮助系统识别资料（Note）中的本人表达。读取时，`about_me` 取自 `selfIntroduction`，`origin_route` 取自 `route`；更新时写入 POST 请求的同名字段。`avatar` 和 `cover` 可使用公开 URL；用户提供本地图片时，先上传到 CDN 再写入返回 URL。声音仍需前往小己 App 录入。分身未单独设置封面时，默认使用 Profile 的封面人像。
+负责读取和刷新用户信息，并在登录成功且没有明确待办时接管首次引导。`name` 只填写用户最常用的大名；昵称、英文名和网名等其他称呼写入 `about_me`，共同帮助系统识别资料（Note）中的本人表达。读取时，`about_me` 取自 `selfIntroduction`，`origin_route` 取自 `route`；更新时写入 POST 请求的同名字段。`avatar` 和 `cover` 可使用公开 URL；用户提供本地图片时，先上传到 CDN 再写入返回 URL。声音通过网页端录入或克隆。分身未单独设置封面时，默认使用 Profile 的封面人像。
 
 完整流程见 [references/profile.md](references/profile.md)。
 
