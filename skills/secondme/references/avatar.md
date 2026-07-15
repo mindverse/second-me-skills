@@ -376,7 +376,7 @@ GET /avatar/list?pageNo=1&pageSize=20
 - `avatarId`、`shareCode`、`title`
 - `type`：`primary` 或 `custom`
 - `scenarioPrompt`、`opening`
-- `modes`、`distribution`
+- `distribution`
 - `usageCount`、`viewCount`、`createdAt`
 
 `primary` 是系统主分身，不可删除；`custom` 是用户创建的场景分身，可编辑和删除。
@@ -405,7 +405,6 @@ POST /avatar/update
 | `scenarioPrompt` | string | 否 | 分身定义 |
 | `opening` | string | 否 | 开场白 |
 | `welcomeNote` | string | 否 | PAID 分身可选的付费前展示文案；默认省略 |
-| `modes` | object | 否 | 如 `textChat`、`voiceCall` |
 | `distribution` | object | 否 | 如 `apiEnabled`、`wxappEnabled` |
 | `monetization` | object | 否 | 收费配置，见前文规则 |
 | `skillKeys` | string[] | 否 | 仅使用可用官方技能接口返回并经用户确认的 key |
@@ -469,7 +468,6 @@ POST /avatar/create
 | `scenarioPrompt` | string | 否 | 分身定义 |
 | `opening` | string | 否 | 访客进入时的第一条消息 |
 | `welcomeNote` | string | 否 | PAID 分身可选的付费前展示文案；默认省略 |
-| `modes` | object | 否 | `{ "textChat": bool, "voiceCall": bool }` |
 | `distribution` | object | 否 | `{ "apiEnabled": bool, "wxappEnabled": bool }` |
 | `monetization` | object | 否 | 收费配置，见前文规则 |
 
