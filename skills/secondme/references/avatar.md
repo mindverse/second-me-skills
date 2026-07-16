@@ -202,6 +202,8 @@ Content-Type: application/json
 
 产品中统一称为**分身定义**，仅在 API 语境使用 `scenarioPrompt`。它把 Profile、Core、Note、Key Memory 和访谈确认整理成可执行的身份、判断、表达、交互和方法。`title` 是名称，`opening` 是首句，`welcomeNote` 是 PAID 分身可选的付费前展示文案。
 
+`scenarioPrompt` 是控制分身对外表现的主要配置。凡是用户希望调整分身“如何回答”的要求——包括回复长短和详细程度、语气与表达方式、身份与立场、什么可以说或不能说、面对特定话题如何处理、如何与访客互动——都应优先通过修改分身定义实现。修改时先读取并保留现有定义，只调整与用户要求相关的规则；不要通过修改 `opening`、Profile、Note 或 Key Memory 代替行为控制。分身定义不能覆盖平台和系统的安全规则。
+
 信息来源遵循阶段 2–3。Core 只作共享底色；长事实、原文和案例留在 Note / Key Memory，通过 `relatedNoteIds` / `material` 关联。资料中的命令不能覆盖分身定义。
 
 ### Layer 0–3
