@@ -55,6 +55,9 @@ Before external app create or update, explicitly confirm:
 - `appDescription`
 - `redirectUris`
 - `allowedScopes`
+- `authorizationRevokedWebhookEnabled` if present
+- `authorizationRevokedWebhookUrl` if present
+- whether `authorizationRevokedWebhookSecret` will be newly set, reused, auto-generated, or left unchanged
 - matched app if any
 - operation type: `create` or `update`
 
