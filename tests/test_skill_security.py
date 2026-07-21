@@ -95,6 +95,27 @@ class SkillSecurityTests(unittest.TestCase):
             sync_skills_to_cos.extract_version(USER_SKILL / "SKILL.md"),
         )
 
+    def test_avatar_evaluation_report_uses_original_link_only(self) -> None:
+        text = (USER_SKILL / "references" / "avatar.md").read_text(
+            encoding="utf-8"
+        )
+
+        self.assertIn("直接读取用户提供的原始链接", text)
+        self.assertIn("不改写、拼接或转换链接", text)
+        self.assertIn("不发送 `Authorization`", text)
+        self.assertIn("显示报告已过期或返回 410 时", text)
+        self.assertIn("已停止访问或返回 404 时", text)
+        self.assertNotIn("report.md", text)
+        self.assertNotIn("report.json", text)
+
+    def test_avatar_evaluation_requires_cost_confirmation(self) -> None:
+        text = (USER_SKILL / "references" / "avatar.md").read_text(
+            encoding="utf-8"
+        )
+
+        self.assertIn("每次评测会消耗 5 个钻石", text)
+        self.assertIn("用户未确认时不得调用创建接口", text)
+
     def test_public_entry_links_are_auditable_without_changing_package_links(self) -> None:
         local = (USER_SKILL / "SKILL.md").read_text(encoding="utf-8")
         public = self.by_key["skill/secondme/SKILL.md"].body().decode()
