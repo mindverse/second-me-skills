@@ -4,7 +4,7 @@ description: "当用户提到“分身”，或提出任何与分身相关的请
 license: MIT
 metadata:
   author: mindverse
-  version: "3.6.9"
+  version: "3.6.10"
   user-invocable: true
 ---
 
@@ -72,7 +72,7 @@ umask 077
 mkdir -p "$SECONDME_DIR"
 LAST=$(cat "$STAMP" 2>/dev/null || echo 0)
 NOW=$(date +%s)
-SM_VERSION="3.6.9"
+SM_VERSION="3.6.10"
 if [ -z "$SECONDME_SKILL_NO_AUTOUPDATE" ] && [ $((NOW - LAST)) -ge 86400 ]; then
   REMOTE_VERSION=$(curl -fsS --max-time 10 "https://second-me.cn/skill.md" 2>/dev/null | sed -n 's/^  version: "\(.*\)"/\1/p' | head -1)
   if printf '%s' "$REMOTE_VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
